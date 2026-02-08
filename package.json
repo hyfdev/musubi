@@ -6,7 +6,7 @@
     "postinstall": "NUXT_PREPARE=1 nuxt prepare",
     "build": "nuxt generate",
     "dev": "USE_SNAPSHOT=1 nuxt dev",
-    "dev:remote": "nuxt dev",
+    "dev:live": "nuxt dev",
     "preview": "nuxt preview",
     "check:build": "USE_SNAPSHOT=1 nuxt generate",
     "check:types": "NUXT_PREPARE=1 nuxt typecheck",

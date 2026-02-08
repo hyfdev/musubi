@@ -4,7 +4,7 @@
 
 - **Install**: `pnpm install` (required package manager)
 - **Dev**: `pnpm dev` (starts server on localhost:3000, uses snapshots by default)
-- **Dev (remote)**: `pnpm dev:remote` (starts server fetching live from Notion)
+- **Dev (remote)**: `pnpm dev:live` (starts server fetching live from Notion)
 - **Build**: `pnpm build` (static site generation, fetches live data from Notion)
 - **Preview**: `pnpm preview` (preview production build)
 - **Snapshot update**: `pnpm snapshot:update` (refreshes snapshots from Notion)
@@ -14,7 +14,7 @@
 Snapshots are committed, point-in-time copies of Notion data stored in `.snapshot/`. They allow `pnpm dev` and `pnpm check:build` to run without hitting the Notion API.
 
 - `pnpm dev` uses snapshots by default for fast iteration
-- `pnpm dev:remote` bypasses snapshots and fetches live from Notion
+- `pnpm dev:live` bypasses snapshots and fetches live from Notion
 - `pnpm snapshot:update` refreshes snapshots from Notion (requires API credentials)
 - `pnpm build` fetches live data from Notion (does NOT use snapshots)
 - After adding/changing content in Notion, run `pnpm snapshot:update` to pick up changes locally
