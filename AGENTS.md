@@ -3,9 +3,21 @@
 ## Build & Development Commands
 
 - **Install**: `pnpm install` (required package manager)
-- **Dev**: `pnpm dev` (starts server on localhost:3000)
-- **Build**: `pnpm build` (static site generation)
+- **Dev**: `pnpm dev` (starts server on localhost:3000, uses snapshots by default)
+- **Dev (remote)**: `pnpm dev:remote` (starts server fetching live from Notion)
+- **Build**: `pnpm build` (static site generation, fetches live data from Notion)
 - **Preview**: `pnpm preview` (preview production build)
+- **Snapshot update**: `pnpm snapshot:update` (refreshes snapshots from Notion)
+
+## Snapshots
+
+Snapshots are committed, point-in-time copies of Notion data stored in `.snapshot/`. They allow `pnpm dev` and `pnpm check:build` to run without hitting the Notion API.
+
+- `pnpm dev` uses snapshots by default for fast iteration
+- `pnpm dev:remote` bypasses snapshots and fetches live from Notion
+- `pnpm snapshot:update` refreshes snapshots from Notion (requires API credentials)
+- `pnpm build` fetches live data from Notion (does NOT use snapshots)
+- After adding/changing content in Notion, run `pnpm snapshot:update` to pick up changes locally
 
 ## Code Style
 
@@ -32,7 +44,7 @@ MANDATORY: Always run verification commands after making changes.
 - **Type Checking**: `pnpm check:types` (checks type errors with vue-tsc)
 - **Linting**: `pnpm check:lint` (checks linting issues with oxlint)
 - **Format Check**: `pnpm check:format` (checks formatting with oxfmt)
-- **Build**: `pnpm check:build` (verifies build with test cache)
+- **Build**: `pnpm check:build` (verifies build with snapshots)
 
 To auto-fix issues:
 
