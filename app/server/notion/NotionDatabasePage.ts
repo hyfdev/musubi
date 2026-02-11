@@ -8,6 +8,7 @@
 import { NotionAPI } from 'notion-client'
 import { type ExtendedRecordMap } from 'notion-types'
 import { readSnapshot, shouldUpdateSnapshot, shouldUseSnapshot, writeSnapshot } from './snapshot'
+import { consola as logger } from 'consola'
 
 // Shared Notion client instance for efficiency
 const sharedNotion = new NotionAPI()
@@ -25,19 +26,23 @@ export class NotionDatabasePage {
   private async fetchRecordMapCached(): Promise<ExtendedRecordMap> {
     if (!this.recordMapPromise) {
       this.recordMapPromise = (async () => {
+        logger.info(`[NotionDatabasePage] fetchRecordMap: pageId=${this.pageId}, useSnapshot=${shouldUseSnapshot()}`)
         if (shouldUseSnapshot()) {
           const cached = await readSnapshot(this.pageId)
           if (!cached) {
             throw new Error(`Snapshot miss for page ${this.pageId}`)
           }
+          logger.info(`[NotionDatabasePage] loaded from snapshot: pageId=${this.pageId}`)
           return cached
         }
 
+        logger.info(`[NotionDatabasePage] fetching live from Notion API: pageId=${this.pageId}`)
         const recordMap = await this.notion.getPage(this.pageId, {
           fetchMissingBlocks: true,
           fetchCollections: true,
           signFileUrls: true,
         })
+        logger.info(`[NotionDatabasePage] API response: collections=${Object.keys(recordMap.collection || {}).length}, views=${Object.keys(recordMap.collection_view || {}).length}, queries=${Object.keys(recordMap.collection_query || {}).length}`)
         if (shouldUpdateSnapshot()) {
           await writeSnapshot(this.pageId, recordMap)
         }
@@ -68,42 +73,39 @@ export class NotionDatabasePage {
    * Handles both newer (collection_group_results) and older (blockIds) formats
    */
   private extractSubPageIds(recordMap: ExtendedRecordMap): string[] {
-    const collection = Object.values(recordMap.collection)[0]?.value
-    const collectionView = Object.values(recordMap.collection_view)[0]?.value
+    const collectionEntry = Object.entries(recordMap.collection)[0]
+    const collectionViewEntry = Object.entries(recordMap.collection_view)[0]
     const collectionQuery = recordMap.collection_query
 
-    if (!collection || !collectionView || !collectionQuery) {
+    if (!collectionEntry || !collectionViewEntry || !collectionQuery) {
+      logger.warn(`[NotionDatabasePage] extractSubPageIds: missing data - collection=${!!collectionEntry}, collectionView=${!!collectionViewEntry}, collectionQuery=${!!collectionQuery}`)
       return []
     }
 
-    const collectionId = collection.id
-    const viewIds = Object.keys(collectionView ? { [collectionView.id]: true } : {})
+    const collectionId = collectionEntry[0]
+    const viewId = collectionViewEntry[0]
+    logger.info(`[NotionDatabasePage] extractSubPageIds: collectionId=${collectionId}, viewId=${viewId}`)
 
-    let pageIds: string[] = []
-
-    if (viewIds.length > 0) {
-      const viewId = viewIds[0]
-      if (!viewId) return []
-      const queryResults =
-        collectionId && collectionQuery[collectionId]
-          ? collectionQuery[collectionId][viewId]
-          : undefined
-
-      if (queryResults) {
-        // Try collection_group_results first (newer format)
-        if (queryResults.collection_group_results) {
-          const blockIds = queryResults.collection_group_results.blockIds
-          if (blockIds) {
-            pageIds = blockIds
-          }
-        }
-        // Fallback to blockIds (older format)
-        else if (queryResults.blockIds) {
-          pageIds = queryResults.blockIds
-        }
-      }
+    const queryResults = collectionQuery[collectionId]?.[viewId]
+    if (!queryResults) {
+      logger.warn(`[NotionDatabasePage] extractSubPageIds: no query results for collectionId=${collectionId}, viewId=${viewId}`)
+      return []
     }
 
-    return pageIds
+    // Try collection_group_results first (newer format)
+    if (queryResults.collection_group_results?.blockIds) {
+      const pageIds = queryResults.collection_group_results.blockIds
+      logger.info(`[NotionDatabasePage] extractSubPageIds: found ${pageIds.length} page IDs (collection_group_results)`)
+      return pageIds
+    }
+
+    // Fallback to blockIds (older format)
+    if (queryResults.blockIds) {
+      logger.info(`[NotionDatabasePage] extractSubPageIds: found ${queryResults.blockIds.length} page IDs (blockIds)`)
+      return queryResults.blockIds
+    }
+
+    logger.warn(`[NotionDatabasePage] extractSubPageIds: no blockIds found in query results`)
+    return []
   }
 }

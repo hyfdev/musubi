@@ -36,6 +36,7 @@ export class Website {
     if (!Website.instance) {
       let databasePageId: string
 
+      logger.info(`[Website] getInstance: useSnapshot=${shouldUseSnapshot()}, updateSnapshot=${shouldUpdateSnapshot()}`)
       if (shouldUseSnapshot()) {
         const manifest = await readSnapshotManifest()
         if (!manifest) {
