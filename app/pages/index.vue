@@ -31,10 +31,7 @@ function formatDate(dateString: string) {
         >
       </div>
 
-      <div
-        v-if="homePageData.posts.length > 0"
-        class="divide-y divide-[var(--color-border-muted)]"
-      >
+      <div v-if="homePageData.posts.length > 0" class="divide-y divide-[var(--color-border-muted)]">
         <article
           v-for="post in homePageData.posts"
           :key="post.slug"

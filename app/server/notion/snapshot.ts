@@ -48,3 +48,30 @@ export async function writeSnapshot(pageId: string, data: ExtendedRecordMap): Pr
   }
   writeFileSync(snapshotPath, JSON.stringify(compress(data)))
 }
+
+interface SnapshotManifest {
+  databasePageId: string
+}
+
+function getManifestPath(): string {
+  return `${getSnapshotDir()}/manifest.json`
+}
+
+export async function readSnapshotManifest(): Promise<SnapshotManifest | null> {
+  const { existsSync, readFileSync } = await import('node:fs')
+  const manifestPath = getManifestPath()
+  if (!existsSync(manifestPath)) {
+    return null
+  }
+  return JSON.parse(readFileSync(manifestPath, 'utf-8')) as SnapshotManifest
+}
+
+export async function writeSnapshotManifest(manifest: SnapshotManifest): Promise<void> {
+  await snapshotDirCleared
+  const { existsSync, mkdirSync, writeFileSync } = await import('node:fs')
+  const dir = getSnapshotDir()
+  if (!existsSync(dir)) {
+    mkdirSync(dir, { recursive: true })
+  }
+  writeFileSync(getManifestPath(), JSON.stringify(manifest, null, 2) + '\n')
+}

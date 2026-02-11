@@ -1,7 +1,6 @@
 import { useRoute, createError } from '#imports'
-import { neverCallable } from '~/utils/neverCallable'
+import { usePrerenderData } from 'nuxt-prerender-kit/runtime'
 import { createContentPageDataKey } from '~/utils/keysForUseAsyncData'
-import { useBuildAsyncData } from '~/composables/useBuildAsyncData'
 
 export async function useContentPageData() {
   const route = useRoute()
@@ -15,24 +14,17 @@ export async function useContentPageData() {
     })
   }
 
-  return await useBuildAsyncData(
-    createContentPageDataKey(slug),
-    import.meta.server
-      ? async () => {
-          const { Website } = await import('~~/app/server/website/Website')
-          const { resolveWebsiteConfig } = await import(
-            '~~/app/server/website/resolveWebsiteConfig'
-          )
-          const website = Website.getInstance()
-          const [page, config] = await Promise.all([
-            website.getContentPageBySlug(slug),
-            resolveWebsiteConfig(),
-          ])
-          return {
-            websiteTitle: config.title,
-            page,
-          }
-        }
-      : neverCallable,
-  )
+  return await usePrerenderData(createContentPageDataKey(slug), async () => {
+    const { Website } = await import('~~/app/server/website/Website')
+    const { resolveWebsiteConfig } = await import('~~/app/server/website/resolveWebsiteConfig')
+    const website = await Website.getInstance()
+    const [page, config] = await Promise.all([
+      website.getContentPageBySlug(slug),
+      resolveWebsiteConfig(),
+    ])
+    return {
+      websiteTitle: config.title,
+      page,
+    }
+  })
 }

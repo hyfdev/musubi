@@ -32,7 +32,7 @@ Snapshots are committed, point-in-time copies of Notion data stored in `.snapsho
 - **Structure**:
   - Use `app/` directory for components, assets, pages, composables
   - Use `app/server/` directory for server-only code (Notion API, database clients)
-  - Server code must be imported dynamically inside `useAsyncData` handlers (see pitfalls below)
+  - Server code must be imported dynamically inside `usePrerenderData` handlers (see pitfalls below)
 - **Styling**: TailwindCSS v4 with `@tailwindcss/vite` plugin - use utility classes
 - **Config**: Main config in `nuxt.config.ts` using `defineNuxtConfig()`
 - **Routes**: Auto-generated from `app/pages/`
@@ -70,18 +70,18 @@ To auto-fix issues:
   ```typescript
   // ❌ Bad - key defined inline
   const KEY = 'my-data'
-  useBuildAsyncData(KEY, ...)
+  usePrerenderData(KEY, ...)
 
   // ✅ Good - key imported from centralized file
   import { MY_DATA_KEY } from '~/utils/keysForUseAsyncData'
-  useBuildAsyncData(MY_DATA_KEY, ...)
+  usePrerenderData(MY_DATA_KEY, ...)
   ```
 
 - **Minimize data returned from `useAsyncData`:** The data returned from `useAsyncData` is serialized and injected into each page's HTML/payload, increasing page size. Only return the data actually needed for rendering - avoid returning entire objects when only a few fields are used.
 
-- **Eliminating server-only code from client bundles:** Server-only code lives in `app/server/`. This project uses a pattern to completely tree-shake server code from client bundles (not just move it to a separate chunk).
+- **Eliminating server-only code from client bundles:** Server-only code lives in `app/server/`. This project uses `nuxt-prerender-kit` to completely tree-shake server code from client bundles (not just move it to a separate chunk).
 
-  **Pattern:** Use `import.meta.server` conditional with `neverCallable` placeholder:
+  **Pattern:** Use `usePrerenderData` from `nuxt-prerender-kit/runtime`:
 
   ```typescript
   // ❌ Bad - Server code bundled into client
@@ -92,59 +92,37 @@ To auto-fix issues:
   })
 
   // ✅ Good - Server code completely tree-shaken from client bundle
-  import { neverCallable } from '~/utils/neverCallable'
+  import { usePrerenderData } from 'nuxt-prerender-kit/runtime'
 
-  useBuildAsyncData(
-    'key',
-    import.meta.server
-      ? async () => {
-          const { Website } = await import('~~/app/server/website/Website')
-          const website = Website.getInstance()
-          return data
-        }
-      : neverCallable,
-  )
+  usePrerenderData('key', async () => {
+    const { Website } = await import('~~/app/server/website/Website')
+    const website = Website.getInstance()
+    return data
+  })
   ```
 
-  **Key points:**
-  - `import.meta.server` (or `import.meta.env.SSR`) is replaced at build time, enabling tree-shaking
-  - The conditional must be **inline** - wrapping in a function defeats tree-shaking
-  - `neverCallable` provides type-safe placeholder that throws if ever called on client
-  - **CRITICAL: Use dynamic `import()` inside the handler** - static imports at file top will still bundle server code even with the conditional:
+  **How it works:**
+  - `nuxt-prerender-kit` automatically wraps the handler with `import.meta.prerender ? handler : __neverReachable_prerender()` via a Vite plugin
+  - No manual `import.meta.server` conditionals needed - the module handles this automatically
+  - `usePrerenderData` returns data directly (not wrapped in AsyncData object) and throws descriptive errors if data fetch fails or returns null
+  - **CRITICAL: Use dynamic `import()` inside the handler** - static imports at file top will still bundle server code:
 
     ```typescript
     // ❌ Bad - static import still bundles Website into client
     import { Website } from '~~/app/server/website/Website'
 
-    useBuildAsyncData('key', import.meta.server
-      ? async () => { Website.getInstance() }  // Website already bundled!
-      : neverCallable)
+    usePrerenderData('key', async () => {
+      Website.getInstance()  // Website already bundled!
+    })
 
     // ✅ Good - dynamic import inside handler, completely eliminated
-    useBuildAsyncData('key', import.meta.server
-      ? async () => {
-          const { Website } = await import('~~/app/server/website/Website')
-          Website.getInstance()
-        }
-      : neverCallable)
+    usePrerenderData('key', async () => {
+      const { Website } = await import('~~/app/server/website/Website')
+      Website.getInstance()
+    })
     ```
 
-  **`useBuildAsyncData` helper:** Use this instead of raw `useAsyncData` for cleaner code:
-  - Returns data directly (not wrapped in AsyncData object)
-  - Throws descriptive errors if data fetch fails or returns null
-  - See `app/composables/useBuildAsyncData.ts`
-
-  ```typescript
-  // With useBuildAsyncData - data is returned directly
-  const data = await useBuildAsyncData('key', import.meta.server ? handler : neverCallable)
-
-  // vs raw useAsyncData - requires unwrapping and null checks
-  const ret = await useAsyncData('key', handler)
-  if (ret.error.value) throw error
-  const data = assertNonNull(ret.data.value)
-  ```
-
-- **Move logic inside `useBuildAsyncData` when possible:** Logic inside `useBuildAsyncData` handlers is removed from the final client output. Move data transformations, filtering, and processing inside the handler rather than in component code to reduce bundle size.
+- **Move logic inside `usePrerenderData` when possible:** Logic inside `usePrerenderData` handlers is removed from the final client output. Move data transformations, filtering, and processing inside the handler rather than in component code to reduce bundle size.
 
 - **Per-page data composables:** Each page/component should have its own dedicated composable that returns exactly what it needs - no more, no less. Avoid creating shared composables that return fields not used by all consumers.
 

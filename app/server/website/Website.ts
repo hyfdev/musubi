@@ -7,6 +7,12 @@
  */
 
 import { NotionDatabasePage } from '~~/app/server/notion/NotionDatabasePage'
+import {
+  shouldUseSnapshot,
+  shouldUpdateSnapshot,
+  readSnapshotManifest,
+  writeSnapshotManifest,
+} from '~~/app/server/notion/snapshot'
 import { MusubiPage, type MusubiPageData } from '~/server/musubi-notion/MusubiPage'
 import type { PostMeta } from '~~/app/server/website/types/PostMeta'
 import type { Post } from '~~/app/server/website/types'
@@ -20,21 +26,34 @@ export class Website {
   #postPageBySlugPromise?: Promise<Map<string, MusubiPage>>
   #contentPageBySlugPromise?: Promise<Map<string, MusubiPage>>
 
-  private constructor() {
-    const datbasePageId = process.env.NOTION_DATABASE_PAGE_ID || ''
-
-    if (!datbasePageId) {
-      throw new Error('NOTION_DATABASE_PAGE_ID environment variable is not set')
-    }
-
-    this.#databaseId = datbasePageId
-    this.#databasePage = new NotionDatabasePage(datbasePageId)
+  private constructor(databasePageId: string) {
+    this.#databaseId = databasePageId
+    this.#databasePage = new NotionDatabasePage(databasePageId)
   }
 
   // Get the singleton Website instance, so we could share cached data
-  static getInstance(): Website {
+  static async getInstance(): Promise<Website> {
     if (!Website.instance) {
-      Website.instance = new Website()
+      let databasePageId: string
+
+      if (shouldUseSnapshot()) {
+        const manifest = await readSnapshotManifest()
+        if (!manifest) {
+          throw new Error('Snapshot manifest not found. Run `pnpm snapshot:update` to generate it.')
+        }
+        databasePageId = manifest.databasePageId
+      } else {
+        databasePageId = process.env.NOTION_DATABASE_PAGE_ID || ''
+        if (!databasePageId) {
+          throw new Error('NOTION_DATABASE_PAGE_ID environment variable is not set')
+        }
+      }
+
+      if (shouldUpdateSnapshot()) {
+        await writeSnapshotManifest({ databasePageId })
+      }
+
+      Website.instance = new Website(databasePageId)
     }
     return Website.instance
   }

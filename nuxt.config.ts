@@ -5,7 +5,7 @@ const websiteConfig = await resolveWebsiteConfig()
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  modules: ['@unocss/nuxt', 'unplugin-icons/nuxt', '@nuxtjs/color-mode'],
+  modules: ['@unocss/nuxt', 'unplugin-icons/nuxt', '@nuxtjs/color-mode', 'nuxt-prerender-kit'],
   imports: {
     autoImport: false,
   },
