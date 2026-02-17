@@ -54,8 +54,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0(magicast@0.5.1)
       nuxt-prerender-kit:
-        specifier: ^0.0.4
-        version: 0.0.4(magicast@0.5.1)(nuxt@4.2.2(@parcel/watcher@2.5.1)(@types/node@25.0.3)(@vue/compiler-sfc@3.5.25)(cac@6.7.14)(db0@0.3.4)(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(oxlint@1.34.0(oxlint-tsgolint@0.11.0))(rollup@4.53.3)(terser@5.46.0)(typescript@5.9.3)(vite@7.2.7(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(yaml@2.8.2))(rollup@4.53.3)
+        specifier: ^0.0.5
+        version: 0.0.5(magicast@0.5.1)(nuxt@4.2.2(@parcel/watcher@2.5.1)(@types/node@25.0.3)(@vue/compiler-sfc@3.5.25)(cac@6.7.14)(db0@0.3.4)(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(oxlint@1.34.0(oxlint-tsgolint@0.11.0))(rollup@4.53.3)(terser@5.46.0)(typescript@5.9.3)(vite@7.2.7(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(yaml@2.8.2))(rollup@4.53.3)
       oxfmt:
         specifier: ^0.19.0
         version: 0.19.0
@@ -3052,8 +3052,8 @@ packages:
   nuxt-gtag@4.1.0:
     resolution: {integrity: sha512-2TL7RUA8N8NYGbY4UZ9IqKyMZMgO9cCGu6yqadUU8RF+Y81PXI+k+1giIA11XXStaJoGXaXeNsBUIJXn1tUy3A==}
 
-  nuxt-prerender-kit@0.0.4:
-    resolution: {integrity: sha512-sUsGGsRtTCyZ0ZkDLGErORY8fgvdo20LhJ3baqgImYPDF+EhK+/Kw4KEqE3pFAkhRyerF7cP0uD1RVlfpbrvYA==}
+  nuxt-prerender-kit@0.0.5:
+    resolution: {integrity: sha512-S/9CuY8wIRMtv+OdI+NrIb/odjoMs9UA65hF1cnHCxgQ7vn5ROUnevm7nt8HeVLr3Nea1UrdltiuE8zqHNvkVg==}
     peerDependencies:
       nuxt: ^4.0.0
 
@@ -7519,7 +7519,7 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  nuxt-prerender-kit@0.0.4(magicast@0.5.1)(nuxt@4.2.2(@parcel/watcher@2.5.1)(@types/node@25.0.3)(@vue/compiler-sfc@3.5.25)(cac@6.7.14)(db0@0.3.4)(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(oxlint@1.34.0(oxlint-tsgolint@0.11.0))(rollup@4.53.3)(terser@5.46.0)(typescript@5.9.3)(vite@7.2.7(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(yaml@2.8.2))(rollup@4.53.3):
+  nuxt-prerender-kit@0.0.5(magicast@0.5.1)(nuxt@4.2.2(@parcel/watcher@2.5.1)(@types/node@25.0.3)(@vue/compiler-sfc@3.5.25)(cac@6.7.14)(db0@0.3.4)(ioredis@5.8.2)(lightningcss@1.30.2)(magicast@0.5.1)(oxlint@1.34.0(oxlint-tsgolint@0.11.0))(rollup@4.53.3)(terser@5.46.0)(typescript@5.9.3)(vite@7.2.7(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(yaml@2.8.2))(vue-tsc@3.2.2(typescript@5.9.3))(yaml@2.8.2))(rollup@4.53.3):
     dependencies:
       '@babel/parser': 7.28.5
       '@nuxt/kit': 4.3.1(magicast@0.5.1)
