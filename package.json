@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prepare": "skills-npm",
     "postinstall": "NUXT_PREPARE=1 nuxt prepare",
     "build": "nuxt generate",
     "dev": "USE_SNAPSHOT=1 nuxt dev",
@@ -32,6 +33,7 @@
     "notion-utils": "^7.7.3",
     "nuxt": "^4.2.2",
     "nuxt-gtag": "^4.1.0",
+    "nuxt-prerender-kit": "^0.0.3",
     "oxfmt": "^0.19.0",
     "oxlint": "^1.34.0",
     "oxlint-tsgolint": "^0.11.0",
@@ -41,12 +43,12 @@
     "react-notion-x": "^7.7.3",
     "react-tweet": "^3.3.0",
     "react-tweet-embed": "^2.0.0",
+    "skills-npm": "^1.0.0",
     "typescript": "^5.9.3",
     "unplugin-icons": "^22.5.0",
     "vue": "^3.5.25",
     "vue-router": "^4.6.3",
-    "vue-tsc": "^3.2.2",
-    "nuxt-prerender-kit": "^0.0.2"
+    "vue-tsc": "^3.2.2"
   },
   "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
 }

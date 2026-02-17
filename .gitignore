@@ -25,3 +25,6 @@ logs
 
 # Deployment
 .vercel
+
+# https://github.com/antfu/skills-npm
+**/skills/npm-*
