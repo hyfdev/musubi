@@ -36,7 +36,9 @@ export class Website {
     if (!Website.instance) {
       let databasePageId: string
 
-      logger.info(`[Website] getInstance: useSnapshot=${shouldUseSnapshot()}, updateSnapshot=${shouldUpdateSnapshot()}`)
+      logger.info(
+        `[Website] getInstance: useSnapshot=${shouldUseSnapshot()}, updateSnapshot=${shouldUpdateSnapshot()}`,
+      )
       if (shouldUseSnapshot()) {
         const manifest = await readSnapshotManifest()
         if (!manifest) {
@@ -171,7 +173,7 @@ export class Website {
         title: data.title,
         slug: data.slug,
         date: data.date,
-        description: '', // Not in MusubiPageData yet
+        description: data.description,
         tags: data.tags,
       })
     }
@@ -206,7 +208,7 @@ export class Website {
         title: data.title,
         slug: data.slug,
         date: data.date,
-        description: '', // Not in MusubiPageData yet
+        description: data.description,
         tags: data.tags,
       },
       recordMap,
@@ -250,7 +252,7 @@ export class Website {
         title: data.title,
         slug: data.slug,
         date: data.date,
-        description: '',
+        description: data.description,
         tags: data.tags,
       })
     }
@@ -283,7 +285,7 @@ export class Website {
         title: data.title,
         slug: data.slug,
         date: data.date,
-        description: '',
+        description: data.description,
         tags: data.tags,
       },
       recordMap,

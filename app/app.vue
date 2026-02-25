@@ -4,12 +4,10 @@ import Footer from '~/components/Footer.vue'
 </script>
 
 <template>
-  <div
-    class="min-h-screen flex flex-col bg-[var(--color-canvas-default)] text-[var(--color-fg-default)] transition-colors duration-200"
-  >
+  <div class="min-h-screen flex flex-col bg-[var(--color-bg)] text-[var(--color-text)]">
     <NuxtRouteAnnouncer />
     <Navbar />
-    <main class="flex-1 w-full max-w-[1280px] mx-auto px-4 sm:px-6 xl:px-8">
+    <main class="flex-1 w-full max-w-[var(--site-width)] mx-auto px-4 sm:px-6">
       <NuxtPage />
     </main>
     <Footer />

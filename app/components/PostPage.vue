@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Title } from '#components'
+import { Head, Meta, Title } from '#components'
 import { usePostPageData } from '~/composables/usePostPageData'
 import AutoNotionPage from '~/components/AutoNotionPage.vue'
 
@@ -17,20 +17,20 @@ const date = new Date(postMeta.date).toLocaleDateString('en-US', {
 <template>
   <Head>
     <Title>{{ postMeta.title }} | {{ postPageData.websiteTitle }}</Title>
+    <Meta property="og:title" :content="postMeta.title" />
+    <Meta v-if="postMeta.description" property="og:description" :content="postMeta.description" />
+    <Meta property="og:type" content="article" />
+    <Meta name="twitter:card" content="summary" />
+    <Meta name="twitter:title" :content="postMeta.title" />
+    <Meta v-if="postMeta.description" name="twitter:description" :content="postMeta.description" />
+    <Meta v-if="postMeta.description" name="description" :content="postMeta.description" />
   </Head>
-  <article class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    <header class="mb-8 pb-4 border-b border-[var(--color-border-muted)]">
-      <h1 class="text-3xl font-semibold mb-2 text-[var(--color-fg-default)] tracking-tight">
+  <article class="max-w-[var(--content-width)] mx-auto py-8">
+    <header class="mb-10">
+      <time class="text-sm text-[var(--color-text-tertiary)]">{{ date }}</time>
+      <h1 class="text-3xl font-bold mt-2 text-[var(--color-text)] tracking-tight leading-tight">
         {{ postMeta.title }}
       </h1>
-      <div class="flex items-center gap-2 text-sm text-[var(--color-fg-muted)]">
-        <span
-          class="px-2 py-0.5 rounded-full border border-[var(--color-border-default)] text-xs font-medium"
-        >
-          Post
-        </span>
-        <span class="text-[var(--color-fg-muted)]">on {{ date }}</span>
-      </div>
     </header>
 
     <AutoNotionPage

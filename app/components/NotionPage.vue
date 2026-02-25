@@ -87,5 +87,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="root" v-html="serverRenderedHtml" class="notion-content leading-relaxed"></div>
+  <div ref="root" v-html="serverRenderedHtml" class="notion-content"></div>
 </template>

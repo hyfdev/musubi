@@ -2,7 +2,16 @@ import type { WebsiteConfig } from './types/WebsiteConfig'
 import { ConfigPage } from '../musubi-notion/ConfigPage'
 import logger from '../../utils/logger'
 
-export async function resolveWebsiteConfig(): Promise<WebsiteConfig> {
+let cachedPromise: Promise<WebsiteConfig> | null = null
+
+export function resolveWebsiteConfig(): Promise<WebsiteConfig> {
+  if (!cachedPromise) {
+    cachedPromise = resolveWebsiteConfigUncached()
+  }
+  return cachedPromise
+}
+
+async function resolveWebsiteConfigUncached(): Promise<WebsiteConfig> {
   const configPageId = process.env.NOTION_CONFIG_PAGE_ID
 
   // If no remote config is configured, use local config

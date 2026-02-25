@@ -9,6 +9,7 @@ export interface MusubiPageData {
   status: 'Published' | 'Draft'
   type: 'Post' | 'Content'
   tags: string[]
+  description: string
 }
 
 export class MusubiPage extends NotionStandalonePage {
@@ -36,13 +37,14 @@ export class MusubiPage extends NotionStandalonePage {
   }
 
   async toMusubiPageData(): Promise<MusubiPageData> {
-    const [title, slug, date, status, type, tags] = await Promise.all([
+    const [title, slug, date, status, type, tags, description] = await Promise.all([
       this.getPropAsString('Title'),
       this.getPropAsString('Slug'),
       this.getPropAsDate('Date'),
       this.getPropAsString('Status'),
       this.getPropAsString('Type'),
       this.getPropAsTags('Tags'),
+      this.getProp('Description').then((v) => (typeof v === 'string' ? v : '')),
     ])
 
     let validatedStatus: 'Published' | 'Draft' = 'Draft'
@@ -66,6 +68,7 @@ export class MusubiPage extends NotionStandalonePage {
       status: validatedStatus,
       type,
       tags,
+      description,
     }
   }
 }

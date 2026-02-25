@@ -1,5 +1,9 @@
 # Agent Guidelines for Musubi
 
+## Project Overview
+
+Musubi is a **statically generated personal blog/website** powered by Nuxt that uses **Notion as a CMS**. Content is authored in Notion, fetched at build time via `notion-client`, and rendered as static HTML using `react-notion-x`. The site has no runtime server — all data is baked into the pages during prerendering.
+
 ## Build & Development Commands
 
 - **Install**: `pnpm install` (required package manager)
@@ -13,11 +17,172 @@
 
 Snapshots are committed, point-in-time copies of Notion data stored in `.snapshot/`. They allow `pnpm dev` and `pnpm check:build` to run without hitting the Notion API.
 
-- `pnpm dev` uses snapshots by default for fast iteration
+- `pnpm dev` uses snapshots by default for fast iteration (`USE_SNAPSHOT=1`)
 - `pnpm dev:live` bypasses snapshots and fetches live from Notion
-- `pnpm snapshot:update` refreshes snapshots from Notion (requires API credentials)
+- `pnpm snapshot:update` refreshes snapshots from Notion (`UPDATE_SNAPSHOT=1`, requires API credentials)
 - `pnpm build` fetches live data from Notion (does NOT use snapshots)
+- `pnpm check:build` uses snapshots (`USE_SNAPSHOT=1`)
 - After adding/changing content in Notion, run `pnpm snapshot:update` to pick up changes locally
+
+**Snapshot internals:** `.snapshot/manifest.json` stores the database page ID. Each `{pageId}.json` file contains a `compress-json`-compressed `ExtendedRecordMap` from the Notion API. Logic lives in `app/server/notion/snapshot.ts`.
+
+## Notion Integration Architecture
+
+### Notion Page Structure
+
+The root **"Musubi - Dashboard"** page (`2d0fe8dd-acd6-80a5-b773-c49f06baa29c`) contains three child databases:
+
+1. **Config** (data source: `2d3fe8dd-acd6-804e-83ea-000bc910780c`) — Key-value store for site settings
+   - Schema: `Name` (title), `Value` (text)
+   - Entries: `title`, `description`, `author`, `social.github`, `social.x`
+   - Supports dot notation for nesting (e.g., `seo.titleSuffix` → `config.seo.titleSuffix`)
+
+2. **Published Pages** / **Database** — Two views of the **same** data source (`2d0fe8dd-acd6-81fb-8702-000b039af795`)
+   - "Published Pages" is a filtered view (Status = Published)
+   - "Database" shows all entries including drafts
+   - Schema:
+     | Property | Type | Details |
+     |----------|------|---------|
+     | Title | title | Page title |
+     | Slug | text | URL path segment |
+     | Date | date | Publication date |
+     | Status | select | `Draft`, `Published` |
+     | Type | select | `Post` (blog), `Content` (static page like About) |
+     | Tags | multi_select | Topic tags |
+     | Description | text | Description/excerpt |
+
+### Server Code Architecture (`app/server/`)
+
+```
+app/server/
+├── notion/
+│   ├── NotionDatabasePage.ts    # Fetches database, extracts child page IDs
+│   ├── NotionStandalonePage.ts  # Base class: fetches single page, property access
+│   └── snapshot.ts              # Snapshot read/write with compress-json
+├── musubi-notion/
+│   ├── MusubiPage.ts            # Extends NotionStandalonePage: parses Title/Slug/Date/Status/Type/Tags
+│   └── ConfigPage.ts            # Extends NotionDatabasePage: parses Name/Value pairs → config object
+└── website/
+    ├── Website.ts               # Singleton orchestrator: caches all pages, provides getters
+    ├── resolveWebsiteConfig.ts  # Config from Notion (NOTION_CONFIG_PAGE_ID) or local fallback
+    └── types/
+        ├── PostMeta.ts          # {pageId, title, slug, date, description, tags}
+        ├── WebsiteConfig.ts     # {title?, description?, author?, social?: {github?, x?}}
+        └── types.ts             # Post = {meta: PostMeta, recordMap: ExtendedRecordMap}
+```
+
+**Key classes:**
+
+- **`Website`** (singleton via `Website.getInstance()`) — Central data manager
+  - Reads database page ID from snapshot manifest or `NOTION_DATABASE_PAGE_ID` env var
+  - Creates `NotionDatabasePage` to list all child pages
+  - Creates `MusubiPage` per child to extract metadata
+  - Filters drafts, separates Posts from Content pages
+  - Caches everything as promises for deduplication
+  - Public API: `getPostMetaList()`, `getPostBySlug(slug)`, `getContentPages()`, `getContentPageBySlug(slug)`
+
+- **`NotionDatabasePage`** — Fetches database recordMap, extracts child page IDs from `collection_query`
+
+- **`NotionStandalonePage`** — Fetches individual page recordMap, provides typed property accessors (`getPropAsString`, `getPropAsDate`, `getPropAsTags`, etc.)
+
+- **`MusubiPage`** — Validates and extracts blog metadata: Title, Slug, Date, Status (`Published`/`Draft`), Type (`Post`/`Content`), Tags, Description
+
+- **`ConfigPage`** — Reads Name/Value rows from Config database, builds nested config object
+
+- **`resolveWebsiteConfig()`** — Uses `NOTION_CONFIG_PAGE_ID` env var for remote config, falls back to local `website.config`
+
+### Data Flow
+
+```
+Notion API (or .snapshot/)
+  → NotionDatabasePage.fetchRecordMapCached() → child page IDs
+  → MusubiPage(pageId) → {title, slug, date, status, type, tags}
+  → Website filters/caches → PostMeta[] and Post objects
+  → Composables (usePrerenderData) → minimal data for each consumer
+  → Components render static HTML
+```
+
+## Frontend Architecture
+
+### Routes
+
+| Route          | Page File                   | Component         | Composable             |
+| -------------- | --------------------------- | ----------------- | ---------------------- |
+| `/`            | `app/pages/index.vue`       | (inline)          | `useHomePageData()`    |
+| `/blog/[slug]` | `app/pages/blog/[slug].vue` | `PostPage.vue`    | `usePostPageData()`    |
+| `/[slug]`      | `app/pages/[slug].vue`      | `ContentPage.vue` | `useContentPageData()` |
+
+Layout components (`Navbar.vue`, `Footer.vue`) are rendered on every page via `app.vue`.
+
+### Composables (`app/composables/`)
+
+Each composable uses `usePrerenderData` with dynamic imports. Keys are centralized in `app/utils/keysForUseAsyncData.ts`.
+
+| Composable             | Key                              | Returns                                        |
+| ---------------------- | -------------------------------- | ---------------------------------------------- |
+| `useHomePageData()`    | `HOME_PAGE_DATA_KEY`             | `{websiteTitle, posts: [{title, slug, date}]}` |
+| `usePostPageData()`    | `createPostPageDataKey(slug)`    | `{websiteTitle, post: {meta, recordMap}}`      |
+| `useContentPageData()` | `createContentPageDataKey(slug)` | `{websiteTitle, page: {meta, recordMap}}`      |
+| `useNavbarData()`      | `NAVBAR_DATA_KEY`                | `{contentPages: [{title, slug}], social}`      |
+| `useFooterData()`      | `FOOTER_DATA_KEY`                | `{author}`                                     |
+
+### Components (`app/components/`)
+
+- **`Navbar.vue`** — Site header: home link, content page links, social icons, color mode toggle. Uses `<a>` tags.
+- **`Footer.vue`** — Copyright + "Powered by Musubi" link
+- **`ColorModeToggle.vue`** — Cycles system/light/dark via `@vueuse/core` `useCycleList`. Client-only.
+- **`PostPage.vue`** — Blog post: date, title, Notion content via `AutoNotionPage`
+- **`ContentPage.vue`** — Static page: title, Notion content via `AutoNotionPage`
+- **`AutoNotionPage.vue`** — Wrapper that detects dark mode and passes to `NotionPage`
+- **`NotionPage.vue`** — Hybrid SSR/CSR rendering of Notion content:
+  - Server: `react-dom/server` `renderToString` with `react-notion-x` `NotionRenderer`
+  - Client: `react-dom/client` `hydrateRoot` for interactivity (tweets via `react-tweet`, code highlighting via Prism)
+  - Has its own `usePrerenderData` call with `createNotionPageKey(pageId)`
+
+### Styling
+
+- UnoCSS (`@unocss/nuxt` with `@unocss/preset-wind4`, compatible with Tailwind CSS v4 utilities)
+- CSS variables for light/dark mode in `app/assets/css/main.css`
+- Notion color system mapped to site tokens (`--fg-color-*`, `--bg-color-*`)
+- Layout: `--content-width: 680px`, `--site-width: 768px`
+
+## Development Workflow
+
+### After editing Notion content
+
+- **Quick check**: `pnpm dev:live` — fetches per page on demand, fast feedback loop
+- **Persist for offline dev**: `pnpm snapshot:update` then `pnpm dev` — fetches all pages, slower but works offline
+
+### After editing code only
+
+- `pnpm dev` — snapshots are fine, no need to re-fetch from Notion
+
+### After editing Notion schema
+
+1. Update code to read new/renamed properties
+2. `pnpm snapshot:update` to persist new schema
+3. `pnpm dev` to verify
+
+### Full cycle with Notion MCP
+
+1. Edit Notion via MCP tools
+2. `pnpm dev:live` to verify changes instantly
+3. `pnpm snapshot:update` to persist
+4. Run verification checks
+
+### Before committing
+
+```bash
+pnpm check:types && pnpm check:lint && pnpm check:format && pnpm check:build
+```
+
+### Git policy
+
+- **Never push to GitHub without explicit user confirmation.** Always ask before running `git push`.
+
+## Roadmap
+
+See [ROADMAP.md](./ROADMAP.md) for the project roadmap and open questions.
 
 ## Code Style
 
@@ -33,7 +198,7 @@ Snapshots are committed, point-in-time copies of Notion data stored in `.snapsho
   - Use `app/` directory for components, assets, pages, composables
   - Use `app/server/` directory for server-only code (Notion API, database clients)
   - Server code must be imported dynamically inside `usePrerenderData` handlers (see pitfalls below)
-- **Styling**: TailwindCSS v4 with `@tailwindcss/vite` plugin - use utility classes
+- **Styling**: UnoCSS with `@unocss/preset-wind4` - use utility classes
 - **Config**: Main config in `nuxt.config.ts` using `defineNuxtConfig()`
 - **Routes**: Auto-generated from `app/pages/`
 

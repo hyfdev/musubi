@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Title } from '#components'
+import { Head, Meta, Title } from '#components'
 import { useHomePageData } from '~/composables/useHomePageData'
 
 const homePageData = await useHomePageData()
@@ -17,41 +17,43 @@ function formatDate(dateString: string) {
 <template>
   <Head>
     <Title>{{ homePageData.websiteTitle }}</Title>
+    <Meta property="og:title" :content="homePageData.websiteTitle" />
+    <Meta property="og:type" content="website" />
+    <Meta name="twitter:card" content="summary" />
+    <Meta name="twitter:title" :content="homePageData.websiteTitle" />
   </Head>
-  <div class="max-w-4xl mx-auto py-8">
-    <div
-      class="border border-[var(--color-border-default)] rounded-md overflow-hidden bg-[var(--color-canvas-default)]"
+  <div class="py-8">
+    <h2
+      class="text-sm font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider mb-6"
     >
-      <div
-        class="bg-[var(--color-canvas-subtle)] px-4 py-3 border-b border-[var(--color-border-default)] flex justify-between items-center"
-      >
-        <h2 class="text-sm font-semibold text-[var(--color-fg-default)]">Posts</h2>
-        <span class="text-xs text-[var(--color-fg-muted)] font-mono"
-          >{{ homePageData.posts.length }} posts</span
-        >
-      </div>
+      Posts
+    </h2>
 
-      <div v-if="homePageData.posts.length > 0" class="divide-y divide-[var(--color-border-muted)]">
-        <article
-          v-for="post in homePageData.posts"
-          :key="post.slug"
-          class="group hover:bg-[var(--color-canvas-subtle)] transition-colors duration-150"
+    <div v-if="homePageData.posts.length > 0" class="flex flex-col">
+      <a
+        v-for="post in homePageData.posts"
+        :key="post.slug"
+        :href="`/blog/${post.slug}`"
+        class="group flex flex-col gap-1 py-3 -mx-3 px-3 rounded-md no-underline hover:bg-[var(--color-bg-subtle)] transition-colors"
+      >
+        <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+          <span
+            class="text-base font-medium text-[var(--color-text)] group-hover:text-[var(--color-accent)]"
+          >
+            {{ post.title }}
+          </span>
+          <time class="text-sm text-[var(--color-text-tertiary)] tabular-nums whitespace-nowrap">
+            {{ formatDate(post.date) }}
+          </time>
+        </div>
+        <p
+          v-if="post.description"
+          class="text-sm text-[var(--color-text-secondary)] line-clamp-2 m-0"
         >
-          <a :href="`/blog/${post.slug}`" class="block px-4 py-3 sm:px-6 no-underline">
-            <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
-              <h3
-                class="text-base font-semibold text-[var(--color-fg-default)] group-hover:text-[var(--color-accent-fg)] m-0"
-              >
-                {{ post.title }}
-              </h3>
-              <time class="text-xs text-[var(--color-fg-muted)] font-mono whitespace-nowrap">
-                {{ formatDate(post.date) }}
-              </time>
-            </div>
-          </a>
-        </article>
-      </div>
-      <div v-else class="p-8 text-center text-[var(--color-fg-muted)]">No posts found.</div>
+          {{ post.description }}
+        </p>
+      </a>
     </div>
+    <p v-else class="py-8 text-center text-[var(--color-text-secondary)]">No posts found.</p>
   </div>
 </template>

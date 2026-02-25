@@ -3,66 +3,168 @@
 
 @layer base {
   :root {
-    --color-canvas-default: #ffffff;
-    --color-canvas-subtle: #f6f8fa;
-    --color-canvas-inset: #f6f8fa;
-    --color-fg-default: #1f2328;
-    --color-fg-muted: #656d76;
-    --color-fg-subtle: #6e7781;
-    --color-fg-accent: #0969da;
-    --color-border-default: #d0d7de;
-    --color-border-muted: #d8dee4;
-    --color-border-subtle: #1f232826;
-    --color-neutral-muted: #afb8c1;
-    --color-accent-fg: #0969da;
-    --color-accent-emphasis: #0969da;
-    --color-danger-fg: #cf222e;
-    --color-header-bg: #ffffff;
-    --color-header-border: #d0d7de;
+    --color-bg: #fafafa;
+    --color-bg-subtle: #f4f4f5;
+    --color-text: #18181b;
+    --color-text-secondary: #52525b;
+    --color-text-tertiary: #a1a1aa;
+    --color-accent: #2563eb;
+    --color-border: #e4e4e7;
 
-    --font-stack-system:
+    --font-sans:
       -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif,
       'Apple Color Emoji', 'Segoe UI Emoji';
-    --font-stack-monospace:
+    --font-mono:
       ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+    --content-width: 680px;
+    --site-width: 768px;
   }
 
   .dark {
-    --color-canvas-default: #0d1117;
-    --color-canvas-subtle: #161b22;
-    --color-canvas-inset: #010409;
-    --color-fg-default: #e6edf3;
-    --color-fg-muted: #7d8590;
-    --color-fg-subtle: #6e7681;
-    --color-fg-accent: #2f81f7;
-    --color-border-default: #30363d;
-    --color-border-muted: #21262d;
-    --color-border-subtle: #f0f6fc1a;
-    --color-neutral-muted: #6e7681;
-    --color-accent-fg: #2f81f7;
-    --color-accent-emphasis: #1f6feb;
-    --color-danger-fg: #f85149;
-    --color-header-bg: #0d1117;
-    --color-header-border: #30363d;
+    --color-bg: #09090b;
+    --color-bg-subtle: #18181b;
+    --color-text: #fafafa;
+    --color-text-secondary: #a1a1aa;
+    --color-text-tertiary: #71717a;
+    --color-accent: #60a5fa;
+    --color-border: #27272a;
   }
 
   html {
-    font-family: var(--font-stack-system);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
   body {
-    background-color: var(--color-canvas-default);
-    color: var(--color-fg-default);
+    background-color: var(--color-bg);
+    color: var(--color-text);
     line-height: 1.5;
   }
 
   a {
-    color: var(--color-accent-fg);
+    color: var(--color-accent);
     text-decoration: none;
   }
 
   a:hover {
     text-decoration: underline;
   }
+}
+
+/* Notion variable bridge - map react-notion-x variables to site tokens */
+.notion-content {
+  --fg-color: var(--color-text);
+  --fg-color-0: var(--color-text);
+  --fg-color-1: var(--color-text);
+  --fg-color-2: var(--color-text-secondary);
+  --fg-color-3: var(--color-text-tertiary);
+  --fg-color-5: var(--color-text-tertiary);
+  --fg-color-6: var(--color-border);
+  --bg-color: var(--color-bg);
+  --bg-color-0: var(--color-bg);
+  --bg-color-1: var(--color-bg-subtle);
+  --bg-color-2: var(--color-bg-subtle);
+  --notion-font: var(--font-sans);
+  --notion-max-width: var(--content-width);
+  --select-color-0: var(--color-accent);
+}
+
+/* Notion style refinements - outside @layer so they override react-notion-x */
+.notion-content {
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.notion-content .notion-page-content-inner {
+  padding: 0;
+}
+
+/* Headings */
+.notion-content .notion-h1 {
+  font-size: 1.75em;
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.notion-content .notion-h2 {
+  font-size: 1.375em;
+  font-weight: 600;
+  margin-top: 1.75em;
+  margin-bottom: 0.5em;
+  line-height: 1.3;
+}
+
+.notion-content .notion-h3 {
+  font-size: 1.125em;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  line-height: 1.4;
+}
+
+/* Code blocks */
+.notion-content .notion-code {
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+}
+
+/* Inline code */
+.notion-content .notion-inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: var(--color-accent);
+  background: var(--color-bg-subtle);
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+}
+
+/* Blockquotes */
+.notion-content .notion-quote {
+  border-left: 3px solid var(--color-accent);
+  color: var(--color-text-secondary);
+  padding-left: 1em;
+  font-style: italic;
+}
+
+/* Callouts */
+.notion-content .notion-callout {
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+}
+
+/* Bookmarks */
+.notion-content .notion-bookmark {
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+}
+
+/* Links */
+.notion-content .notion-link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.notion-content .notion-link:hover {
+  text-decoration: underline;
+}
+
+/* Text blocks */
+.notion-content .notion-text {
+  padding: 0.125em 0;
+}
+
+/* Lists */
+.notion-content .notion-list {
+  padding-left: 1.5em;
+}
+
+/* Images */
+.notion-content .notion-asset-wrapper {
+  margin: 1.5em 0;
 }

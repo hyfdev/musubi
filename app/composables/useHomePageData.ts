@@ -16,6 +16,7 @@ export async function useHomePageData() {
         title: post.title,
         slug: post.slug,
         date: post.date,
+        description: post.description,
       })),
     }
   })
