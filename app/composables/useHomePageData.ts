@@ -12,6 +12,7 @@ export async function useHomePageData() {
     ])
     return {
       websiteTitle: config.title,
+      websiteDescription: config.description,
       posts: postMetaList.map((post) => ({
         title: post.title,
         slug: post.slug,

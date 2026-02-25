@@ -31,6 +31,9 @@ const date = new Date(postMeta.date).toLocaleDateString('en-US', {
       <h1 class="text-3xl font-bold mt-2 text-[var(--color-text)] tracking-tight leading-tight">
         {{ postMeta.title }}
       </h1>
+      <p v-if="postMeta.description" class="text-base text-[var(--color-text-secondary)] mt-3">
+        {{ postMeta.description }}
+      </p>
     </header>
 
     <AutoNotionPage

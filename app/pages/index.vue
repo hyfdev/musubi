@@ -21,6 +21,16 @@ function formatDate(dateString: string) {
     <Meta property="og:type" content="website" />
     <Meta name="twitter:card" content="summary" />
     <Meta name="twitter:title" :content="homePageData.websiteTitle" />
+    <Meta
+      v-if="homePageData.websiteDescription"
+      property="og:description"
+      :content="homePageData.websiteDescription"
+    />
+    <Meta
+      v-if="homePageData.websiteDescription"
+      name="twitter:description"
+      :content="homePageData.websiteDescription"
+    />
   </Head>
   <div class="py-8">
     <h2
