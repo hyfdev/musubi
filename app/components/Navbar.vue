@@ -34,6 +34,12 @@ const mobileMenuOpen = ref(false)
           {{ page.title }}
         </a>
         <a
+          href="/tags"
+          class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors no-underline"
+        >
+          Tags
+        </a>
+        <a
           v-if="navbarData.social?.github"
           :href="navbarData.social.github"
           target="_blank"
@@ -84,6 +90,12 @@ const mobileMenuOpen = ref(false)
         class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] no-underline"
       >
         {{ page.title }}
+      </a>
+      <a
+        href="/tags"
+        class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] no-underline"
+      >
+        Tags
       </a>
       <div class="flex items-center gap-4 pt-2">
         <a

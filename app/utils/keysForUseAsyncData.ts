@@ -7,5 +7,9 @@ export const HOME_PAGE_DATA_KEY = 'home-page-data'
 export const createPostPageDataKey = (slug: string) => `post-page-${slug}`
 export const createContentPageDataKey = (slug: string) => `content-page-${slug}`
 
+// Tag page keys
+export const TAGS_PAGE_DATA_KEY = 'tags-page-data'
+export const createTagPageDataKey = (tag: string) => `tag-page-${tag}`
+
 // Notion page key
 export const createNotionPageKey = (pageId: string) => `notion-page-${pageId}`
