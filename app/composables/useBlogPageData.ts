@@ -1,20 +1,20 @@
 import { useRoute, createError } from '#imports'
 import { usePrerenderData } from 'nuxt-prerender-kit/runtime'
-import { createTagPageDataKey } from '~/utils/keysForUseAsyncData'
+import { createBlogPageDataKey } from '~/utils/keysForUseAsyncData'
 
-export async function useTagPageData(page: number = 1) {
+export async function useBlogPageData() {
   const route = useRoute()
-  const tag = route.params.tag
+  const page = Number(route.params.page)
 
-  if (typeof tag !== 'string') {
+  if (!Number.isInteger(page) || page < 2) {
     throw createError({
-      statusCode: 400,
-      statusMessage: `Expected 'tag' to be a string, but got ${typeof tag}`,
+      statusCode: 404,
+      statusMessage: 'Page not found',
       fatal: true,
     })
   }
 
-  return await usePrerenderData(createTagPageDataKey(tag, page), async () => {
+  return await usePrerenderData(createBlogPageDataKey(page), async () => {
     const { Website } = await import('~~/app/server/website/Website')
     const { resolveWebsiteConfig } = await import('~~/app/server/website/resolveWebsiteConfig')
     const { POSTS_PER_PAGE } = await import('~~/app/utils/pagination')
@@ -23,17 +23,15 @@ export async function useTagPageData(page: number = 1) {
       website.getPostMetaList(),
       resolveWebsiteConfig(),
     ])
-    const allPosts = postMetaList
-      .filter((post) => post.tags.includes(tag))
-      .map((post) => ({
-        title: post.title,
-        slug: post.slug,
-        date: post.date,
-        description: post.description,
-        tags: post.tags,
-      }))
+    const allPosts = postMetaList.map((post) => ({
+      title: post.title,
+      slug: post.slug,
+      date: post.date,
+      description: post.description,
+      tags: post.tags,
+    }))
     const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE)
-    if (page > 1 && page > totalPages) {
+    if (page > totalPages) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Page not found',
@@ -43,8 +41,6 @@ export async function useTagPageData(page: number = 1) {
     const start = (page - 1) * POSTS_PER_PAGE
     return {
       websiteTitle: config.title,
-      tag,
-      totalPosts: allPosts.length,
       posts: allPosts.slice(start, start + POSTS_PER_PAGE),
       currentPage: page,
       totalPages,

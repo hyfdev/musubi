@@ -5,21 +5,25 @@ export async function useHomePageData() {
   return await usePrerenderData(HOME_PAGE_DATA_KEY, async () => {
     const { Website } = await import('~~/app/server/website/Website')
     const { resolveWebsiteConfig } = await import('~~/app/server/website/resolveWebsiteConfig')
+    const { POSTS_PER_PAGE } = await import('~~/app/utils/pagination')
     const website = await Website.getInstance()
     const [postMetaList, config] = await Promise.all([
       website.getPostMetaList(),
       resolveWebsiteConfig(),
     ])
+    const allPosts = postMetaList.map((post) => ({
+      title: post.title,
+      slug: post.slug,
+      date: post.date,
+      description: post.description,
+      tags: post.tags,
+    }))
     return {
       websiteTitle: config.title,
       websiteDescription: config.description,
-      posts: postMetaList.map((post) => ({
-        title: post.title,
-        slug: post.slug,
-        date: post.date,
-        description: post.description,
-        tags: post.tags,
-      })),
+      posts: allPosts.slice(0, POSTS_PER_PAGE),
+      currentPage: 1,
+      totalPages: Math.ceil(allPosts.length / POSTS_PER_PAGE),
     }
   })
 }

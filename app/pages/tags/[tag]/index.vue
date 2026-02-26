@@ -2,6 +2,7 @@
 import { Head, Meta, Title } from '#components'
 import { useTagPageData } from '~/composables/useTagPageData'
 import PostList from '~/components/PostList.vue'
+import PaginationNav from '~/components/PaginationNav.vue'
 
 const tagPageData = await useTagPageData()
 </script>
@@ -31,9 +32,15 @@ const tagPageData = await useTagPageData()
     </h2>
     <h1 class="text-2xl font-bold text-[var(--color-text)] mb-1">{{ tagPageData.tag }}</h1>
     <p class="text-sm text-[var(--color-text-tertiary)] mb-6">
-      {{ tagPageData.posts.length }} {{ tagPageData.posts.length === 1 ? 'post' : 'posts' }}
+      {{ tagPageData.totalPosts }} {{ tagPageData.totalPosts === 1 ? 'post' : 'posts' }}
     </p>
 
     <PostList :posts="tagPageData.posts" />
+    <PaginationNav
+      :current-page="tagPageData.currentPage"
+      :total-pages="tagPageData.totalPages"
+      :first-page-url="`/tags/${tagPageData.tag}`"
+      :page-base-url="`/tags/${tagPageData.tag}/page`"
+    />
   </div>
 </template>

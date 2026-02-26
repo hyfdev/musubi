@@ -2,6 +2,7 @@
 import { Head, Meta, Title } from '#components'
 import { useHomePageData } from '~/composables/useHomePageData'
 import PostList from '~/components/PostList.vue'
+import PaginationNav from '~/components/PaginationNav.vue'
 
 const homePageData = await useHomePageData()
 </script>
@@ -32,5 +33,11 @@ const homePageData = await useHomePageData()
     </h2>
 
     <PostList :posts="homePageData.posts" />
+    <PaginationNav
+      :current-page="homePageData.currentPage"
+      :total-pages="homePageData.totalPages"
+      first-page-url="/"
+      page-base-url="/blog/page"
+    />
   </div>
 </template>
