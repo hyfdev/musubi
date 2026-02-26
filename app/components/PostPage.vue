@@ -28,6 +28,16 @@ const date = new Date(postMeta.date).toLocaleDateString('en-US', {
   <article class="max-w-[var(--content-width)] mx-auto py-8">
     <header class="mb-10">
       <time class="text-sm text-[var(--color-text-tertiary)]">{{ date }}</time>
+      <div v-if="postMeta.tags.length > 0" class="flex flex-wrap gap-1.5 mt-2">
+        <a
+          v-for="tag in postMeta.tags"
+          :key="tag"
+          :href="`/tags/${tag}`"
+          class="text-xs px-2 py-0.5 rounded-full bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] no-underline hover:text-[var(--color-text)] transition-colors"
+        >
+          {{ tag }}
+        </a>
+      </div>
       <h1 class="text-3xl font-bold mt-2 text-[var(--color-text)] tracking-tight leading-tight">
         {{ postMeta.title }}
       </h1>

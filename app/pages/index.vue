@@ -62,6 +62,17 @@ function formatDate(dateString: string) {
         >
           {{ post.description }}
         </p>
+        <div v-if="post.tags.length > 0" class="flex flex-wrap gap-1.5 mt-1">
+          <a
+            v-for="tag in post.tags"
+            :key="tag"
+            :href="`/tags/${tag}`"
+            class="text-xs px-2 py-0.5 rounded-full bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] no-underline hover:text-[var(--color-text)] transition-colors"
+            @click.stop
+          >
+            {{ tag }}
+          </a>
+        </div>
       </a>
     </div>
     <p v-else class="py-8 text-center text-[var(--color-text-secondary)]">No posts found.</p>
