@@ -8,7 +8,7 @@ Musubi is a forkable blog framework: fork the repo, duplicate the Notion templat
 - [x] OG/Twitter meta tags — `og:title`, `og:description`, `og:type`, `twitter:card`
 - [x] Config caching — `resolveWebsiteConfig()` promise cache
 - [x] Show descriptions in post listings on home page
-- [ ] Site-level `description` from config in home page meta
+- [x] Site-level `description` from config in home page meta
 
 ## Phase 2: SEO & Accessibility
 
@@ -21,11 +21,11 @@ Musubi is a forkable blog framework: fork the repo, duplicate the Notion templat
 
 ## Phase 3: Features
 
-- [ ] Tag display on post pages
-- [ ] Tag listing page (`/tags`)
-- [ ] Tag filter page (`/tags/[tag]`)
-- [ ] Custom 404 page
-- [ ] Pagination for post listings
+- [x] Tag display on post pages
+- [x] Tag listing page (`/tags`)
+- [x] Tag filter page (`/tags/[tag]`)
+- [x] Custom 404 page
+- [x] Pagination for post listings
 - [ ] Search (client-side or build-time index)
 - [ ] Photo gallery page type (design TBD)
 
