@@ -52,7 +52,15 @@
   }
 }
 
-/* Notion variable bridge - map react-notion-x variables to site tokens */
+/*
+ * react-notion-x overrides
+ * ========================
+ * All rules below live outside @layer so they beat the imported
+ * react-notion-x/src/styles.css. Every override is scoped under
+ * .notion-content (the wrapper rendered by NotionPage.vue).
+ */
+
+/* --- Variable bridge: map react-notion-x tokens to site tokens --- */
 .notion-content {
   --fg-color: var(--color-text);
   --fg-color-0: var(--color-text);
@@ -70,7 +78,7 @@
   --select-color-0: var(--color-accent);
 }
 
-/* Notion style refinements - outside @layer so they override react-notion-x */
+/* --- Layout resets: strip padding so content aligns with the page header --- */
 .notion-content {
   font-size: 17px;
   line-height: 1.75;
@@ -80,7 +88,7 @@
   padding: 0;
 }
 
-/* Headings */
+/* --- Typography --- */
 .notion-content .notion-h1 {
   font-size: 1.75em;
   font-weight: 700;
@@ -105,7 +113,15 @@
   line-height: 1.4;
 }
 
-/* Code blocks */
+.notion-content .notion-text {
+  padding: 0.125em 0;
+}
+
+.notion-content .notion-list {
+  padding-left: 1.5em;
+}
+
+/* --- Code --- */
 .notion-content .notion-code {
   border-radius: 0.5rem;
   border: 1px solid var(--color-border);
@@ -113,7 +129,6 @@
   font-size: 0.875em;
 }
 
-/* Inline code */
 .notion-content .notion-inline-code {
   font-family: var(--font-mono);
   font-size: 0.875em;
@@ -123,7 +138,7 @@
   border-radius: 0.25rem;
 }
 
-/* Blockquotes */
+/* --- Block-level elements --- */
 .notion-content .notion-quote {
   border-left: 3px solid var(--color-accent);
   color: var(--color-text-secondary);
@@ -131,20 +146,22 @@
   font-style: italic;
 }
 
-/* Callouts */
 .notion-content .notion-callout {
   border-radius: 0.5rem;
   border: 1px solid var(--color-border);
   background: var(--color-bg-subtle);
 }
 
-/* Bookmarks */
 .notion-content .notion-bookmark {
   border-radius: 0.5rem;
   border: 1px solid var(--color-border);
 }
 
-/* Links */
+.notion-content .notion-asset-wrapper {
+  margin: 1.5em 0;
+}
+
+/* --- Links --- */
 .notion-content .notion-link {
   color: var(--color-accent);
   text-decoration: none;
@@ -152,19 +169,4 @@
 
 .notion-content .notion-link:hover {
   text-decoration: underline;
-}
-
-/* Text blocks */
-.notion-content .notion-text {
-  padding: 0.125em 0;
-}
-
-/* Lists */
-.notion-content .notion-list {
-  padding-left: 1.5em;
-}
-
-/* Images */
-.notion-content .notion-asset-wrapper {
-  margin: 1.5em 0;
 }
