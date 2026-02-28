@@ -1,7 +1,5 @@
-import { defineConfig } from 'unocss'
-import presetWind4 from '@unocss/preset-wind4'
+import { defineConfig, presetWind4 } from 'unocss'
 
 export default defineConfig({
-  // Tailwindcss4-compatible preset
   presets: [presetWind4()],
 })

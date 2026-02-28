@@ -6,5 +6,5 @@
   "singleQuote": true,
   "trailingComma": "all",
   "endOfLine": "lf",
-  "ignorePatterns": [".snapshot"]
+  "ignorePatterns": [".notion-data-snapshot", ".void", ".wrangler"]
 }

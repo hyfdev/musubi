@@ -1,0 +1,19 @@
+{
+  "extends": "./.void/tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "jsx": "preserve",
+    "noEmit": true,
+    "types": ["vite/client", "void/env", "unplugin-icons/types/vue3"]
+  },
+  "vueCompilerOptions": {
+    "strictTemplates": true
+  },
+  "include": ["pages", "components", "server", "utils", "assets", "virtual-snapshot.d.ts"]
+}

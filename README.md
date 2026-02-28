@@ -10,12 +10,12 @@ WIP: Still under heavy development, not ready for use yet.
 
 # Musubi / 結縄
 
-A peronsal website/blog framework using Notion as a CMS, powered by Nuxt.
+A personal website/blog framework using Notion as a CMS, powered by Void.
 
 ## Features
 
 - **Notion as a CMS**: Write and manage your content easily using Notion
-- **Static hosting**: Generate static files for easy deployment on platforms like Vercel, Netlify, or GitHub Pages
+- **Static hosting**: Generate static files for easy deployment on Cloudflare Workers
 
 ## Credits
 

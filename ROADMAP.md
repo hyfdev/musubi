@@ -12,7 +12,7 @@ Musubi is a forkable blog framework: fork the repo, duplicate the Notion templat
 
 ## Phase 2: SEO & Accessibility
 
-- [ ] Sitemap generation (`nuxt-simple-sitemap` or custom)
+- [ ] Sitemap generation
 - [ ] Canonical URLs on all pages
 - [ ] RSS feed (`/feed.xml`)
 - [ ] Focus styles for keyboard navigation
@@ -29,7 +29,11 @@ Musubi is a forkable blog framework: fork the repo, duplicate the Notion templat
 - [ ] Search (client-side or build-time index)
 - [ ] Photo gallery page type (design TBD)
 
-## Phase 4: DX & Infrastructure
+## Phase 4: Build & Runtime
+
+- [ ] Fix prismjs global ordering — prismjs language add-ons use bare `Prism` global (`(function(Prism){...}(Prism))`). Vite code-splits them into separate async chunks with no guaranteed evaluation order, so we must use dynamic imports with `await` sequencing on both server and client. Ideally fix at the bundler level or replace prismjs with a library that doesn't rely on globals.
+
+## Phase 5: DX & Infrastructure
 
 - [ ] `.env.example` with documented variables
 - [ ] GitHub Actions CI (types, lint, format, build)

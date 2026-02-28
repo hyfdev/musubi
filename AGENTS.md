@@ -2,31 +2,50 @@
 
 ## Project Overview
 
-Musubi is a **statically generated personal blog/website** powered by Nuxt that uses **Notion as a CMS**. Content is authored in Notion, fetched at build time via `notion-client`, and rendered as static HTML using `react-notion-x`. The site has no runtime server — all data is baked into the pages during prerendering.
+Musubi is a **personal blog/website** powered by **Void** (`void` + `@void-x/vue`) that uses **Notion as a CMS**. Content is authored in Notion, fetched server-side via `notion-client`, and rendered using `react-notion-x`. Void provides SSR with Vue and runs on Cloudflare Workers via Hono.
 
 ## Build & Development Commands
 
 - **Install**: `pnpm install` (required package manager)
-- **Dev**: `pnpm dev` (starts server on localhost:3000, uses snapshots by default)
-- **Dev (remote)**: `pnpm dev:live` (starts server fetching live from Notion)
-- **Build**: `pnpm build` (static site generation, fetches live data from Notion)
+- **Dev**: `pnpm dev` (starts Vite dev server, uses snapshots by default)
+- **Dev (live)**: `pnpm dev:live` (starts Vite dev server, fetches live data from Notion API)
+- **Build**: `pnpm build` (production build — bundles Worker + client assets for deployment)
 - **Preview**: `pnpm preview` (preview production build)
-- **Snapshot update**: `pnpm snapshot:update` (refreshes snapshots from Notion)
 
 ## Snapshots
 
-Snapshots are committed, point-in-time copies of Notion data stored in `.snapshot/`. They allow `pnpm dev` and `pnpm check:build` to run without hitting the Notion API.
+Snapshots are committed, point-in-time copies of Notion data stored in `.notion-data-snapshot/`. They allow `pnpm dev` and `pnpm check:build` to run locally without hitting the Notion API. Snapshots include both the pages database and the config database.
 
-- `pnpm dev` uses snapshots by default for fast iteration (`USE_SNAPSHOT=1`)
-- `pnpm dev:live` bypasses snapshots and fetches live from Notion
-- `pnpm snapshot:update` refreshes snapshots from Notion (`UPDATE_SNAPSHOT=1`, requires API credentials)
-- `pnpm build` fetches live data from Notion (does NOT use snapshots)
-- `pnpm check:build` uses snapshots (`USE_SNAPSHOT=1`)
-- After adding/changing content in Notion, run `pnpm snapshot:update` to pick up changes locally
+- `pnpm dev` uses snapshots (`VITE_USE_SNAPSHOT=1`)
+- `pnpm build` does NOT use snapshots — the Worker fetches live from Notion API during local prerendering
+- `pnpm check:build` uses snapshots (`VITE_USE_SNAPSHOT=1`)
+- After adding/changing content in Notion, run `pnpm snapshot:update` to regenerate snapshots
 
-**Snapshot internals:** `.snapshot/manifest.json` stores the database page ID. Each `{pageId}.json` file contains a `compress-json`-compressed `ExtendedRecordMap` from the Notion API. Logic lives in `app/server/notion/snapshot.ts`.
+**Snapshot internals:** Snapshot data is embedded at **Vite compile time** via a virtual module (`virtual:snapshot-data`). The `snapshotPlugin()` in `vite.config.ts` reads `.notion-data-snapshot/` files during the Vite build (in Node.js) and inlines them into the bundle. When `VITE_USE_SNAPSHOT` is not set (e.g. `pnpm build`), the virtual module returns an empty object — no snapshot data is bundled.
 
-## Notion Integration Architecture
+- `.notion-data-snapshot/manifest.json` stores the database page ID
+- Each `{pageId}.json` file contains a `compress-json`-compressed `ExtendedRecordMap`
+- `server/notion/snapshot.ts` provides read-only access via `readSnapshot()` and `readSnapshotManifest()`
+- `virtual-snapshot.d.ts` provides TypeScript types for the virtual module
+- Write operations (updating snapshots) are done via a separate CLI script, not inside the Worker
+
+### SSG and Deployment
+
+Musubi uses Void's SSG mode (`"output": "static"` in `void.json`). `pnpm build` prerenders locally — it spins up Miniflare, runs the Worker for each route, and writes static HTML to `dist/client/`.
+
+- `pnpm build` — builds Worker bundle + client assets, then prerenders all routes locally. The Worker fetches live data from the Notion API during prerendering. Produces `.html` files in `dist/client/`.
+- `pnpm check:build` — same as `pnpm build` but with `VITE_USE_SNAPSHOT=1`, so the Worker reads from embedded snapshot data instead of hitting the Notion API. Useful for offline/CI verification.
+- `void deploy` — uploads the pre-built output (including the `.html` files) to Void's platform.
+
+## Architecture
+
+### Framework: Void Pages Mode
+
+Musubi uses Void's **pages mode** — each page has a `.vue` component and a companion `.server.ts` file:
+
+- `.server.ts` exports a `loader` (via `defineHandler`) that runs server-side and returns typed props
+- `.vue` component receives props via `defineProps<Props>()` and renders the page
+- SSR is handled by Void's `voidVue()` plugin
 
 ### Notion Page Structure
 
@@ -51,98 +70,80 @@ The root **"Musubi - Dashboard"** page (`2d0fe8dd-acd6-80a5-b773-c49f06baa29c`) 
      | Tags | multi_select | Topic tags |
      | Description | text | Description/excerpt |
 
-### Server Code Architecture (`app/server/`)
+### Server Code Architecture (`server/`)
 
 ```
-app/server/
+server/
 ├── notion/
 │   ├── NotionDatabasePage.ts    # Fetches database, extracts child page IDs
 │   ├── NotionStandalonePage.ts  # Base class: fetches single page, property access
-│   └── snapshot.ts              # Snapshot read/write with compress-json
+│   └── snapshot.ts              # Snapshot read via virtual module (compile-time embedded)
 ├── musubi-notion/
 │   ├── MusubiPage.ts            # Extends NotionStandalonePage: parses Title/Slug/Date/Status/Type/Tags
 │   └── ConfigPage.ts            # Extends NotionDatabasePage: parses Name/Value pairs → config object
 └── website/
     ├── Website.ts               # Singleton orchestrator: caches all pages, provides getters
-    ├── resolveWebsiteConfig.ts  # Config from Notion (NOTION_CONFIG_PAGE_ID) or local fallback
+    ├── resolveWebsiteConfig.ts  # Config from Notion (NOTION_CONFIG_PAGE_ID) — no local fallback
+    ├── getSharedData.ts         # Helper: fetches navbar/footer data for all pages
+    ├── renderNotionHtml.ts      # Pre-renders Notion content to HTML via react-dom/server
+    ├── types.ts                 # Post = {meta: PostMeta, recordMap: ExtendedRecordMap}
     └── types/
         ├── PostMeta.ts          # {pageId, title, slug, date, description, tags}
-        ├── WebsiteConfig.ts     # {title?, description?, author?, social?: {github?, x?}}
-        └── types.ts             # Post = {meta: PostMeta, recordMap: ExtendedRecordMap}
+        └── WebsiteConfig.ts     # {title?, description?, author?, social?: {github?, x?}}
 ```
-
-**Key classes:**
-
-- **`Website`** (singleton via `Website.getInstance()`) — Central data manager
-  - Reads database page ID from snapshot manifest or `NOTION_DATABASE_PAGE_ID` env var
-  - Creates `NotionDatabasePage` to list all child pages
-  - Creates `MusubiPage` per child to extract metadata
-  - Filters drafts, separates Posts from Content pages
-  - Caches everything as promises for deduplication
-  - Public API: `getPostMetaList()`, `getPostBySlug(slug)`, `getContentPages()`, `getContentPageBySlug(slug)`
-
-- **`NotionDatabasePage`** — Fetches database recordMap, extracts child page IDs from `collection_query`
-
-- **`NotionStandalonePage`** — Fetches individual page recordMap, provides typed property accessors (`getPropAsString`, `getPropAsDate`, `getPropAsTags`, etc.)
-
-- **`MusubiPage`** — Validates and extracts blog metadata: Title, Slug, Date, Status (`Published`/`Draft`), Type (`Post`/`Content`), Tags, Description
-
-- **`ConfigPage`** — Reads Name/Value rows from Config database, builds nested config object
-
-- **`resolveWebsiteConfig()`** — Uses `NOTION_CONFIG_PAGE_ID` env var for remote config, falls back to local `website.config`
 
 ### Data Flow
 
 ```
-Notion API (or .snapshot/)
+Notion API (live, at local prerender time during `pnpm build`) or virtual:snapshot-data (dev/check:build)
   → NotionDatabasePage.fetchRecordMapCached() → child page IDs
   → MusubiPage(pageId) → {title, slug, date, status, type, tags}
   → Website filters/caches → PostMeta[] and Post objects
-  → Composables (usePrerenderData) → minimal data for each consumer
-  → Components render static HTML
+  → .server.ts loaders (defineHandler) → typed Props
+  → .vue components (defineProps<Props>()) → HTML
 ```
 
 ## Frontend Architecture
 
 ### Routes
 
-| Route          | Page File                   | Component         | Composable             |
-| -------------- | --------------------------- | ----------------- | ---------------------- |
-| `/`            | `app/pages/index.vue`       | (inline)          | `useHomePageData()`    |
-| `/blog/[slug]` | `app/pages/blog/[slug].vue` | `PostPage.vue`    | `usePostPageData()`    |
-| `/[slug]`      | `app/pages/[slug].vue`      | `ContentPage.vue` | `useContentPageData()` |
+| Route                     | Page File                          | Server File                              |
+| ------------------------- | ---------------------------------- | ---------------------------------------- |
+| `/`                       | `pages/index.vue`                  | `pages/index.server.ts`                  |
+| `/blog/[slug]`            | `pages/blog/[slug].vue`            | `pages/blog/[slug].server.ts`            |
+| `/blog/page/[page]`       | `pages/blog/page/[page].vue`       | `pages/blog/page/[page].server.ts`       |
+| `/tags`                   | `pages/tags/index.vue`             | `pages/tags/index.server.ts`             |
+| `/tags/[tag]`             | `pages/tags/[tag]/index.vue`       | `pages/tags/[tag]/index.server.ts`       |
+| `/tags/[tag]/page/[page]` | `pages/tags/[tag]/page/[page].vue` | `pages/tags/[tag]/page/[page].server.ts` |
+| `/[slug]`                 | `pages/[slug].vue`                 | `pages/[slug].server.ts`                 |
 
-Layout components (`Navbar.vue`, `Footer.vue`) are rendered on every page via `app.vue`.
+### Layout Pattern
 
-### Composables (`app/composables/`)
+Each page wraps its content in `<AppLayout :shared="shared">`. The `shared` data (navbar items, social links, author, title) is fetched by `getSharedData()` in every `.server.ts` loader.
 
-Each composable uses `usePrerenderData` with dynamic imports. Keys are centralized in `app/utils/keysForUseAsyncData.ts`.
+- `pages/layout.vue` — Void root layout, imports global CSS and UnoCSS
+- `components/AppLayout.vue` — Visual layout shell (Navbar + main + Footer), receives shared data as props
 
-| Composable             | Key                              | Returns                                        |
-| ---------------------- | -------------------------------- | ---------------------------------------------- |
-| `useHomePageData()`    | `HOME_PAGE_DATA_KEY`             | `{websiteTitle, posts: [{title, slug, date}]}` |
-| `usePostPageData()`    | `createPostPageDataKey(slug)`    | `{websiteTitle, post: {meta, recordMap}}`      |
-| `useContentPageData()` | `createContentPageDataKey(slug)` | `{websiteTitle, page: {meta, recordMap}}`      |
-| `useNavbarData()`      | `NAVBAR_DATA_KEY`                | `{contentPages: [{title, slug}], social}`      |
-| `useFooterData()`      | `FOOTER_DATA_KEY`                | `{author}`                                     |
+### Components (`components/`)
 
-### Components (`app/components/`)
-
-- **`Navbar.vue`** — Site header: home link, content page links, social icons, color mode toggle. Uses `<a>` tags.
-- **`Footer.vue`** — Copyright + "Powered by Musubi" link
-- **`ColorModeToggle.vue`** — Cycles system/light/dark via `@vueuse/core` `useCycleList`. Client-only.
-- **`PostPage.vue`** — Blog post: date, title, Notion content via `AutoNotionPage`
-- **`ContentPage.vue`** — Static page: title, Notion content via `AutoNotionPage`
-- **`AutoNotionPage.vue`** — Wrapper that detects dark mode and passes to `NotionPage`
+- **`AppLayout.vue`** — Layout shell: Navbar, main content slot, Footer. Receives `SharedData` props.
+- **`Navbar.vue`** — Site header: home link, content page links, social icons, color mode toggle. Receives props.
+- **`Footer.vue`** — Copyright + "Powered by Musubi" link. Receives `author` prop.
+- **`ColorModeToggle.vue`** — Cycles auto/light/dark via `@vueuse/core` `useColorMode` + `useCycleList`.
+- **`PostPage.vue`** — Blog post: date, title, tags, Notion content via `AutoNotionPage`. Receives props.
+- **`ContentPage.vue`** — Static page: title, Notion content via `AutoNotionPage`. Receives props.
+- **`AutoNotionPage.vue`** — Wrapper that detects dark mode and passes to `NotionPage`.
 - **`NotionPage.vue`** — Hybrid SSR/CSR rendering of Notion content:
-  - Server: `react-dom/server` `renderToString` with `react-notion-x` `NotionRenderer`
+  - Receives pre-rendered HTML (`serverHtml`) and `recordMap` as props
   - Client: `react-dom/client` `hydrateRoot` for interactivity (tweets via `react-tweet`, code highlighting via Prism)
-  - Has its own `usePrerenderData` call with `createNotionPageKey(pageId)`
+- **`PostList.vue`** — Reusable post listing with date, tags, description.
+- **`PaginationNav.vue`** — Previous/Next pagination controls.
+- **`icons/*.vue`** — Inline SVG icon components (MdiGithub, MdiTwitter, MdiMenu, MdiClose, etc.)
 
 ### Styling
 
-- UnoCSS (`@unocss/nuxt` with `@unocss/preset-wind4`, compatible with Tailwind CSS v4 utilities)
-- CSS variables for light/dark mode in `app/assets/css/main.css`
+- UnoCSS (`unocss/vite` with `@unocss/preset-wind4`, compatible with Tailwind CSS v4 utilities)
+- CSS variables for light/dark mode in `assets/css/main.css`
 - Notion color system mapped to site tokens (`--fg-color-*`, `--bg-color-*`)
 - Layout: `--content-width: 680px`, `--site-width: 768px`
 
@@ -150,25 +151,11 @@ Each composable uses `usePrerenderData` with dynamic imports. Keys are centraliz
 
 ### After editing Notion content
 
-- **Quick check**: `pnpm dev:live` — fetches per page on demand, fast feedback loop
-- **Persist for offline dev**: `pnpm snapshot:update` then `pnpm dev` — fetches all pages, slower but works offline
+- Update snapshots, then `pnpm dev`
 
 ### After editing code only
 
 - `pnpm dev` — snapshots are fine, no need to re-fetch from Notion
-
-### After editing Notion schema
-
-1. Update code to read new/renamed properties
-2. `pnpm snapshot:update` to persist new schema
-3. `pnpm dev` to verify
-
-### Full cycle with Notion MCP
-
-1. Edit Notion via MCP tools
-2. `pnpm dev:live` to verify changes instantly
-3. `pnpm snapshot:update` to persist
-4. Run verification checks
 
 ### Before committing
 
@@ -178,29 +165,28 @@ pnpm check:types && pnpm check:lint && pnpm check:format && pnpm check:build
 
 ### Git policy
 
-- **Never push to GitHub without explicit user confirmation.** Always ask before running `git push`.
-
-## Roadmap
-
-See [ROADMAP.md](./ROADMAP.md) for the project roadmap and open questions.
+- **Never push to any remote without explicit user confirmation.** Always ask before running `git push`, including for other repos (e.g. `void`).
 
 ## Code Style
 
 - **Indentation**: 2 spaces (see .editorconfig)
 - **TypeScript**: Enabled, use TypeScript for all new files
-- **Imports**: Nuxt auto-imports components, composables, and Vue APIs - no manual imports needed for framework features
-- **Components**: Place in `app/components/` for auto-import
-- **Naming**: PascalCase for components (e.g., `Navbar.vue`), camelCase for composables
+- **Imports**: Explicit imports required (no auto-imports)
+- **Components**: Place in `components/` directory
+- **Server code**: Place in `server/` directory, import in `.server.ts` loaders
+- **Naming**: PascalCase for components (e.g., `Navbar.vue`), camelCase for functions
 
 ## Framework Conventions
 
 - **Structure**:
-  - Use `app/` directory for components, assets, pages, composables
-  - Use `app/server/` directory for server-only code (Notion API, database clients)
-  - Server code must be imported dynamically inside `usePrerenderData` handlers (see pitfalls below)
+  - `pages/` — Page components (`.vue`) and server loaders (`.server.ts`)
+  - `components/` — Reusable Vue components
+  - `server/` — Server-only code (Notion API, data fetching)
+  - `utils/` — Shared utilities
+  - `assets/` — CSS and static assets
 - **Styling**: UnoCSS with `@unocss/preset-wind4` - use utility classes
-- **Config**: Main config in `nuxt.config.ts` using `defineNuxtConfig()`
-- **Routes**: Auto-generated from `app/pages/`
+- **Config**: Main config in `vite.config.ts`, Void config in `void.json`
+- **Routes**: Auto-generated from `pages/` directory by Void
 
 ## Verification
 
@@ -216,102 +202,66 @@ To auto-fix issues:
 - **Fix Lint**: `pnpm fix:lint` (auto-fix linting issues)
 - **Fix Format**: `pnpm fix:format` (auto-format code)
 
-**Tip**: Use Bash sub-agents to run commands in parallel for faster verification.
-
 # Common Pitfalls & Best Practices
 
-- **Always use `<a>` instead of `<NuxtLink>` for internal links:** Musubi is a statically generated site where all blog data is fetched at build time during prerendering. Using `<NuxtLink>` enables client-side routing, which bypasses the prerendered HTML and attempts to fetch data at runtime (which won't work since there's no server API). Standard `<a>` tags ensure users receive the fully prerendered pages.
+- **Use `<a>` tags for navigation:** Musubi uses `<a>` tags for all internal links. This ensures full page loads with server-rendered content.
 
-- **Vue SFC block order - `<script>` first pattern:** Always organize Vue Single File Components with the following block order: `<script setup lang="ts">` → `<template>` → `<style>` (if present). This improves readability by presenting the component's logic and data flow before its presentation layer. Template-only components (without script blocks) should remain as-is.
+- **Vue SFC block order - `<script>` first pattern:** Always organize Vue Single File Components with the following block order: `<script setup lang="ts">` → `<template>` → `<style>` (if present).
 
-- **Centralize all `useAsyncData` keys in `keysForUseAsyncData.ts`:** With `sharedPrerenderData: true` in `nuxt.config.ts`, Nuxt shares async data across prerendered pages. Without an explicit key, `useAsyncData` generates a key based on file path, causing data collision when the same composable is called for different pages.
+- **Server code stays in `.server.ts`:** All Notion data fetching and processing happens in `.server.ts` loaders via `defineHandler`. Server code in `server/` is only imported from `.server.ts` files — never from `.vue` components.
 
-  **Rules:**
-  - All keys MUST be defined in `app/utils/keysForUseAsyncData.ts`
-  - Never define keys inline in composables
-  - Use constants for static keys (e.g., `NAVBAR_DATA_KEY`)
-  - Use factory functions for dynamic keys (e.g., `createPostPageDataKey(slug)`)
+- **Minimize props returned from loaders:** The props returned from `defineHandler` loaders are serialized as JSON and embedded in the page. Only return the data actually needed for rendering.
 
-  ```typescript
-  // ❌ Bad - key defined inline
-  const KEY = 'my-data'
-  usePrerenderData(KEY, ...)
+- **Shared data via `getSharedData()`:** Every page's loader calls `getSharedData()` to get navbar/footer data. This is passed to `<AppLayout :shared="shared">` which distributes it to Navbar and Footer.
 
-  // ✅ Good - key imported from centralized file
-  import { MY_DATA_KEY } from '~/utils/keysForUseAsyncData'
-  usePrerenderData(MY_DATA_KEY, ...)
-  ```
+- **Notion HTML pre-rendering:** Blog post and content page loaders call `renderNotionHtml()` to pre-render Notion content to HTML on the server. The client then hydrates with React for interactivity.
 
-- **Minimize data returned from `useAsyncData`:** The data returned from `useAsyncData` is serialized and injected into each page's HTML/payload, increasing page size. Only return the data actually needed for rendering - avoid returning entire objects when only a few fields are used.
+- **Icons via `unplugin-icons`:** Icons use `unplugin-icons/vite` with `compiler: 'vue3'`. Import as `import Icon from '~icons/mdi/icon-name'`. TypeScript types are provided by `unplugin-icons/types/vue3` in `tsconfig.json`.
 
-- **Eliminating server-only code from client bundles:** Server-only code lives in `app/server/`. This project uses `nuxt-prerender-kit` to completely tree-shake server code from client bundles (not just move it to a separate chunk).
+- **oxlint:** `pnpm check:lint` should show **0 warnings and 0 errors**.
 
-  **Pattern:** Use `usePrerenderData` from `nuxt-prerender-kit/runtime`:
+- **`.server.ts` loader + page pattern:**
 
   ```typescript
-  // ❌ Bad - Server code bundled into client
-  import { Website } from '~~/app/server/website/Website'
+  // pages/example.server.ts
+  import { defineHandler } from 'void'
 
-  useAsyncData('key', async () => {
-    const website = Website.getInstance()
-  })
+  export interface Props {
+    title: string
+  }
 
-  // ✅ Good - Server code completely tree-shaken from client bundle
-  import { usePrerenderData } from 'nuxt-prerender-kit/runtime'
-
-  usePrerenderData('key', async () => {
-    const { Website } = await import('~~/app/server/website/Website')
-    const website = Website.getInstance()
-    return data
+  export const loader = defineHandler<Props>(async (c) => {
+    // c is the Hono context — access params via c.req.param('slug')
+    // Import server code dynamically here
+    return { title: 'Hello' }
   })
   ```
 
-  **How it works:**
-  - `nuxt-prerender-kit` automatically wraps the handler with `import.meta.prerender ? handler : __neverReachable_prerender()` via a Vite plugin
-  - No manual `import.meta.server` conditionals needed - the module handles this automatically
-  - `usePrerenderData` returns data directly (not wrapped in AsyncData object) and throws descriptive errors if data fetch fails or returns null
-  - **CRITICAL: Use dynamic `import()` inside the handler** - static imports at file top will still bundle server code:
+  ```vue
+  <!-- pages/example.vue -->
+  <script setup lang="ts">
+  import type { Props } from './example.server'
+  const props = defineProps<Props>()
+  </script>
 
-    ```typescript
-    // ❌ Bad - static import still bundles Website into client
-    import { Website } from '~~/app/server/website/Website'
-
-    usePrerenderData('key', async () => {
-      Website.getInstance()  // Website already bundled!
-    })
-
-    // ✅ Good - dynamic import inside handler, completely eliminated
-    usePrerenderData('key', async () => {
-      const { Website } = await import('~~/app/server/website/Website')
-      Website.getInstance()
-    })
-    ```
-
-- **Move logic inside `usePrerenderData` when possible:** Logic inside `usePrerenderData` handlers is removed from the final client output. Move data transformations, filtering, and processing inside the handler rather than in component code to reduce bundle size.
-
-- **Per-page data composables:** Each page/component should have its own dedicated composable that returns exactly what it needs - no more, no less. Avoid creating shared composables that return fields not used by all consumers.
-
-  ```typescript
-  // ❌ Bad - shared composable returns unused fields
-  // useWebsiteData returns {postMetaList, contentPages} but most consumers only need one
-  const data = await useWebsiteData()
-  // Home page only uses postMetaList, but contentPages is also in payload
-
-  // ✅ Good - dedicated composables return only what's needed
-  // useHomePageData returns {websiteTitle, posts: [{title, slug, date}]}
-  const homeData = await useHomePageData()
-  // Only fields actually used are in payload
-
-  // useNavbarData returns {contentPages: [{title, slug}], social}
-  const navData = await useNavbarData()
-  // Navbar only gets what it renders
+  <template>
+    <h1>{{ props.title }}</h1>
+  </template>
   ```
 
-  **Naming convention:**
-  - Layout composables: `useNavbarData`, `useFooterData`
-  - Page composables: `useHomePageData`, `usePostPageData`, `useContentPageData`
+## Known Gaps
 
-  **Benefits:**
-  - Smaller payload per page (only needed fields serialized)
-  - Clearer data flow (each consumer's needs are explicit)
-  - Better tree-shaking of unused data transformations
+- **No error/404 page:** Void loaders use `c.notFound()` but there is no custom error page yet.
+- **No Google Analytics:** Needs a manual script tag in the layout or a Void-compatible alternative.
+- **Deployment deferred:** Void is not published to npm yet. The `void` and `@void-x/vue` packages are locally linked from `../void/packages/`. Deployment will be addressed once Void is released.
+- **Vite 8 beta:** Void requires `vite@^8.0.0-beta.14`. This is a pre-release version of Vite.
+
+<!--injected-by-void-v0.0.1-->
+
+## Void
+
+This project uses [Void](https://void.cloud) — a fullstack Vite plugin + deployment platform for Cloudflare. `voidPlugin()` in `vite.config.ts` gives you file-based API routing on Hono (`routes/`), Inertia-inspired server-rendered pages with co-located loaders/actions (`pages/` + `void/vue` or `void/react`), auto-provisioned D1/KV/R2 bindings, end-to-end type safety (SQL migrations -> typed DB -> typed routes -> typed fetch client), built-in auth, queues, cron jobs, edge caching (ISR), and one-command deploys via `npx void deploy`.
+
+Full docs are in `node_modules/void/docs/`. If you have the `void` skill available, use it for a complete API reference covering project structure, routing, pages mode, database, auth, typed fetch, KV, storage, queues, cron jobs, CLI, configuration, and deployment.
+
+<!--/injected-by-void-->

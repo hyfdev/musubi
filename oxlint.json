@@ -1,5 +1,6 @@
 {
   "$schema": "https://oxc.rs/schema/oxlintrc.json",
+  "ignorePatterns": [".void", "dist", "node_modules", "*.vue.js"],
   "rules": {
     "typescript": {
       "no-explicit-any": "warn",

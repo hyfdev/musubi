@@ -1,9 +1,6 @@
-# Nuxt dev/build outputs
-.output
-.data
-.nuxt
-.nitro
-.cache
+# Void build outputs
+.void
+.wrangler
 dist
 
 # Node dependencies
@@ -12,6 +9,9 @@ node_modules
 # Logs
 logs
 *.log
+
+# TypeScript
+*.tsbuildinfo
 
 # Misc
 .DS_Store
@@ -23,8 +23,5 @@ logs
 .env.*
 !.env.example
 
-# Deployment
-.vercel
-
-# https://github.com/antfu/skills-npm
-**/skills/npm-*
+# AI
+.claude
