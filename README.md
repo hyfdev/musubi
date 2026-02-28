@@ -15,6 +15,7 @@ A personal website/blog framework using Notion as a CMS, powered by Void.
 ## Features
 
 - **Notion as a CMS**: Write and manage your content easily using Notion
+- **Zero-code config**: Site configuration lives in Notion alongside your content — customize your site without cloning the repo or writing any code
 - **Static hosting**: Generate static files for easy deployment on Cloudflare Workers
 
 ## Credits

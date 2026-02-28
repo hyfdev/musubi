@@ -7,7 +7,7 @@ Musubi is a **personal blog/website** powered by **Void** (`void` + `@void-x/vue
 ## Build & Development Commands
 
 - **Install**: `pnpm install` (required package manager)
-- **Dev**: `pnpm dev` (starts Vite dev server, uses snapshots by default)
+- **Dev**: `pnpm dev` (starts Vite dev server, uses snapshots by default — no `.env` required)
 - **Dev (live)**: `pnpm dev:live` (starts Vite dev server, fetches live data from Notion API)
 - **Build**: `pnpm build` (production build — bundles Worker + client assets for deployment)
 - **Preview**: `pnpm preview` (preview production build)
@@ -16,9 +16,9 @@ Musubi is a **personal blog/website** powered by **Void** (`void` + `@void-x/vue
 
 Snapshots are committed, point-in-time copies of Notion data stored in `.notion-data-snapshot/`. They allow `pnpm dev` and `pnpm check:build` to run locally without hitting the Notion API. Snapshots include both the pages database and the config database.
 
-- `pnpm dev` uses snapshots (`VITE_USE_SNAPSHOT=1`)
-- `pnpm build` does NOT use snapshots — the Worker fetches live from Notion API during local prerendering
-- `pnpm check:build` uses snapshots (`VITE_USE_SNAPSHOT=1`)
+- `pnpm dev` uses snapshots (`VITE_USE_SNAPSHOT=1`) — no `.env` or Notion credentials needed
+- `pnpm build` does NOT use snapshots — the Worker fetches live from Notion API during local prerendering (requires `.env` with Notion credentials)
+- `pnpm check:build` uses snapshots (`VITE_USE_SNAPSHOT=1`) — no `.env` required
 - After adding/changing content in Notion, run `pnpm snapshot:update` to regenerate snapshots
 
 **Snapshot internals:** Snapshot data is embedded at **Vite compile time** via a virtual module (`virtual:snapshot-data`). The `snapshotPlugin()` in `vite.config.ts` reads `.notion-data-snapshot/` files during the Vite build (in Node.js) and inlines them into the bundle. When `VITE_USE_SNAPSHOT` is not set (e.g. `pnpm build`), the virtual module returns an empty object — no snapshot data is bundled.
