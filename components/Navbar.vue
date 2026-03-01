@@ -15,31 +15,34 @@ const mobileMenuOpen = ref(false)
 </script>
 
 <template>
-  <header class="py-6">
+  <header class="py-5">
     <div class="max-w-[var(--site-width)] mx-auto px-4 sm:px-6 flex items-center justify-between">
       <a
         href="/"
-        class="text-lg font-bold text-[var(--color-text)] no-underline hover:no-underline"
+        class="text-[17px] font-[var(--font-display)] font-semibold tracking-[-0.01em] text-[var(--color-text)] no-underline hover:no-underline"
       >
-        Musubi
+        musubi
       </a>
 
       <!-- Desktop nav -->
-      <nav class="hidden sm:flex items-center gap-5">
+      <nav class="hidden sm:flex items-center gap-6">
         <a
           v-for="page in contentPages"
           :key="page.slug"
           :href="`/${page.slug}`"
-          class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors no-underline"
+          class="text-[13px] font-medium tracking-wide uppercase text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] transition-colors no-underline"
         >
           {{ page.title }}
         </a>
         <a
           href="/tags"
-          class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors no-underline"
+          class="text-[13px] font-medium tracking-wide uppercase text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] transition-colors no-underline"
         >
           Tags
         </a>
+
+        <span class="w-px h-4 bg-[var(--color-border)]" />
+
         <a
           v-if="socialLink?.github"
           :href="socialLink.github"
@@ -48,7 +51,7 @@ const mobileMenuOpen = ref(false)
           class="text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] transition-colors"
           title="GitHub"
         >
-          <MdiGithub class="w-5 h-5" />
+          <MdiGithub class="w-[18px] h-[18px]" />
         </a>
         <a
           v-if="socialLink?.x"
@@ -58,14 +61,14 @@ const mobileMenuOpen = ref(false)
           class="text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] transition-colors"
           title="Twitter/X"
         >
-          <MdiTwitter class="w-5 h-5" />
+          <MdiTwitter class="w-[18px] h-[18px]" />
         </a>
         <ColorModeToggle />
       </nav>
 
       <!-- Mobile toggle -->
       <button
-        class="sm:hidden cursor-pointer p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+        class="sm:hidden cursor-pointer p-2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] transition-colors"
         aria-label="Toggle menu"
         @click="mobileMenuOpen = !mobileMenuOpen"
       >
@@ -77,23 +80,23 @@ const mobileMenuOpen = ref(false)
     <!-- Mobile menu -->
     <nav
       v-if="mobileMenuOpen"
-      class="sm:hidden mt-4 px-4 pb-4 border-b border-[var(--color-border)] flex flex-col gap-3"
+      class="sm:hidden mt-3 mx-4 p-4 rounded-[var(--radius-lg)] bg-[var(--color-bg-card)] border border-[var(--color-border)] shadow-[0_2px_12px_var(--color-shadow)] flex flex-col gap-3"
     >
       <a
         v-for="page in contentPages"
         :key="page.slug"
         :href="`/${page.slug}`"
-        class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] no-underline"
+        class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] no-underline transition-colors"
       >
         {{ page.title }}
       </a>
       <a
         href="/tags"
-        class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] no-underline"
+        class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] no-underline transition-colors"
       >
         Tags
       </a>
-      <div class="flex items-center gap-4 pt-2">
+      <div class="flex items-center gap-4 pt-2 mt-1 border-t border-[var(--color-border)]">
         <a
           v-if="socialLink?.github"
           :href="socialLink.github"
@@ -102,7 +105,7 @@ const mobileMenuOpen = ref(false)
           class="text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] transition-colors"
           title="GitHub"
         >
-          <MdiGithub class="w-5 h-5" />
+          <MdiGithub class="w-[18px] h-[18px]" />
         </a>
         <a
           v-if="socialLink?.x"
@@ -112,7 +115,7 @@ const mobileMenuOpen = ref(false)
           class="text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] transition-colors"
           title="Twitter/X"
         >
-          <MdiTwitter class="w-5 h-5" />
+          <MdiTwitter class="w-[18px] h-[18px]" />
         </a>
         <ColorModeToggle />
       </div>

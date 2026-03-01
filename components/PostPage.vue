@@ -23,25 +23,36 @@ const date = new Date(postMeta.date).toLocaleDateString('en-US', {
 </script>
 
 <template>
-  <article class="max-w-[var(--content-width)] mx-auto py-8">
-    <header class="mb-10">
-      <time class="text-sm text-[var(--color-text-tertiary)]">{{ date }}</time>
-      <div v-if="postMeta.tags.length > 0" class="flex flex-wrap gap-1.5 mt-2">
-        <a
-          v-for="tag in postMeta.tags"
-          :key="tag"
-          :href="`/tags/${tag}`"
-          class="text-xs px-2 py-0.5 rounded-full bg-[var(--color-bg-subtle)] text-[var(--color-text-secondary)] no-underline hover:text-[var(--color-text)] transition-colors"
-        >
-          {{ tag }}
-        </a>
+  <article class="max-w-[var(--content-width)] mx-auto py-10">
+    <header class="mb-12">
+      <div class="flex items-center gap-3 text-[13px] text-[var(--color-text-tertiary)]">
+        <time>{{ date }}</time>
+        <template v-if="postMeta.tags.length > 0">
+          <span class="text-[var(--color-border)]">/</span>
+          <div class="flex flex-wrap gap-1.5">
+            <a
+              v-for="tag in postMeta.tags"
+              :key="tag"
+              :href="`/tags/${tag}`"
+              class="px-2 py-0.5 rounded-[var(--radius-sm)] bg-[var(--color-accent-subtle)] text-[var(--color-accent)] font-medium no-underline hover:bg-[var(--color-accent)] hover:text-white transition-colors text-xs"
+            >
+              {{ tag }}
+            </a>
+          </div>
+        </template>
       </div>
-      <h1 class="text-3xl font-bold mt-2 text-[var(--color-text)] tracking-tight leading-tight">
+      <h1
+        class="text-[2rem] sm:text-[2.25rem] font-[var(--font-display)] font-bold mt-4 text-[var(--color-text)] tracking-[-0.02em] leading-[1.2]"
+      >
         {{ postMeta.title }}
       </h1>
-      <p v-if="postMeta.description" class="text-base text-[var(--color-text-secondary)] mt-3">
+      <p
+        v-if="postMeta.description"
+        class="text-base text-[var(--color-text-secondary)] mt-3 leading-relaxed"
+      >
         {{ postMeta.description }}
       </p>
+      <div class="mt-6 h-px bg-[var(--color-border)]" />
     </header>
 
     <AutoNotionPage

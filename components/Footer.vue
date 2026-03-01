@@ -16,20 +16,22 @@ const copyrightYear = computed(() => {
 </script>
 
 <template>
-  <footer class="mt-20 pb-12 pt-8">
-    <div
-      class="max-w-[var(--site-width)] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-[var(--color-text-tertiary)]"
-    >
-      <span>&copy; {{ copyrightYear }} {{ author }}</span>
-      <p class="flex items-center gap-1">
-        Powered by
-        <a
-          href="https://github.com/hyf0/musubi"
-          target="_blank"
-          class="font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] no-underline"
-          >Musubi</a
-        >
-      </p>
+  <footer class="mt-24 pb-10 pt-6">
+    <div class="max-w-[var(--site-width)] mx-auto px-4 sm:px-6">
+      <div
+        class="border-t border-[var(--color-border)] pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-[var(--color-text-tertiary)]"
+      >
+        <span>&copy; {{ copyrightYear }} {{ author }}</span>
+        <p class="flex items-center gap-1">
+          Powered by
+          <a
+            href="https://github.com/hyf0/musubi"
+            target="_blank"
+            class="font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] no-underline transition-colors"
+            >Musubi</a
+          >
+        </p>
+      </div>
     </div>
   </footer>
 </template>

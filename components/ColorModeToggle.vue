@@ -18,13 +18,13 @@ watchEffect(() => {
 
 <template>
   <button
-    class="cursor-pointer flex items-center justify-center p-2 rounded-md text-[var(--color-text-tertiary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-subtle)] transition-colors focus:outline-none"
+    class="cursor-pointer flex items-center justify-center p-1.5 rounded-[var(--radius-sm)] text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] hover:bg-[var(--color-accent-subtle)] transition-colors focus:outline-none"
     :title="`Color mode: ${state}`"
     aria-label="Toggle color mode"
     @click="next()"
   >
-    <MdiWeatherSunny v-if="state === 'light'" class="w-[18px] h-[18px]" />
-    <MdiWeatherNight v-else-if="state === 'dark'" class="w-[18px] h-[18px]" />
-    <MdiSunMoonStars v-else class="w-[18px] h-[18px]" />
+    <MdiWeatherSunny v-if="state === 'light'" class="w-[17px] h-[17px]" />
+    <MdiWeatherNight v-else-if="state === 'dark'" class="w-[17px] h-[17px]" />
+    <MdiSunMoonStars v-else class="w-[17px] h-[17px]" />
   </button>
 </template>

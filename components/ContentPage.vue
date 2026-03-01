@@ -17,11 +17,14 @@ const pageMeta = props.page.meta
 </script>
 
 <template>
-  <article class="max-w-[var(--content-width)] mx-auto py-8">
-    <header class="mb-10">
-      <h1 class="text-3xl font-bold text-[var(--color-text)] tracking-tight leading-tight">
+  <article class="max-w-[var(--content-width)] mx-auto py-10">
+    <header class="mb-12">
+      <h1
+        class="text-[2rem] sm:text-[2.25rem] font-[var(--font-display)] font-bold text-[var(--color-text)] tracking-[-0.02em] leading-[1.2]"
+      >
         {{ pageMeta.title }}
       </h1>
+      <div class="mt-6 h-px bg-[var(--color-border)]" />
     </header>
 
     <AutoNotionPage

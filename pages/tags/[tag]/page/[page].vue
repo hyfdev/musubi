@@ -9,22 +9,26 @@ const props = defineProps<Props>()
 
 <template>
   <AppLayout :shared="props.shared">
-    <div class="py-8">
-      <div class="mb-6">
+    <div class="py-10">
+      <div class="mb-5">
         <a
           href="/tags"
-          class="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] no-underline"
+          class="text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-accent)] no-underline transition-colors"
         >
           &larr; All tags
         </a>
       </div>
 
       <h2
-        class="text-sm font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1"
+        class="text-[13px] font-[var(--font-display)] font-semibold text-[var(--color-text-tertiary)] uppercase tracking-widest mb-1"
       >
         Posts tagged
       </h2>
-      <h1 class="text-2xl font-bold text-[var(--color-text)] mb-1">{{ props.tag }}</h1>
+      <h1
+        class="text-2xl font-[var(--font-display)] font-bold text-[var(--color-text)] tracking-[-0.01em] mb-1"
+      >
+        {{ props.tag }}
+      </h1>
       <p class="text-sm text-[var(--color-text-tertiary)] mb-6">
         {{ props.totalPosts }} {{ props.totalPosts === 1 ? 'post' : 'posts' }}
       </p>

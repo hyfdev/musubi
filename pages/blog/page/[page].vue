@@ -9,9 +9,9 @@ const props = defineProps<Props>()
 
 <template>
   <AppLayout :shared="props.shared">
-    <div class="py-8">
+    <div class="py-10">
       <h2
-        class="text-sm font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider mb-6"
+        class="text-[13px] font-[var(--font-display)] font-semibold text-[var(--color-text-tertiary)] uppercase tracking-widest mb-5"
       >
         Posts
       </h2>
