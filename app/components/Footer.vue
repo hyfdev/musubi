@@ -1,24 +1,22 @@
 <script setup lang="ts">
-import { useFooterData } from '~/composables/useFooterData'
+import type { SiteConfig } from '../lib/site/types.ts'
 
-const footerData = await useFooterData()
+const props = defineProps<{
+  config: SiteConfig
+}>()
+
+const currentYear = new Date().getFullYear()
+const yearRange =
+  props.config.since < currentYear ? `${props.config.since}–${currentYear}` : String(currentYear)
 </script>
 
 <template>
-  <footer class="mt-20 pb-12 pt-8">
-    <div
-      class="max-w-[var(--site-width)] mx-auto px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-[var(--color-text-tertiary)]"
-    >
-      <span>&copy; {{ new Date().getFullYear() }} {{ footerData.author }}</span>
-      <p class="flex items-center gap-1">
-        Powered by
-        <a
-          href="https://github.com/hyf0/musubi"
-          target="_blank"
-          class="font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] no-underline"
-          >Musubi</a
-        >
+  <footer class="site-footer">
+    <div class="shell site-footer-inner">
+      <p>
+        © {{ yearRange }} <a :href="config.link">{{ config.author }}</a>
       </p>
+      <p>Written in Notion, typeset by Musubi.</p>
     </div>
   </footer>
 </template>

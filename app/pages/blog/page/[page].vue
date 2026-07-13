@@ -1,39 +1,50 @@
 <script setup lang="ts">
-import { Head, Meta, Title } from '#components'
-import { useBlogPageData } from '~/composables/useBlogPageData'
-import PostList from '~/components/PostList.vue'
-import PaginationNav from '~/components/PaginationNav.vue'
+import { createError, useFetch, useHead, useRoute } from '#imports'
+import PaginationNav from '../../../components/PaginationNav.vue'
+import PostList from '../../../components/PostList.vue'
 
-const blogPageData = await useBlogPageData()
+const route = useRoute()
+const rawPage = Array.isArray(route.params.page) ? route.params.page[0] : route.params.page
+const pageNumber = Number(rawPage)
+if (!Number.isSafeInteger(pageNumber) || pageNumber < 2 || String(pageNumber) !== rawPage) {
+  throw createError({ statusCode: 404, statusMessage: 'Article index page not found' })
+}
+
+const { data, error } = await useFetch(`/api/build/index/${pageNumber}`, {
+  key: `post-index-${pageNumber}`,
+})
+if (error.value || !data.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'Article index page not found',
+    cause: error.value,
+  })
+}
+const page = data.value
+const canonical = new URL(page.index.route, page.config.link).toString()
+
+useHead({
+  title: `Articles · Page ${pageNumber}`,
+  link: [{ rel: 'canonical', href: canonical }],
+  meta: [
+    { property: 'og:title', content: `Articles · Page ${pageNumber}` },
+    { property: 'og:description', content: page.config.description },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: canonical },
+  ],
+})
 </script>
 
 <template>
-  <Head>
-    <Title>Posts - Page {{ blogPageData.currentPage }} | {{ blogPageData.websiteTitle }}</Title>
-    <Meta
-      property="og:title"
-      :content="`Posts - Page ${blogPageData.currentPage} | ${blogPageData.websiteTitle}`"
-    />
-    <Meta property="og:type" content="website" />
-    <Meta name="twitter:card" content="summary" />
-    <Meta
-      name="twitter:title"
-      :content="`Posts - Page ${blogPageData.currentPage} | ${blogPageData.websiteTitle}`"
-    />
-  </Head>
-  <div class="py-8">
-    <h2
-      class="text-sm font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider mb-6"
-    >
-      Posts
-    </h2>
-
-    <PostList :posts="blogPageData.posts" />
-    <PaginationNav
-      :current-page="blogPageData.currentPage"
-      :total-pages="blogPageData.totalPages"
-      first-page-url="/"
-      page-base-url="/blog/page"
-    />
-  </div>
+  <section class="index-page shell">
+    <header class="index-header">
+      <p class="section-label"><span aria-hidden="true"></span>Writing</p>
+      <div class="index-header-grid">
+        <h1>Articles</h1>
+        <p>Page {{ page.index.page }}</p>
+      </div>
+    </header>
+    <PostList :posts="page.index.posts" :config="page.config" />
+    <PaginationNav :page="page.index.page" :page-count="page.pageCount" />
+  </section>
 </template>

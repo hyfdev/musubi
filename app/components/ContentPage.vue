@@ -1,34 +1,23 @@
 <script setup lang="ts">
-import { Head, Meta, Title } from '#components'
-import { useContentPageData } from '~/composables/useContentPageData'
-import AutoNotionPage from '~/components/AutoNotionPage.vue'
+import type { GeneratedPage } from '../lib/site/artifact.ts'
+import ContentRenderer from './content/ContentRenderer.vue'
 
-const contentPageData = await useContentPageData()
-
-const pageMeta = contentPageData.page.meta
+defineProps<{
+  page: GeneratedPage
+}>()
 </script>
 
 <template>
-  <Head>
-    <Title>{{ pageMeta.title }} | {{ contentPageData.websiteTitle }}</Title>
-    <Meta property="og:title" :content="pageMeta.title" />
-    <Meta v-if="pageMeta.description" property="og:description" :content="pageMeta.description" />
-    <Meta property="og:type" content="website" />
-    <Meta name="twitter:card" content="summary" />
-    <Meta name="twitter:title" :content="pageMeta.title" />
-    <Meta v-if="pageMeta.description" name="twitter:description" :content="pageMeta.description" />
-    <Meta v-if="pageMeta.description" name="description" :content="pageMeta.description" />
-  </Head>
-  <article class="max-w-[var(--content-width)] mx-auto py-8">
-    <header class="mb-10">
-      <h1 class="text-3xl font-bold text-[var(--color-text)] tracking-tight leading-tight">
-        {{ pageMeta.title }}
-      </h1>
+  <article class="article-page standalone-page">
+    <header class="article-header shell">
+      <div class="article-title-block">
+        <p class="section-label"><span aria-hidden="true"></span>Page</p>
+        <h1>{{ page.meta.title }}</h1>
+        <p v-if="page.meta.description" class="article-lede">{{ page.meta.description }}</p>
+      </div>
     </header>
-
-    <AutoNotionPage
-      :record-map="contentPageData.page.recordMap"
-      :page-id="contentPageData.page.meta.pageId"
-    />
+    <div class="article-column">
+      <ContentRenderer :document="page.document" />
+    </div>
   </article>
 </template>

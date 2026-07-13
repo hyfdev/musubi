@@ -1,106 +1,93 @@
-import { resolveWebsiteConfig } from './app/server/website/resolveWebsiteConfig'
+import { readFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 
-const websiteConfig = await resolveWebsiteConfig()
+interface PreparedArtifactRoutes {
+  schemaVersion: number
+  routes: unknown
+}
 
-// https://nuxt.com/docs/api/configuration/nuxt-config
+async function readPreparedRoutes(): Promise<string[]> {
+  const artifactPath = resolve('.musubi/site.json')
+  const source = await readFile(artifactPath, 'utf8').catch(() => undefined)
+  if (!source) {
+    return ['/']
+  }
+
+  const artifact = JSON.parse(source) as PreparedArtifactRoutes
+  if (
+    artifact.schemaVersion !== 1 ||
+    !Array.isArray(artifact.routes) ||
+    artifact.routes.some((route) => typeof route !== 'string' || !route.startsWith('/'))
+  ) {
+    throw new Error(`Prepared Musubi artifact has an invalid route manifest: ${artifactPath}`)
+  }
+  return artifact.routes as string[]
+}
+
+const prerenderRoutes = [...(await readPreparedRoutes()), '/__musubi_not_found']
+
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  modules: ['@unocss/nuxt', 'unplugin-icons/nuxt', '@nuxtjs/color-mode', 'nuxt-prerender-kit'],
+  compatibilityDate: '2026-07-12',
+  modules: ['@unocss/nuxt'],
+  css: ['./app/assets/css/main.css'],
+  devtools: { enabled: false },
+  ssr: true,
   imports: {
     autoImport: false,
   },
   components: {
-    // Disable automatic component registration for clarity
     dirs: [],
   },
-  devtools: { enabled: true },
-  ssr: true,
+  features: {
+    noScripts: 'production',
+  },
+  experimental: {
+    appManifest: false,
+    payloadExtraction: false,
+  },
   typescript: {
     strict: true,
     typeCheck: true,
     tsConfig: {
+      compilerOptions: {
+        allowImportingTsExtensions: true,
+      },
       vueCompilerOptions: {
-        // Ensure strict template type checking. Especially for detecting unknown components.
         strictTemplates: true,
       },
     },
+    nodeTsConfig: {
+      compilerOptions: {
+        allowImportingTsExtensions: true,
+      },
+    },
     sharedTsConfig: {
-      include: ['../website.config.ts'],
-    },
-  },
-  css: ['./app/assets/css/main.css'],
-  vite: {
-    css: {
-      modules: {
-        localsConvention: 'camelCase',
-      },
-    },
-    ssr: {
-      // `react-tweet` imports `index.module.css`, we need to bundle it to support usintg css modules in ssr
-      noExternal: ['react-tweet'],
-    },
-    build: {
-      rollupOptions: {
-        external: ['node:fs'],
-        onwarn(warning, defaultHandler) {
-          // `react-tweet` uses `use client` which causes Rollup warning, we can safely ignore it
-          if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('use client')) {
-            return
-          }
-          // Suppress sourcemap warnings from `react-tweet`
-          if (warning.message?.includes("Can't resolve original location of error")) {
-            return
-          }
-          defaultHandler(warning)
-        },
-      },
-    },
-    environments: {
-      ssr: {
-        build: {
-          rollupOptions: {
-            onwarn(warning, defaultHandler) {
-              // `react-tweet` uses `use client` which causes Rollup warning, we can safely ignore it
-              if (
-                warning.code === 'MODULE_LEVEL_DIRECTIVE' &&
-                warning.message.includes('use client')
-              ) {
-                return
-              }
-              defaultHandler(warning)
-            },
-          },
-        },
+      compilerOptions: {
+        allowImportingTsExtensions: true,
       },
     },
   },
   nitro: {
-    rollupConfig: {
-      onwarn(warning, defaultHandler) {
-        // Useless circular dependency warning from some dependencies
-        if (warning.code === 'CIRCULAR_DEPENDENCY') {
-          return
-        }
-        defaultHandler(warning)
-      },
-    },
     prerender: {
-      crawlLinks: true,
-      routes: ['/'],
+      crawlLinks: false,
+      routes: prerenderRoutes,
       failOnError: true,
     },
-  },
-  experimental: {
-    // Caution:
-    // - When enable `sharedPrerenderData`, must pass string key to `useAsyncData` to avoid data collision.
-    // - When not passing string key to `useAsyncData`, nuxt will auto generate a key based on file path, which may cause data collision in some cases.
-    // - https://github.com/nuxt/nuxt/blob/9094bb11213012bd6161fd8127984d08a5c588a3/packages/nuxt/src/core/plugins/keyed-functions.ts
-    sharedPrerenderData: true,
+    routeRules: {
+      '/api/build/**': { prerender: false },
+    },
   },
   app: {
     head: {
-      title: websiteConfig.title, // default fallback title
-      meta: [{ name: 'description', content: websiteConfig.description }],
+      htmlAttrs: { lang: 'en-SG' },
+      link: [
+        { rel: 'icon', href: '/favicon.ico' },
+        { rel: 'stylesheet', href: '/_musubi/generated/fonts/fonts.css' },
+      ],
+      meta: [
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'color-scheme', content: 'light dark' },
+      ],
     },
   },
 })

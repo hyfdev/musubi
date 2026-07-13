@@ -4,6 +4,7 @@
 .nuxt
 .nitro
 .cache
+.musubi
 dist
 
 # Node dependencies
@@ -25,6 +26,9 @@ logs
 
 # Deployment
 .vercel
+
+# Build-generated stable public assets
+public/_musubi/generated
 
 # https://github.com/antfu/skills-npm
 **/skills/npm-*

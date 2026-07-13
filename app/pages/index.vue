@@ -1,43 +1,40 @@
 <script setup lang="ts">
-import { Head, Meta, Title } from '#components'
-import { useHomePageData } from '~/composables/useHomePageData'
-import PostList from '~/components/PostList.vue'
-import PaginationNav from '~/components/PaginationNav.vue'
+import { createError, useFetch, useHead } from '#imports'
+import PaginationNav from '../components/PaginationNav.vue'
+import PostList from '../components/PostList.vue'
 
-const homePageData = await useHomePageData()
+const { data, error } = await useFetch('/api/build/index/1', { key: 'post-index-1' })
+if (error.value || !data.value) {
+  throw createError({
+    statusCode: 500,
+    statusMessage: 'The article index could not be loaded',
+    cause: error.value,
+  })
+}
+const page = data.value
+
+useHead({
+  title: page.config.title,
+  link: [{ rel: 'canonical', href: page.config.link }],
+  meta: [
+    { property: 'og:title', content: page.config.title },
+    { property: 'og:description', content: page.config.description },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:url', content: page.config.link },
+  ],
+})
 </script>
 
 <template>
-  <Head>
-    <Title>{{ homePageData.websiteTitle }}</Title>
-    <Meta property="og:title" :content="homePageData.websiteTitle" />
-    <Meta property="og:type" content="website" />
-    <Meta name="twitter:card" content="summary" />
-    <Meta name="twitter:title" :content="homePageData.websiteTitle" />
-    <Meta
-      v-if="homePageData.websiteDescription"
-      property="og:description"
-      :content="homePageData.websiteDescription"
-    />
-    <Meta
-      v-if="homePageData.websiteDescription"
-      name="twitter:description"
-      :content="homePageData.websiteDescription"
-    />
-  </Head>
-  <div class="py-8">
-    <h2
-      class="text-sm font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider mb-6"
-    >
-      Posts
-    </h2>
-
-    <PostList :posts="homePageData.posts" />
-    <PaginationNav
-      :current-page="homePageData.currentPage"
-      :total-pages="homePageData.totalPages"
-      first-page-url="/"
-      page-base-url="/blog/page"
-    />
-  </div>
+  <section class="index-page shell">
+    <header class="index-header">
+      <p class="section-label"><span aria-hidden="true"></span>Writing</p>
+      <div class="index-header-grid">
+        <h1>Articles</h1>
+        <p>{{ page.config.description }}</p>
+      </div>
+    </header>
+    <PostList :posts="page.index.posts" :config="page.config" />
+    <PaginationNav :page="page.index.page" :page-count="page.pageCount" />
+  </section>
 </template>
