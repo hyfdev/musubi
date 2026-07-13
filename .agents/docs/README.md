@@ -11,4 +11,5 @@ Start with the record that owns the question instead of treating the folder as a
 | Completed repository-local migration checklist and acceptance evidence                     | [Implementation migration plan](./migration-plan.md)                                          |
 | Completed blank-slate research evidence and the selected Yunfei decision packet            | [Autonomous decision research](./decision-research.md)                                        |
 | Completed implementation session prompt                                                    | [Implementation `/goal` prompt](./implementation-goal-prompt.md)                              |
+| Yunfei's explicit visual requirements, preferences, rejections, and open choices           | [Root DESIGN-decisions.md](../../DESIGN-decisions.md)                                         |
 | Visual identity, exact tokens, responsive rules, light and dark themes, and Kami reference | [Root DESIGN.md](../../DESIGN.md)                                                             |
