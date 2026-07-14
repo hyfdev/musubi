@@ -5,7 +5,7 @@ description: A screen-first blog design derived from Kami's white print one-page
 colors:
   primary: '#1B365D'
   primary-hover: '#2D5A8A'
-  primary-dark: '#9FBDE2'
+  primary-dark: '#82A1D9'
   primary-dark-hover: '#BDD0E8'
   light-canvas: '#FFFFFF'
   light-surface: '#FAF9F5'
@@ -235,9 +235,9 @@ The recurring visual signature is a short ink-blue rule followed by a small, let
 
 Light mode follows the white print artifact itself. White is the page, `#141413` is the principal ink, warm grays carry body text and metadata, and `#1B365D` is the only chromatic accent. `#FAF9F5` and `#F5F4ED` are small supporting surfaces, not alternate page backgrounds. Ink blue should normally occupy less than five percent of a page.
 
-Dark mode reverses the paper-and-ink relationship instead of introducing a separate neon or blue-gray theme. `#141413` becomes the page, `#FAF9F5` becomes principal ink, and the supporting surfaces remain warm charcoal. The accent becomes `#9FBDE2` because Kami's lighter local blue, `#2D5A8A`, does not have enough contrast against the warm-black page for ordinary link text.
+Dark mode reverses the paper-and-ink relationship instead of introducing a separate neon or blue-gray theme. `#141413` becomes the page, `#FAF9F5` becomes principal ink, and the supporting surfaces remain warm charcoal. Musubi does not select an unrelated dark accent by eye: the versioned derivation in [the PCR record](./.agents/docs/dark-brand-color-derivation.md) turns the light brand seed `#1B365D` into the current dark brand color `#82A1D9`. Future seed changes regenerate this value with the same algorithm.
 
-In the inspected representative article, the lowest text contrast was 5.43:1 in light mode and 5.88:1 in dark mode. The dark accent was 9.53:1 against the page, 8.54:1 against the ordinary surface, and 6.83:1 against the stronger surface. Border tokens are decorative separators rather than sufficient interactive boundaries; visible focus uses the accent instead.
+In the inspected representative article, the lowest text contrast was 5.43:1 in light mode and 5.88:1 in dark mode. The generated dark accent is approximately 7.07:1 against the page, 6.33:1 against the ordinary surface, 5.07:1 against the stronger surface, and 4.70:1 against the selected-state background where it is used as 12-pixel text. Border tokens are decorative separators rather than sufficient interactive boundaries; visible focus uses the accent instead.
 
 - Use `primary` for links, focus, active navigation, list markers, the signature rule, and rare emphasis in light mode.
 - Use `primary-dark` for the same roles in dark mode.

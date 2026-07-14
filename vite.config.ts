@@ -48,8 +48,28 @@ export default defineConfig({
         command: 'vp run nuxt:typecheck',
         cache: false,
       },
+      'brand:verify': {
+        command: 'node scripts/verify-brand-color.ts',
+        cache: false,
+      },
+      'brand:check': {
+        command: [
+          'node scripts/verify-brand-color.ts --quick',
+          'node scripts/update-brand-color.ts --check',
+        ],
+        cache: false,
+      },
+      'brand:update': {
+        command: ['vp run brand:verify', 'node scripts/update-brand-color.ts --write'],
+        cache: false,
+      },
       generate: {
-        command: ['vp run content:prepare', 'vp run nuxt:generate', 'vp run static:finalize'],
+        command: [
+          'vp run brand:check',
+          'vp run content:prepare',
+          'vp run nuxt:generate',
+          'vp run static:finalize',
+        ],
         cache: false,
       },
       artifact: {
@@ -61,13 +81,14 @@ export default defineConfig({
           'vp run format',
           'vp run lint',
           'vp run typecheck',
+          'vp run brand:verify',
           'vp run generate',
           'vp run artifact',
         ],
         cache: false,
       },
       'visual:dev': {
-        command: ['vp run content:prepare', 'vp run nuxt:dev'],
+        command: ['vp run brand:check', 'vp run content:prepare', 'vp run nuxt:dev'],
         cache: false,
       },
       'visual:static': {

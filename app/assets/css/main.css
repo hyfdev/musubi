@@ -1,3 +1,5 @@
+@import './brand.generated.css';
+
 :root {
   --canvas: #ffffff;
   --surface: #faf9f5;
@@ -8,7 +10,8 @@
   --meta: #6b6a64;
   --border: #e8e6dc;
   --border-soft: #e5e3d8;
-  --accent: #1b365d;
+  --brand-accent: var(--brand-accent-light);
+  --accent: var(--brand-accent);
   --accent-hover: #2d5a8a;
   --accent-soft: #e4ecf5;
   --font-prose:
@@ -31,7 +34,8 @@
   --meta: #969188;
   --border: #383732;
   --border-soft: #2b2a26;
-  --accent: #9fbde2;
+  --brand-accent: var(--brand-accent-dark);
+  --accent: var(--brand-accent);
   --accent-hover: #bdd0e8;
   --accent-soft: #26364b;
   color-scheme: dark;
@@ -48,7 +52,8 @@
     --meta: #969188;
     --border: #383732;
     --border-soft: #2b2a26;
-    --accent: #9fbde2;
+    --brand-accent: var(--brand-accent-dark);
+    --accent: var(--brand-accent);
     --accent-hover: #bdd0e8;
     --accent-soft: #26364b;
     color-scheme: dark;
@@ -823,7 +828,8 @@ figcaption {
     --meta: #6b6a64;
     --border: #e8e6dc;
     --border-soft: #e5e3d8;
-    --accent: #1b365d;
+    --brand-accent: var(--brand-accent-light);
+    --accent: var(--brand-accent);
     color-scheme: light;
   }
 

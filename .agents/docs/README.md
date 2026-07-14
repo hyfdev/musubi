@@ -8,6 +8,7 @@ Start with the record that owns the question instead of treating the folder as a
 | System boundaries, Notion onboarding/schema, routes, navigation, and decisions             | [Target architecture](./architecture.md)                                                      |
 | Selected framework, language, styling, package, core-library, and development-tool choices | [Target technology stack](./technology-stack.md)                                              |
 | Required real-browser development and visual acceptance loop                               | [Visual frontend development and acceptance](./visual-frontend-development-and-acceptance.md) |
+| How one light brand seed deterministically produces the dark-mode brand color              | [Dark brand color derivation](./dark-brand-color-derivation.md)                               |
 | Completed repository-local migration checklist and acceptance evidence                     | [Implementation migration plan](./migration-plan.md)                                          |
 | Completed blank-slate research evidence and the selected Yunfei decision packet            | [Autonomous decision research](./decision-research.md)                                        |
 | Completed implementation session prompt                                                    | [Implementation `/goal` prompt](./implementation-goal-prompt.md)                              |
