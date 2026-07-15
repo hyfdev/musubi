@@ -18,6 +18,8 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Dark-theme brand-color derivation
 
+[VOUCHED @hyf0 2026-07-15]
+
 - **Date:** 2026-07-14.
 - **Status:** Required.
 - **Scope:** How Musubi turns its single light-mode brand color into the single corresponding dark-mode brand color. This decision governs the shared brand value, not component-specific state treatments.
