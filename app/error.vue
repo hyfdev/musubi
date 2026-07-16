@@ -16,8 +16,7 @@ useHead({
 </script>
 
 <template>
-  <main class="error-page shell">
-    <p class="section-label"><span aria-hidden="true"></span>{{ statusCode }}</p>
+  <section class="error-page reading-column" lang="en">
     <h1>{{ notFound ? 'Page not found' : 'Something went wrong' }}</h1>
     <p>
       {{
@@ -26,6 +25,6 @@ useHead({
           : 'This page could not be rendered.'
       }}
     </p>
-    <a href="/">Back to the article index</a>
-  </main>
+    <a href="/">Back to Home</a>
+  </section>
 </template>

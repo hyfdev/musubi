@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createError, useFetch, useHead, useRoute } from '#imports'
-import ContentPage from '../components/ContentPage.vue'
+import PagePage from '../components/PagePage.vue'
 
 const route = useRoute()
 const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug
@@ -12,7 +12,7 @@ const { data, error } = await useFetch('/api/build/page', {
   key: `published-page:${pageRoute}`,
   query: { route: pageRoute },
 })
-if (error.value || !data.value || data.value.page.meta.type !== 'Content') {
+if (error.value || !data.value || data.value.page.meta.type !== 'Page') {
   throw createError({ statusCode: 404, statusMessage: 'Page not found', cause: error.value })
 }
 const response = data.value
@@ -35,5 +35,5 @@ useHead({
 </script>
 
 <template>
-  <ContentPage :page="response.page" />
+  <PagePage :page="response.page" />
 </template>

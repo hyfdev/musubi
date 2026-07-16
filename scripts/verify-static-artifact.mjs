@@ -62,6 +62,9 @@ export async function verifyStaticArtifact(artifactRoot = resolve('.output/publi
       if (relativePath.endsWith('.js') || relativePath.endsWith('.mjs')) {
         throw new Error(`Static artifact contains browser JavaScript: ${relativePath}`)
       }
+      if (/\.(?:otc|otf|ttc|ttf)$/i.test(relativePath)) {
+        throw new Error(`Static artifact contains an upstream font source: ${relativePath}`)
+      }
       if (relativePath.includes('_payload') || relativePath.startsWith(`api${sep}`)) {
         throw new Error(`Static artifact contains a forbidden public data path: ${relativePath}`)
       }

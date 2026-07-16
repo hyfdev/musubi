@@ -42,7 +42,7 @@ The earlier question asking Yunfei to rank personal changeability against public
 
 The default website contains a chronological article index at `/`, later index pages at `/blog/page/:page`, Posts at `/blog/:slug`, and Content pages at `/:slug`. Page 1 has only `/` as its canonical route. Tags remain optional metadata and create no route; projects, notes, talks, and arbitrary user-defined collections are not promised until a concrete Yunfei requirement names one.
 
-Published slugs are explicit, not title-derived. Invalid or empty slugs, duplicate output routes, and conflicts with reserved generated routes fail generation. Published Content pages appear in navigation by default, can opt out with `ShowInNavigation`, and sort by `NavigationOrder` then title.
+Published slugs are explicit, not title-derived. Invalid or empty slugs, duplicate output routes, and conflicts with reserved generated routes fail generation. Published Content pages remain directly routable but enter primary navigation only when `ShowInNavigation` is explicitly true; visible Pages sort by `NavigationOrder` then title.
 
 ### Selected Notion ownership
 
@@ -54,7 +54,7 @@ The earlier packet incorrectly combined this product decision with “official A
 
 The documented template owns one content data source and one key/value configuration data source under a shareable root. The ordinary-user default is a workspace-scoped internal integration with only `Read content`; personal tokens remain acceptable temporary development credentials but are not the product contract, and public OAuth is not selected. The three required environment variables are `NOTION_TOKEN`, `NOTION_CONTENT_DATA_SOURCE_ID`, and `NOTION_CONFIG_DATA_SOURCE_ID`.
 
-The content source retains `Title`, `Slug`, `Date`, `Status`, `Type`, `Description`, and `Tags`. The target template also includes `ShowInNavigation` and `NavigationOrder`; its default Content page template sets the former to true and leaves the latter empty. A compatible source that omits those properties entirely uses visible and unordered as defaults. `Draft` and `Published` are the only status values; `Post` and `Content` are the only type values. Published rows require a title and slug, Published Posts also require a date, and Tags remain metadata only.
+The content source retains `Title`, `Slug`, `Date`, `Status`, `Type`, `Description`, and `Tags`. The target template also includes `ShowInNavigation` and `NavigationOrder`; its default Content page template leaves the former disabled and the latter empty. A compatible source that omits those properties entirely uses hidden-from-navigation and unordered as defaults. `Draft` and `Published` are the only status values; `Post` and `Content` are the only type values. Published rows require a title and slug, Published Posts also require a date, and Tags remain metadata only.
 
 The configuration source retains `Description`, `Key`, `Value`, and `Enable`. Enabled rows are allowlisted and parsed into a private typed object rather than becoming an arbitrary configuration API. `Title`, `Description`, and `Author` are trimmed nonempty strings; `Link`, `GitHub`, and `X(Twitter)` are absolute HTTP(S) URL strings; `Lang` is a valid BCP 47 language tag; `Timezone` is a valid IANA time-zone identifier; `Since` is an integer calendar year from 1 through 9999; and `PostsPerPage` is a positive integer.
 

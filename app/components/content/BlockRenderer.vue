@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import type { MusubiBlock, MusubiTableOfContentsEntry } from '../../lib/content/types.ts'
+import type {
+  MusubiBlock,
+  MusubiCalloutRole,
+  MusubiCodeToken,
+  MusubiTableOfContentsEntry,
+} from '../../lib/content/types.ts'
+import TypographyText from '../TypographyText.vue'
 import InlineRenderer from './InlineRenderer.vue'
 import TocList from './TocList.vue'
 
@@ -20,6 +26,44 @@ function tableCellTag(rowIndex: number, cellIndex: number): 'th' | 'td' {
     ? 'th'
     : 'td'
 }
+
+function calloutLabel(role: MusubiCalloutRole): string {
+  return role[0]!.toUpperCase() + role.slice(1)
+}
+
+function tableOfContentsLabelId(): string {
+  const start = props.block.position?.start
+  return `table-of-contents-${start?.line ?? 0}-${start?.column ?? 0}`
+}
+
+function codeTokenStyle(token: MusubiCodeToken): Record<string, string> {
+  const style: Record<string, string> = {
+    '--code-token-light': token.light,
+    '--code-token-dark': token.dark,
+  }
+  addCodeFontStyle(style, 'light', token.lightStyle)
+  addCodeFontStyle(style, 'dark', token.darkStyle)
+  return style
+}
+
+function addCodeFontStyle(
+  style: Record<string, string>,
+  theme: 'light' | 'dark',
+  fontStyle: number,
+): void {
+  if (fontStyle & 1) {
+    style[`--code-token-${theme}-font-style`] = 'italic'
+  }
+  if (fontStyle & 2) {
+    style[`--code-token-${theme}-font-weight`] = '700'
+  }
+  const decorations = [fontStyle & 4 ? 'underline' : '', fontStyle & 8 ? 'line-through' : '']
+    .filter(Boolean)
+    .join(' ')
+  if (decorations) {
+    style[`--code-token-${theme}-decoration`] = decorations
+  }
+}
 </script>
 
 <template>
@@ -27,11 +71,17 @@ function tableCellTag(rowIndex: number, cellIndex: number): 'th' | 'td' {
     <InlineRenderer :nodes="block.children" />
   </p>
 
-  <div v-else-if="block.type === 'heading'" class="prose-heading">
+  <div
+    v-else-if="block.type === 'heading'"
+    class="prose-heading"
+    :class="`prose-heading-${headingTag()}`"
+  >
     <component :is="headingTag()" :id="block.id">
       <InlineRenderer :nodes="block.children" />
     </component>
-    <a class="heading-anchor" :href="`#${block.id}`" aria-label="Link to this section">#</a>
+    <a class="heading-anchor" :href="`#${block.id}`" aria-label="Link to this section" lang="en"
+      >#</a
+    >
   </div>
 
   <component
@@ -63,9 +113,28 @@ function tableCellTag(rowIndex: number, cellIndex: number): 'th' | 'td' {
     </li>
   </component>
 
-  <pre
+  <div
     v-else-if="block.type === 'code'"
-  ><span v-if="block.language" class="code-language">{{ block.language }}</span><code>{{ block.value }}</code></pre>
+    class="code-block"
+    :class="{ 'has-language': block.language }"
+  >
+    <div class="code-toolbar" lang="en">
+      <span v-if="block.language" class="code-language">{{ block.language }}</span>
+      <button type="button" class="code-copy">
+        <span class="code-copy-label" aria-live="polite">Copy</span>
+      </button>
+    </div>
+    <pre
+      class="code-scroll"
+      tabindex="0"
+      :aria-label="block.language ? `${block.language} code block` : 'Code block'"
+    ><code v-if="block.highlight"><span
+      v-for="(token, tokenIndex) in block.highlight.tokens"
+      :key="tokenIndex"
+      class="code-token"
+      :style="codeTokenStyle(token)"
+    >{{ token.content }}</span></code><code v-else>{{ block.value }}</code></pre>
+  </div>
 
   <blockquote v-else-if="block.type === 'quote'">
     <BlockRenderer
@@ -76,9 +145,13 @@ function tableCellTag(rowIndex: number, cellIndex: number): 'th' | 'td' {
     />
   </blockquote>
 
-  <aside v-else-if="block.type === 'callout'" class="content-callout">
-    <span v-if="block.icon" class="content-callout-icon" aria-hidden="true">{{ block.icon }}</span>
+  <aside
+    v-else-if="block.type === 'callout'"
+    class="content-callout"
+    :class="`content-callout-${block.role}`"
+  >
     <div>
+      <p class="content-callout-label" lang="en">{{ calloutLabel(block.role) }}</p>
       <BlockRenderer
         v-for="(child, childIndex) in block.children"
         :key="childIndex"
@@ -92,7 +165,7 @@ function tableCellTag(rowIndex: number, cellIndex: number): 'th' | 'td' {
 
   <figure v-else-if="block.type === 'image'">
     <img :src="block.src" :alt="block.alt" loading="lazy" decoding="async" />
-    <figcaption v-if="block.caption">{{ block.caption }}</figcaption>
+    <figcaption v-if="block.caption"><TypographyText :value="block.caption" /></figcaption>
   </figure>
 
   <a v-else-if="block.type === 'file'" class="content-file" :href="block.src" download>
@@ -101,7 +174,7 @@ function tableCellTag(rowIndex: number, cellIndex: number): 'th' | 'td' {
   </a>
 
   <div v-else-if="block.type === 'table'" class="content-table-wrap">
-    <table>
+    <table :class="{ 'has-header-row': block.headerRow }">
       <tbody>
         <tr v-for="(row, rowIndex) in block.children" :key="rowIndex">
           <component
@@ -126,17 +199,17 @@ function tableCellTag(rowIndex: number, cellIndex: number): 'th' | 'td' {
   <nav
     v-else-if="block.type === 'tableOfContents'"
     class="content-toc"
-    aria-label="Table of contents"
+    :aria-labelledby="tableOfContentsLabelId()"
   >
-    <p class="content-toc-title">Table of contents</p>
+    <p :id="tableOfContentsLabelId()" class="content-toc-title" lang="en">Contents</p>
     <TocList :entries="tableOfContents" />
   </nav>
 
-  <aside v-else-if="block.type === 'linkCard'" class="x-link-card">
+  <aside v-else-if="block.type === 'linkCard'" class="x-link-card" lang="en">
     <span class="x-link-card-mark" aria-hidden="true">X</span>
     <div>
       <p class="x-link-card-label">Referenced X post</p>
-      <a :href="block.url" target="_blank" rel="noreferrer">Read the post on X</a>
+      <a :href="block.url" target="_blank" rel="noopener noreferrer">Read the post on X</a>
     </div>
   </aside>
 </template>

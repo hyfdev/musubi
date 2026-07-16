@@ -1,317 +1,365 @@
 ---
 version: alpha
-name: Musubi Paper and Ink
-description: A screen-first blog design derived from Kami's white print one-pager, with warm paper neutrals, Luo-led Chinese typography, one restrained blue accent, and a purpose-built dark palette.
+name: Musubi
+description: A quiet, paper-like editorial system for multilingual technical writing on the web.
 colors:
+  canvas-light: '#FFFFFF'
+  surface-light: '#FAF9F5'
+  text-primary-light: '#141413'
+  text-secondary-light: '#3D3D3A'
+  text-supporting-light: '#504E49'
+  text-tertiary-light: '#6B6A64'
+  border-primary-light: '#E8E6DC'
+  border-secondary-light: '#F0EFE9'
   primary: '#1B365D'
-  primary-hover: '#2D5A8A'
+  canvas-dark: '#141413'
+  surface-dark: '#30302E'
+  text-primary-dark: '#E8E6DC'
+  text-secondary-dark: '#C9C7BE'
+  text-supporting-dark: '#AAA8A0'
+  text-tertiary-dark: '#898780'
+  text-tertiary-on-surface-dark: '#9D9B93'
+  border-primary-dark: '#4A4944'
+  border-secondary-dark: '#383733'
   primary-dark: '#82A1D9'
-  primary-dark-hover: '#BDD0E8'
-  light-canvas: '#FFFFFF'
-  light-surface: '#FAF9F5'
-  light-surface-strong: '#F5F4ED'
-  light-ink: '#141413'
-  light-text: '#3D3D3A'
-  light-text-muted: '#504E49'
-  light-meta: '#6B6A64'
-  light-border: '#E8E6DC'
-  light-border-soft: '#E5E3D8'
-  light-accent-soft: '#E4ECF5'
-  dark-canvas: '#141413'
-  dark-surface: '#1F1F1C'
-  dark-surface-strong: '#30302E'
-  dark-ink: '#FAF9F5'
-  dark-text: '#D8D4C8'
-  dark-text-muted: '#B0AEA5'
-  dark-meta: '#969188'
-  dark-border: '#383732'
-  dark-border-soft: '#2B2A26'
-  dark-accent-soft: '#26364B'
+  note-light: '#0969DA'
+  warning-light: '#9A6700'
+  error-light: '#D1242F'
+  note-dark: '#4493F8'
+  warning-dark: '#D29922'
+  error-dark: '#F85149'
+  code-canvas-light: '#FFFFFF'
+  code-border-light: '#E1E4E8'
+  code-text-light: '#24292E'
+  code-label-light: '#6A737D'
+  code-canvas-dark: '#24292E'
+  code-border-dark: '#1B1F23'
+  code-text-dark: '#E1E4E8'
+  code-label-dark: '#959DA5'
 typography:
-  display:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
-    fontSize: 42px
-    fontWeight: 400
-    lineHeight: 1.12
-    letterSpacing: -0.01em
-  headline-lg:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
-    fontSize: 34px
-    fontWeight: 400
-    lineHeight: 1.2
-    letterSpacing: -0.005em
-  headline-md:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
+  heading-1:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W05', 'Musubi CJK Fallback', serif"
+    fontSize: 32px
+    fontWeight: 500
+    lineHeight: 1.28
+    letterSpacing: 0em
+  heading-2:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W05', 'Musubi CJK Fallback', serif"
     fontSize: 27px
-    fontWeight: 400
-    lineHeight: 1.3
+    fontWeight: 500
+    lineHeight: 36px
     letterSpacing: 0em
-  headline-sm:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
-    fontSize: 21px
-    fontWeight: 400
-    lineHeight: 1.4
+  heading-3:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W05', 'Musubi CJK Fallback', serif"
+    fontSize: 22px
+    fontWeight: 500
+    lineHeight: 32px
     letterSpacing: 0em
-  lede:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
+  heading-4:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W05', 'Musubi CJK Fallback', serif"
+    fontSize: 19px
+    fontWeight: 500
+    lineHeight: 28px
+    letterSpacing: 0em
+  heading-5:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W05', 'Musubi CJK Fallback', serif"
+    fontSize: 17px
+    fontWeight: 500
+    lineHeight: 28px
+    letterSpacing: 0em
+  home-title:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W04', 'Musubi CJK Fallback', serif"
     fontSize: 20px
     fontWeight: 400
-    lineHeight: 1.65
-    letterSpacing: 0.01em
-  body:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
+    lineHeight: 30px
+    letterSpacing: 0em
+  body-latin:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', serif"
     fontSize: 17px
     fontWeight: 400
-    lineHeight: 1.75
-    letterSpacing: 0.01em
-  body-sm:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
+    lineHeight: 28px
+    letterSpacing: 0em
+  body-cjk:
+    fontFamily: "'Tsanger JinKai W04', 'Musubi CJK Fallback', serif"
+    fontSize: 17px
+    fontWeight: 400
+    lineHeight: 28px
+    letterSpacing: 0.015em
+  supporting:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W04', 'Musubi CJK Fallback', serif"
+    fontSize: 16px
+    fontWeight: 400
+    lineHeight: 26px
+    letterSpacing: 0em
+  interface:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W04', 'Musubi CJK Fallback', serif"
     fontSize: 14px
     fontWeight: 400
-    lineHeight: 1.6
-    letterSpacing: 0.01em
-  label:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
+    lineHeight: 20px
+    letterSpacing: 0em
+  metadata:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W04', 'Musubi CJK Fallback', serif"
     fontSize: 13px
     fontWeight: 400
-    lineHeight: 1.4
-    letterSpacing: 0.08em
-  meta:
-    fontFamily: '"Luo", "Musubi CJK Fallback", Seravek, Candara, Optima, "Iowan Old Style", Charter, Georgia, "Avenir Next", "SF Pro Text", sans-serif'
-    fontSize: 13px
+    lineHeight: 20px
+    letterSpacing: 0em
+  micro-label:
+    fontFamily: "Charter, 'Bitstream Charter', 'Iowan Old Style', Georgia, Palatino, 'Times New Roman', 'Tsanger JinKai W04', 'Musubi CJK Fallback', serif"
+    fontSize: 12px
     fontWeight: 400
-    lineHeight: 1.5
-    letterSpacing: 0.02em
+    lineHeight: 16px
+    letterSpacing: 0em
   code:
-    fontFamily: '"JetBrains Mono", "SFMono-Regular", Consolas, "Luo", "Musubi CJK Fallback", monospace'
+    fontFamily: "'JetBrains Mono', SFMono-Regular, Consolas, 'Tsanger JinKai W04', 'Musubi CJK Fallback', monospace"
     fontSize: 14px
     fontWeight: 400
-    lineHeight: 1.65
+    lineHeight: 23px
     letterSpacing: 0em
 rounded:
   none: 0px
-  sm: 4px
-  md: 6px
-  lg: 8px
+  inline: 3px
+  small: 4px
+  code: 6px
+  large: 8px
   full: 9999px
 spacing:
-  xs: 4px
-  sm: 8px
-  md: 16px
-  lg: 24px
-  xl: 32px
-  section: 48px
-  chapter: 72px
+  unit: 4px
+  xs: 8px
+  sm: 12px
+  paragraph: 16px
+  component: 20px
+  wide-component: 28px
+  section: 40px
+  group: 48px
+  page: 64px
   mobile-gutter: 20px
-  desktop-gutter: 32px
-  article-max: 680px
-  shell-max: 1040px
+  reading-width: 720px
+  frame-width: 1120px
+  header-desktop: 60px
+  header-mobile: 88px
 components:
-  page-light:
-    backgroundColor: '{colors.light-canvas}'
-    textColor: '{colors.light-ink}'
-    typography: '{typography.body}'
-    rounded: '{rounded.none}'
-  page-dark:
-    backgroundColor: '{colors.dark-canvas}'
-    textColor: '{colors.dark-ink}'
-    typography: '{typography.body}'
-    rounded: '{rounded.none}'
-  article-light:
-    backgroundColor: '{colors.light-canvas}'
-    textColor: '{colors.light-text}'
-    typography: '{typography.body}'
-    rounded: '{rounded.none}'
-  article-dark:
-    backgroundColor: '{colors.dark-canvas}'
-    textColor: '{colors.dark-text}'
-    typography: '{typography.body}'
-    rounded: '{rounded.none}'
-  lede-light:
-    backgroundColor: '{colors.light-canvas}'
-    textColor: '{colors.light-text-muted}'
-    typography: '{typography.lede}'
-    rounded: '{rounded.none}'
-  lede-dark:
-    backgroundColor: '{colors.dark-canvas}'
-    textColor: '{colors.dark-text-muted}'
-    typography: '{typography.lede}'
-    rounded: '{rounded.none}'
-  meta-light:
-    backgroundColor: '{colors.light-canvas}'
-    textColor: '{colors.light-meta}'
-    typography: '{typography.meta}'
-    rounded: '{rounded.none}'
-  meta-dark:
-    backgroundColor: '{colors.dark-canvas}'
-    textColor: '{colors.dark-meta}'
-    typography: '{typography.meta}'
-    rounded: '{rounded.none}'
+  header-light:
+    backgroundColor: '{colors.canvas-light}'
+    textColor: '{colors.text-secondary-light}'
+    height: '{spacing.header-desktop}'
+  header-dark:
+    backgroundColor: '{colors.canvas-dark}'
+    textColor: '{colors.text-secondary-dark}'
+    height: '{spacing.header-desktop}'
+  footer-light:
+    backgroundColor: '{colors.canvas-light}'
+    textColor: '{colors.text-tertiary-light}'
+    typography: '{typography.metadata}'
+    height: '{spacing.header-desktop}'
+  footer-dark:
+    backgroundColor: '{colors.canvas-dark}'
+    textColor: '{colors.text-tertiary-dark}'
+    typography: '{typography.metadata}'
+    height: '{spacing.header-desktop}'
+  inline-code-light:
+    backgroundColor: '{colors.surface-light}'
+    textColor: '{colors.text-primary-light}'
+    rounded: '{rounded.inline}'
+  inline-code-dark:
+    backgroundColor: '{colors.surface-dark}'
+    textColor: '{colors.text-primary-dark}'
+    rounded: '{rounded.inline}'
   code-block-light:
-    backgroundColor: '{colors.light-surface}'
-    textColor: '{colors.light-text}'
+    backgroundColor: '{colors.code-canvas-light}'
+    textColor: '{colors.code-text-light}'
     typography: '{typography.code}'
-    rounded: '{rounded.md}'
-    padding: '{spacing.md}'
+    rounded: '{rounded.code}'
   code-block-dark:
-    backgroundColor: '{colors.dark-surface}'
-    textColor: '{colors.dark-text}'
+    backgroundColor: '{colors.code-canvas-dark}'
+    textColor: '{colors.code-text-dark}'
     typography: '{typography.code}'
-    rounded: '{rounded.md}'
-    padding: '{spacing.md}'
-  menu-light:
-    backgroundColor: '{colors.light-surface-strong}'
-    textColor: '{colors.light-ink}'
-    typography: '{typography.body-sm}'
-    rounded: '{rounded.lg}'
-    padding: '{spacing.sm}'
-  menu-dark:
-    backgroundColor: '{colors.dark-surface-strong}'
-    textColor: '{colors.dark-ink}'
-    typography: '{typography.body-sm}'
-    rounded: '{rounded.lg}'
-    padding: '{spacing.sm}'
-  link-light:
-    backgroundColor: '{colors.light-canvas}'
+    rounded: '{rounded.code}'
+  navigation-current-light:
+    backgroundColor: '{colors.canvas-light}'
     textColor: '{colors.primary}'
-    typography: '{typography.body}'
-    rounded: '{rounded.none}'
-  link-light-hover:
-    backgroundColor: '{colors.light-canvas}'
-    textColor: '{colors.primary-hover}'
-    typography: '{typography.body}'
-    rounded: '{rounded.none}'
-  link-dark:
-    backgroundColor: '{colors.dark-canvas}'
+    typography: '{typography.interface}'
+  navigation-current-dark:
+    backgroundColor: '{colors.canvas-dark}'
     textColor: '{colors.primary-dark}'
-    typography: '{typography.body}'
-    rounded: '{rounded.none}'
-  link-dark-hover:
-    backgroundColor: '{colors.dark-canvas}'
-    textColor: '{colors.primary-dark-hover}'
-    typography: '{typography.body}'
-    rounded: '{rounded.none}'
-  selection-light:
-    backgroundColor: '{colors.light-accent-soft}'
-    textColor: '{colors.primary}'
-    typography: '{typography.body}'
-    rounded: '{rounded.sm}'
-    padding: '{spacing.xs}'
-  selection-dark:
-    backgroundColor: '{colors.dark-accent-soft}'
-    textColor: '{colors.primary-dark}'
-    typography: '{typography.body}'
-    rounded: '{rounded.sm}'
-    padding: '{spacing.xs}'
-  divider-light:
-    backgroundColor: '{colors.light-border}'
+    typography: '{typography.interface}'
+  supporting-copy-light:
+    backgroundColor: '{colors.canvas-light}'
+    textColor: '{colors.text-supporting-light}'
+    typography: '{typography.supporting}'
+  supporting-copy-dark:
+    backgroundColor: '{colors.canvas-dark}'
+    textColor: '{colors.text-supporting-dark}'
+    typography: '{typography.supporting}'
+  metadata-on-surface-dark:
+    backgroundColor: '{colors.surface-dark}'
+    textColor: '{colors.text-tertiary-on-surface-dark}'
+    typography: '{typography.metadata}'
+  divider-primary-light:
+    backgroundColor: '{colors.border-primary-light}'
     height: 1px
-  divider-light-soft:
-    backgroundColor: '{colors.light-border-soft}'
+  divider-secondary-light:
+    backgroundColor: '{colors.border-secondary-light}'
     height: 1px
-  divider-dark:
-    backgroundColor: '{colors.dark-border}'
+  divider-primary-dark:
+    backgroundColor: '{colors.border-primary-dark}'
     height: 1px
-  divider-dark-soft:
-    backgroundColor: '{colors.dark-border-soft}'
+  divider-secondary-dark:
+    backgroundColor: '{colors.border-secondary-dark}'
+    height: 1px
+  callout-note-rule-light:
+    backgroundColor: '{colors.note-light}'
+    width: 2px
+  callout-warning-rule-light:
+    backgroundColor: '{colors.warning-light}'
+    width: 2px
+  callout-error-rule-light:
+    backgroundColor: '{colors.error-light}'
+    width: 2px
+  callout-note-rule-dark:
+    backgroundColor: '{colors.note-dark}'
+    width: 2px
+  callout-warning-rule-dark:
+    backgroundColor: '{colors.warning-dark}'
+    width: 2px
+  callout-error-rule-dark:
+    backgroundColor: '{colors.error-dark}'
+    width: 2px
+  code-label-light:
+    backgroundColor: '{colors.code-canvas-light}'
+    textColor: '{colors.code-label-light}'
+    typography: '{typography.micro-label}'
+  code-label-dark:
+    backgroundColor: '{colors.code-canvas-dark}'
+    textColor: '{colors.code-label-dark}'
+    typography: '{typography.micro-label}'
+  code-border-light:
+    backgroundColor: '{colors.code-border-light}'
+    height: 1px
+  code-border-dark:
+    backgroundColor: '{colors.code-border-dark}'
     height: 1px
 ---
 
-# Musubi Design Direction
+# Musubi Design System
 
 ## Overview
 
-This is the selected visual direction implemented by Musubi. Earlier product code remains historical migration evidence and does not override this record.
+Musubi is a static publishing framework for personal and technical writing in Chinese, English, or both. Its primary audience is a reader who has come to understand an essay, inspect code, or browse an archive; every page should make those jobs easier before it expresses the framework itself.
 
-Yunfei selected the Kami white print artifact as the reference for the overall blog style, the inspected warm dark palette alongside the light theme, and Luo as Musubi's Chinese typeface. Musubi pins and self-hosts a reviewed Luo input and automatically generates a matching `Musubi CJK Fallback` subset for every current-corpus code point assigned to Chinese typography that Luo lacks.
+The visual direction follows Kami's paper-like restraint while adapting it to responsive web reading. Pure white or warm black fills the viewport, one centered reading axis gives the site the continuity of a single sheet of paper, and type, whitespace, and fine rules carry hierarchy. The page is editorial rather than application-like: it has no dashboard chrome, card grid, promotional hero, or decorative illustration by default.
 
-Musubi should feel like a carefully typeset personal publication rather than a generic application shell. The primary reference is Kami's [white print one-pager](https://kami.tw93.fun/assets/demos/demo-kami-print.html) at [`b3d856266d3e75278770f58e55d19d69583e35b0`](https://github.com/tw93/Kami/tree/b3d856266d3e75278770f58e55d19d69583e35b0): white paper, warm black text, warm gray supporting tones, one ink-blue accent, type-led hierarchy, fine rules, restrained whitespace, and almost no visual effects.
+The characteristic element is the tension between a quiet paper surface and one controlled ink-blue accent. The blue marks links, focus, current position, and structural emphasis; it must never become a large decorative field. Chinese JinKai and English Charter provide the site's personality, while JetBrains Mono and unmodified GitHub syntax themes make code utilitarian and familiar.
 
-This is a translation of the reference into a responsive, screen-first blog, not a copy of its fixed A4 layout or font choice. The reference keeps two-column and four-column structures at a 390px viewport, so Musubi must redesign those structures for narrow screens. Its TsangerJinKai02 font files are also about 18MB per weight, and the pinned [Kami font notice](https://github.com/tw93/Kami/blob/b3d856266d3e75278770f58e55d19d69583e35b0/README.md#L201) states that commercial use needs separate authorization. Musubi uses Luo for Chinese instead.
-
-The recurring visual signature is a short ink-blue rule followed by a small, letter-spaced label above important page titles. Major headers may pair a left-aligned title block with a quiet right-aligned metadata block on wide screens. This detail should identify the publication without turning every section heading into decoration.
+Musubi's built-in reader interface is English-only in the initial release. Author-owned titles, summaries, Pages, Posts, captions, site identity, and navigation remain in the language in which they are written. The document language setting continues to govern metadata and locale-sensitive date formatting; framework-owned English strings must be marked as English when the surrounding document uses another language.
 
 ## Colors
 
-Light mode follows the white print artifact itself. White is the page, `#141413` is the principal ink, warm grays carry body text and metadata, and `#1B365D` is the only chromatic accent. `#FAF9F5` and `#F5F4ED` are small supporting surfaces, not alternate page backgrounds. Ink blue should normally occupy less than five percent of a page.
+The light theme is a pure white sheet with warm-black type. The dark theme is a warm near-black sheet rather than a blue-gray or absolute black inversion. Both themes use four neutral text levels, two neutral divider levels, one shared brand role, and three semantic Callout roles.
 
-Dark mode reverses the paper-and-ink relationship instead of introducing a separate neon or blue-gray theme. `#141413` becomes the page, `#FAF9F5` becomes principal ink, and the supporting surfaces remain warm charcoal. Musubi does not select an unrelated dark accent by eye: the versioned derivation in [the PCR record](./.agents/docs/dark-brand-color-derivation.md) turns the light brand seed `#1B365D` into the current dark brand color `#82A1D9`. Future seed changes regenerate this value with the same algorithm.
+- **Light canvas (`#FFFFFF`):** The page background and the main expression of the design.
+- **Light surface (`#FAF9F5`):** A warm contained surface for inline code, table headers, and other elements that genuinely need a filled region.
+- **Light text (`#141413`, `#3D3D3A`, `#504E49`, `#6B6A64`):** Use primary for headings and core reading text, secondary for interface text, supporting for summaries and ledes, and tertiary for metadata and captions.
+- **Light dividers (`#E8E6DC`, `#F0EFE9`):** Use primary for explicit boundaries and thematic breaks; use secondary for repeated rows and quiet separators.
+- **Dark canvas (`#141413`):** The page background in Dark mode.
+- **Dark surface (`#30302E`):** The contained surface for inline code and neutral table headers in Dark mode.
+- **Dark text (`#E8E6DC`, `#C9C7BE`, `#AAA8A0`, `#898780`):** Apply the same four roles as the light theme on the dark canvas. On the `#30302E` surface, replace tertiary `#898780` with `#9D9B93`; the first three levels remain unchanged.
+- **Dark dividers (`#4A4944`, `#383733`):** Use the first for clear structure and the second for quiet repetition. Use the primary divider when a contained dark surface needs a clearly visible boundary.
+- **Brand (`#1B365D` light, `#82A1D9` dark):** Use for prose links, keyboard focus, current navigation, strong emphasis, heading permalinks, blockquote rules, list markers, and other small structural or interactive accents. Keep its visible area to roughly five percent or less.
+- **Semantic Callouts:** Note uses `#0969DA` light and `#4493F8` dark; Warning uses `#9A6700` light and `#D29922` dark; Error uses `#D1242F` light and `#F85149` dark. These values come directly from GitHub Primer roles and do not derive from the brand seed.
 
-In the inspected representative article, the lowest text contrast was 5.43:1 in light mode and 5.88:1 in dark mode. The generated dark accent is approximately 7.07:1 against the page, 6.33:1 against the ordinary surface, 5.07:1 against the stronger surface, and 4.70:1 against the selected-state background where it is used as 12-pixel text. Border tokens are decorative separators rather than sufficient interactive boundaries; visible focus uses the accent instead.
+The light brand color is the source of truth. The current dark value is generated by Musubi's versioned dark-brand algorithm v2 for its fixed usage backgrounds rather than selected by eye. When the brand seed or a checked usage background changes, run `vp run brand:update` and review the regenerated pair; do not create component-specific blue values.
 
-- Use `primary` for links, focus, active navigation, list markers, the signature rule, and rare emphasis in light mode.
-- Use `primary-dark` for the same roles in dark mode.
-- Use the accent-soft tokens only for selection, a small tag, or a temporary interactive state; do not create large blue panels.
-- Keep body text warm and neutral. Do not replace the supporting grays with cool slate or blue-gray.
-- If Musubi defines print-specific presentation, it always uses the light white-paper palette regardless of the selected screen theme.
-- Meet WCAG AA contrast for text and visible focus. Never use color as the only cue for state or meaning.
+Fenced code is an intentional exception to the editorial palette. Light blocks use GitHub's `#FFFFFF` canvas, `#E1E4E8` border, `#24292E` foreground, and `#6A737D` utility label. Dark blocks use `#24292E`, `#1B1F23`, `#E1E4E8`, and `#959DA5`. Syntax tokens come from the complete Shiki `github-light` and `github-dark` themes and retain their original colors and font styles.
 
 ## Typography
 
-Typography carries most of the hierarchy. Chinese characters, Chinese punctuation, and full-width symbols use Luo Regular. English and numbers use the humanist Seravek-first fallback stack recommended by Luo, while code, commands, and data whose alignment matters use the monospaced family.
+Typography carries most of Musubi's identity. Chinese body and ordinary interface text use Tsanger JinKai 02 W04; Chinese headings and explicit emphasis use W05. English headings, prose, metadata, and interface text use Charter with conventional serif fallbacks. Code uses JetBrains Mono, with W04 available for Chinese code text. Do not introduce a default sans-serif interface family.
 
-The live specimen's implementation matches Luo source snapshot [`588c4f3`](https://github.com/tw93/Luo/tree/588c4f3dbe3a0e9b3b860ca62f61ca9b373909d1): one CJK-only `Luo-Regular.woff2` face at weight 400 under the SIL Open Font License 1.1. Repository main had already advanced to a different v0.4 preview at [`cf548a9`](https://github.com/tw93/Luo/tree/cf548a9ed1ae4034c43d647e8b32090d84630cb2) during inspection. Both builds are in progress and have incomplete GB2312 coverage. Musubi pins and self-hosts the reviewed `588c4f3` input, retains its license, declares the CJK unicode range, and never depends on a mutable CDN `main` asset.
+When Tsanger source files are available to a build, generate role-aware W04 and W05 subsets from the actual published corpus. Build-known Chinese body and ordinary interface characters belong to W04; headings and explicit emphasis belong to W05; Home list titles are a deliberate W04 exception. Preserve every mapped code point from `LXGW WenKai GB Medium v1.522` across content-addressed, pre-sharded `Musubi CJK Fallback` files for characters that first appear at runtime or are absent from a generated Tsanger subset. Do not synthesize missing weights or styles.
 
-`Musubi CJK Fallback` is a generated font, not an assumed platform font. A historical Yunfei corpus used 1,476 unique CJK characters; the inspected current Luo build covered 774 and missed 702, while covering 90.43 percent of CJK occurrences. Every deployment inventories the complete generated set assigned to Chinese typography, including CJK characters, Chinese punctuation, and full-width symbols, extracts only Luo-missing code points from the matching pinned LXGW WenKai Screen base, and emits one deterministic WOFF2. Because `LXGW WenKai` is an OFL Reserved Font Name, the generated font replaces every Reserved Font Name occurrence in its identity records, including localized family, full, unique, and PostScript names, with `Musubi CJK Fallback` identities rather than applying only a CSS alias. It retains copyright and OFL metadata and ships the license. If a required code point exists in neither pinned source, generation fails rather than silently switching to a platform font.
+- **Body:** `17px / 28px`. English uses zero letter spacing. Apply `0.015em` letter spacing only to Chinese characters, Chinese punctuation, and full-width symbols, not to an entire mixed-language run.
+- **Supporting prose:** `16px / 26px` for summaries, optional ledes, and secondary text that may still be a full paragraph.
+- **Interface:** `14px / 20px` for navigation, table-of-contents links, Callout labels, Blog year headings, and other short structural text.
+- **Metadata:** `13px / 20px` for dates, captions, footer copy, and passive facts.
+- **Micro labels:** `12px / 16px` is the minimum for short utility text such as a code language label; never use this tier for prose or ordinary navigation.
+- **Headings:** Use H1 `32px / 1.28`, H2 `27px / 36px`, H3 `22px / 32px`, H4 `19px / 28px`, and H5 `17px / 28px`. Use W05 for Chinese and Charter's heading treatment for English. Size, position, whitespace, and color work together; do not make headings oversized merely to establish hierarchy.
+- **Home and Blog entry titles:** Use `20px / 30px`, W04 for Chinese, regular Charter for English, and normal weight. These are restrained navigation items, not miniature article H1s.
+- **Strong:** Use W05 for Chinese and Charter's strong treatment for Latin, with the shared theme brand color. Do not add an underline or fill.
+- **Emphasis:** Keep Latin `em` in Charter italic. Render Chinese `em` upright in W05 because a synthesized JinKai italic is not part of the system.
+- **Deletion:** Use the supporting neutral color and a plain one-pixel line-through.
 
-- Long-form body copy is 17px with a 1.75 line height on ordinary screens.
-- The article lead is 20px with a 1.65 line height and should be used only once near the title.
-- Major titles use the display or large-headline token; ordinary article sections use the medium and small headline tokens.
-- On narrow screens, reduce display to approximately 32px and large headlines to approximately 28px while preserving line height and hierarchy.
-- Balance multi-line display titles and prevent a lone CJK character on the final line. The implementation may use supported browser wrapping behavior or an explicit title layout, but it must be verified with representative long mixed-script titles rather than assumed from one viewport.
-- Do not synthesize bold or italic Luo glyphs. Chinese hierarchy comes from size, spacing, position, and color. If a Latin-only utility label later needs another native weight, give it a separate Latin typography token instead of changing the mixed-script Luo tokens.
-- Keep line length near 36 to 42 CJK characters or 60 to 75 Latin characters. Do not widen prose merely because the viewport allows it.
+Titles should remain on one line when they naturally fit, but they must wrap at normal line-breaking opportunities when they exceed the available width. Never use `nowrap`, clipping, truncation, or type shrinking to preserve a single line.
 
 ## Layout
 
-The default article is one continuous column with a maximum width of 680px. A wider 1040px shell may hold site navigation, article metadata, indexes, figures, or intentionally wider editorial compositions, but prose returns to the article column.
+Musubi uses a fixed-maximum outer frame and one centered reading axis. The outer content edges are at most `1120px` apart; the implementation may use a `1160px` box when that box includes the required `20px` padding on each side. The reading column is at most `720px`. Both widths shrink fluidly, and ordinary content always retains at least `20px` between itself and each viewport edge. Reserve vertical-scrollbar space symmetrically so the outer frame, header controls, and reading axis retain the same physical horizontal coordinates when navigation moves between short and long routes. Browsers without native symmetric-gutter support use a permanent scrollbar plus equal left-side compensation. Do not solve route stability by allowing document-level horizontal overflow.
 
-- Center the shell, use 32px desktop gutters and 20px mobile gutters, and let the canvas extend to the viewport edge without a card around the article.
-- Separate sections with 48px and major chapters with 72px. Use the smaller spacing scale inside a coherent section.
-- Let wide article headers use the reference's asymmetric title and metadata arrangement. Move metadata below the title on narrow screens.
-- Use thin horizontal rules to separate durable groups such as the site header, article metadata, and footer.
-- Treat two-column notes, metrics, and timelines as optional editorial structures. Collapse them to one column or a readable wrapped grid before their text becomes narrow.
-- Blog indexes should read like an editorial contents page: title and summary lead, date and metadata recede, and fine rules or whitespace separate entries. Do not wrap every post in a card.
-- Images and diagrams may escape the article column up to the shell width when their content needs it. Captions return to the muted metadata style.
-- Preserve a calm first viewport. Navigation and utilities should not compete with the article title.
+Three widths exist for non-prose content: the `720px` reading column, the `1120px` outer frame, and the available viewport. Keep ordinary figures, tables, code, Callouts, and diagrams at `720px`. Use `1120px` when one complex item or relationship needs to remain visible at once. Use viewport-edge, component-local horizontal scrolling only for continuous media that readers intentionally explore item by item. The document itself must never scroll horizontally. Until Musubi gains an explicit author-owned width declaration, every supported content block renders at `720px`; never infer a wider tier from pixel size, aspect ratio, file size, Notion layout, or component type.
 
-Responsive behavior is based on readable content, not on preserving the reference's A4 geometry. At 390px, no body paragraph, list, timeline step, metric, code block, or metadata group may be forced into the fixed two-column or four-column arrangements used by the source artifact. Horizontal scrolling is permitted for code and genuinely tabular data only.
+- **Home:** Begin directly with the five most recent Posts, newest first, in the `720px` column. Do not add a hero, personal introduction, visible Home H1, tags, categories, or reading time. Each entry contains a `20px` title followed immediately by its date in the same inline flow, then an optional untruncated summary on the next line.
+- **Blog:** Begin with the semantic H1 `Blog`, then show every published Post on one unpaginated page. Group entries by year, newest first, on the same `720px` axis. Use the same title and optional natural summary treatment as Home, but omit the repeated year from each inline date because the group heading already supplies it. Do not separate every entry with a border; use one secondary divider only between adjacent year groups.
+- **Post:** Align H1, optional lede, publication date, and prose to `720px`. The date is currently the only header metadata, but the line may accept future approved fields. Place a full outer-frame divider below the header with `24px` from metadata to divider and another `24px` from divider to body, then finish the article with one restrained `Back to Blog` link.
+- **Page:** A Page is a top-level non-Post route. Reuse the Post reading system and outer-frame header divider, but show no date, empty metadata row, or `Back to Blog` link.
+- **Page openers:** Home starts with content. Blog, Post, and Page start with their semantic H1. Do not add recurring eyebrow labels, a decorative short rule, or a long divider to Home or Blog.
+- **404 and empty Blog:** Keep them plain on the reading axis without cards or illustrations. A 404 states what happened and offers `Back to Home`; an empty Blog states that no Posts have been published and offers no action a public reader cannot perform.
 
-If print-specific presentation is included, it hides site navigation and interactive controls, restores the light palette, uses a white page, avoids splitting coherent figures or callouts where possible, and preserves readable link destinations when useful.
+Base spacing follows a `4px` grid. Paragraphs end with `16px`. Use `40px` before and `12px` after H2; `28px` before and `8px` after H3; `24px` before and `8px` after H4; and `20px` before and `8px` after H5. Lists use `8px` above and `16px` below, with no automatic extra gap between adjacent items. Blockquotes, Callouts, figures, tables, files, and link rows use approximately `20px` above and below. Fenced code uses `16px`; a thematic break uses `40px` above and `24px` below. A figure or gallery that leaves the reading axis uses `28px` to mark the transition.
 
 ## Elevation & Depth
 
-Hierarchy comes from typography, whitespace, thin rules, and small surface-tone changes. Articles, lists, code blocks, and callouts do not use drop shadows. A floating menu or dialog may use one very soft shadow when separation cannot be achieved by border and tone alone; ordinary hover states must not make content cards rise.
+Musubi is flat. Hierarchy comes from typography, whitespace, one-pixel rules, two-pixel semantic or brand rules, and small changes in warm-neutral surface tone. Articles, lists, code blocks, Callouts, navigation, and archive entries do not use drop shadows or hover elevation.
+
+Do not place the page, article, or list entries inside floating cards. Use `#FAF9F5` or `#30302E` only when a component genuinely needs containment, such as inline code or a table header. A future floating menu or dialog may use one very soft shadow only when border and tone cannot separate it from the page.
 
 ## Shapes
 
-The page and article column have no rounded container. Inline surfaces use 4px to 8px radii: 4px for small tags and selections, 6px for code and controls, and 8px for menus or dialogs. Pills are reserved for controls whose behavior requires that shape; post tags and metadata should usually remain text.
+The page, reading column, header, footer, navigation states, Callouts, tables, attachments, and archive rows are square and line-led. Do not add a rounded article container or use pills for ordinary metadata and tags.
+
+Inline code uses a restrained `3px` radius and fenced code uses `6px`. Small controls may use up to `4px`, while menus or dialogs may use up to `8px` if introduced. The appearance control is one zero-radius segmented group of three square icon buttons. A circular or pill shape is reserved for an interaction whose behavior specifically requires it, not for decoration.
 
 ## Components
 
-- **Site header:** A quiet text-led row with a fine bottom rule. The site name may use the signature label and rule, while navigation remains visually secondary.
-- **Article header:** A label, title, optional lead, and restrained metadata. On desktop, metadata may align to the title block's right edge; on mobile it follows the lead in normal flow.
-- **Links:** Ink blue in light mode and the lighter dark accent in dark mode. Preserve underlines in prose or provide another persistent non-color cue; hover alone is not enough.
-- **Code blocks:** A warm, nearly white surface in light mode and a slightly lifted warm-charcoal surface in dark mode, with a thin border, 6px radius, and horizontal scrolling when needed. Do not use a saturated editor theme that overwhelms the article.
-- **Blockquotes and callouts:** Transparent background by default, one blue left rule, and indented warm-gray text. Reserve filled backgrounds for a state whose meaning requires stronger containment.
-- **Lists:** Use the single accent for small markers. Keep list indentation and vertical rhythm generous enough for mixed Chinese and English prose.
-- **Post index entries:** Use whitespace and a thin divider instead of a card. Title is primary, summary is ordinary body text, and date or taxonomy uses the meta token.
-- **Images and figures:** Use no decorative frame by default. Add a thin warm border only when the image edge would disappear into the page.
-- **Theme control:** Small, text or icon led, keyboard reachable, visibly focused, and subordinate to navigation. Its mechanics are an implementation decision, but both explicit themes must be visually accepted.
-- **Focus:** Use a clearly visible two-pixel outline derived from the active theme accent with enough offset to remain visible beside borders and text.
+- **Global header:** Use a three-zone `60px` desktop header inside the outer frame: configured site identity on the left, one combined primary-and-social navigation module in the visual center, and only the appearance control on the right. Separate site links from social links with one quiet vertical rule. The default example identity is plain-text `Musubi`; do not invent an icon, logo, or decorative short rule.
+- **Narrow header:** At `760px` and below, use an `88px` two-row header. Put site identity and appearance control at opposite ends of the first row and the combined navigation on the second. Keep navigation on one line; when it exceeds the available width, scroll only that row, show subtle edge fades, and bring the current page into view. Do not wrap it or hide it in a menu by default.
+- **Sticky behavior:** Keep the header visible at the top of the page, slide it out when the reader scrolls down, and reveal it when the reader scrolls up. Revealing it on keyboard focus is mandatory.
+- **Footer:** Match the header's height: `60px` desktop and `88px` narrow. Place `© {currentYear} {siteOwner}` at the left and `Built with Musubi` at the right, linking only `Musubi`. Keep both on one line even on mobile. Do not include RSS.
+- **Navigation:** Neutral links become brand-colored on hover. The current page uses the theme brand color plus a `2px` underline that spans only its label. Keyboard focus remains a separate visible state.
+- **Prose links:** Use brand-colored text and a persistent `1px` underline at `42%` brand opacity with a `3px` offset. Strengthen the underline to the full brand color on hover. External destinations open in a new browsing context with `noopener`; internal routes remain in the current context.
+- **Heading permalinks:** Give each section heading a stable fragment and a brand-colored `#` with the same computed size and line height as its heading. Reveal it on heading hover or keyboard focus on hover-capable desktop devices; keep it visible where hover is unavailable. Keep the heading text on the `720px` reading axis at every width: never shift one heading away from the surrounding prose to make room for the permalink. Position the symbol in the outer gutter, leaving `16px` between its box and the title on wide layouts and `8px` on narrow layouts. Where overlay scrollbars leave no reserved viewport gutter, increase the complete Post or Page reading-axis gutter just enough to keep the full-size symbol visible; keep its title, prose, and other headings together on that same axis. Give the permalink at least a `24px` pointer target.
+- **Lists and blockquotes:** Use brand-colored list markers and native checkbox accent. Blockquotes remain transparent with a `2px` brand left rule, `20px` inset, and supporting text color.
+- **Inline code:** Use the standard neutral surface without a border, `3px` radius, JetBrains Mono, and approximately `0.88em` text. It should remain part of the sentence rather than resemble a badge or control. The current light treatment is intentionally quiet; its contrast may be revisited without changing this document until a replacement is accepted.
+- **Fenced code:** Use complete Shiki `github-light` and `github-dark` token styling, the exact GitHub surfaces and borders defined above, `6px` radius, and `14px / 23px` code. Keep the optional language label and visible Copy action above and outside the scrolling region. Never wrap code; scroll long lines locally. Copy reports `Copied` or `Copy failed` visibly and to assistive technology.
+- **Callouts:** Support Note, Warning, and Error. Keep the background transparent and use only a `2px` semantic left rule; show a neutral English role label above neutral body text and show no source icon, replacement icon, badge, or semantic fill. Color cannot be the only carrier of meaning.
+- **Callout authoring:** A Callout is Note by default. Inspect only its first content line for one complete supported declaration: `{note}` or `{type=note}`, `{warning}` or `{type=warning}`, and `{error}` or `{type=error}`. Ignore leading whitespace, whitespace just inside braces, whitespace around `=`, and ASCII case. Remove a recognized declaration and retain ordinary text after it. Unsupported or malformed brace text such as `{info}` or `{warning` remains visible ordinary content and the Callout remains Note; do not fail, guess, or require an escape syntax.
+- **Table of contents:** Present the directory as an editorial index rather than a Callout or ordinary nested list. Keep one vertical column at every viewport width and draw no background, border, or decorative rule; the visible neutral `Contents` label identifies the component without competing with a nearby article-header divider. Render the label at `14px / 22px` in heading type. Render links at `14px / 22px` with `2px` vertical padding: top-level entries use ink and heading weight, while descendants use regular supporting text. Leave `8px` only between adjacent top-level groups; keep descendants close to their parent and indent each nested level by `12px`, for a maximum `36px` offset. Do not underline links at rest; use the brand color and a `1px` underline only on hover or keyboard focus. Do not split the list into desktop columns.
+- **Tables:** Use a light neutral header, the primary divider below a header row, and secondary horizontal separators between ordinary rows. A table wider than the reading column scrolls in its own container; it never widens or scrolls the page.
+- **Figures and galleries:** Ordinary figures remain on the reading axis without a decorative frame. A wide figure's overall caption returns to the `720px` axis; each gallery item's caption stays attached to its image. Add a thin neutral border only when an image edge would otherwise disappear into the canvas.
+- **Files and external references:** Render them as quiet list rows with separators, not application cards.
+- **Appearance modes:** Support Light, Dark, and System. First visits use System; explicit choices persist; a saved System choice continues to track operating-system changes in real time. System is a preference source, not a third palette.
+- **Appearance control:** Use one restrained segmented group containing three adjacent icon buttons in the fixed order Light, Dark, System. Selecting a segment applies that mode directly. Fixed Light uses a sun, fixed Dark a crescent, and System a monitor plus a small sun or crescent showing the resolved palette. Mark the selected segment structurally, provide an accurate accessible name and tooltip for every choice, and do not add a curtain decoration, cyclic interaction, menu, or animated intermediate state.
+- **Focus and selection:** Every keyboard-reachable control uses a visible `2px` theme-brand outline with `3px` offset. Text selection uses a quiet brand-tinted background. Never rely on hover or color alone to convey state.
+- **Motion:** Keep ordinary color transitions around `120–160ms` and the sticky-header movement around `180ms`. Appearance choices change directly with only the ordinary short state transition. Use motion only to explain state or preserve reading space, not to animate content into view. Under `prefers-reduced-motion: reduce`, remove smooth scrolling and reduce transitions and animations to effectively immediate changes.
+
+Musubi does not provide a print stylesheet. Do not hide interface chrome, replace the active theme, rewrite link presentation, or add page-breaking rules specifically for printing.
 
 ## Do's and Don'ts
 
-- Do preserve the white-page light mode as the primary expression of the design.
-- Do use Luo for Chinese, a humanist Latin companion, whitespace, and fine rules as the main hierarchy system.
-- Do keep one blue accent and a warm neutral scale in both themes.
-- Do make article content and responsive readability more important than A4 fidelity.
-- Do inspect representative Chinese, English, mixed-language, code-heavy, image-heavy, short, and long posts in both themes.
-- Don't copy the reference's fixed two-column or four-column structures onto narrow screens.
-- Don't substitute Kami's TsangerJinKai02 for Luo or silently inherit Tsanger's licensing and payload cost.
-- Don't synthesize unavailable Luo weights or styles.
-- Don't put the article inside a floating rounded card.
-- Don't use a grid of interchangeable cards as the default blog index.
-- Don't use large gradients, glass effects, heavy shadows, neon accents, or cold blue-gray surfaces.
-- Don't let accent color cover large areas or use multiple competing accent hues.
-- Don't preserve screen dark mode when printing.
+- Do make long-form reading and code inspection the first priority of every page.
+- Do preserve the centered `720px` axis and use the `1120px` frame only for shell structure or genuinely wide information.
+- Do use type, whitespace, and fine rules before adding another container.
+- Do keep the single brand accent coupled across links, focus, current state, strong emphasis, heading permalinks, blockquotes, and list markers.
+- Do regenerate and review the dark brand color whenever its light seed or checked backgrounds change.
+- Do preserve the four neutral text roles and verify them separately on every surface.
+- Do let long titles and summaries wrap naturally instead of truncating or shrinking them.
+- Do keep Home short, Blog complete, Posts dated, and Pages free of Post-only metadata.
+- Do keep code syntax familiar, horizontally scrollable, and easy to copy in both themes.
+- Do provide visible text labels for Callout meaning even though the left rule also uses a semantic color.
+- Do test Chinese, English, mixed-language, code-heavy, image-heavy, short, and long content at desktop and narrow widths in Light, Dark, and System modes.
+- Don't add a hero, promotional intro, recurring eyebrow, decorative brand mark, or default About page.
+- Don't turn archives, files, links, Callouts, or article sections into a grid of interchangeable cards.
+- Don't use gradients, glass effects, neon colors, cold blue-gray surfaces, heavy shadows, or large accent-colored areas.
+- Don't introduce another accent hue for ordinary structure; semantic Note, Warning, and Error colors are the explicit exception.
+- Don't synthesize Chinese bold or italic styles, and don't add a default sans-serif interface face.
+- Don't infer wide content from source dimensions or Notion layout before an explicit author declaration exists.
+- Don't wrap mobile navigation, hide it behind a menu by default, or allow any component to create document-level horizontal scrolling.
+- Don't create print-specific behavior.

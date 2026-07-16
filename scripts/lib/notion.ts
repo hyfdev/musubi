@@ -61,7 +61,7 @@ export function readNotionEnvironment(
   }
 }
 
-function createNotionClient(token: string): Client {
+export function createNotionClient(token: string): Client {
   return new Client({
     auth: token,
     notionVersion: NOTION_API_VERSION,
@@ -170,6 +170,19 @@ function plainText(items: RichTextItemResponse[]): string {
   return items.map((item) => item.plain_text).join('')
 }
 
+export function normalizeNotionContentType(
+  value: string | undefined,
+  sourceLabel: string,
+): SourceContentRow['type'] {
+  if (value === 'Post' || value === 'Page') {
+    return value
+  }
+  if (value === 'Content') {
+    return 'Page'
+  }
+  throw new Error(`${sourceLabel}.Type must be Post or Page (legacy Content remains compatible)`)
+}
+
 function property(
   page: PageObjectResponse,
   name: string,
@@ -222,10 +235,10 @@ function parseContentRow(page: PageObjectResponse, index: number): LoadedNotionC
   if (status !== 'Draft' && status !== 'Published') {
     throw new Error(`${sourceLabel}.Status must be Draft or Published`)
   }
-  const type = typeProperty.type === 'select' ? typeProperty.select?.name : undefined
-  if (type !== 'Post' && type !== 'Content') {
-    throw new Error(`${sourceLabel}.Type must be Post or Content`)
-  }
+  const type = normalizeNotionContentType(
+    typeProperty.type === 'select' ? typeProperty.select?.name : undefined,
+    sourceLabel,
+  )
   const order = navigationOrder?.type === 'number' ? navigationOrder.number : undefined
   if (order !== undefined && order !== null && !Number.isFinite(order)) {
     throw new Error(`${sourceLabel}.NavigationOrder must be a finite number`)

@@ -1,26 +1,36 @@
 <script setup lang="ts">
-import { formatPublishedDate } from '../lib/site/format.ts'
+import { computed } from 'vue'
+import { formatPublishedDate, type PublishedDateStyle } from '../lib/site/format.ts'
 import type { PublicPageMeta, SiteConfig } from '../lib/site/types.ts'
+import TypographyText from './TypographyText.vue'
 
-defineProps<{
-  posts: PublicPageMeta[]
-  config: SiteConfig
-}>()
+const props = withDefaults(
+  defineProps<{
+    posts: PublicPageMeta[]
+    config: SiteConfig
+    headingLevel?: 2 | 3
+    dateStyle?: PublishedDateStyle
+  }>(),
+  { headingLevel: 2, dateStyle: 'full' },
+)
+
+const headingTag = computed(() => `h${props.headingLevel}`)
 </script>
 
 <template>
-  <div class="post-index-list">
-    <article v-for="post in posts" :key="post.route" class="post-index-entry">
-      <div class="post-index-copy">
-        <h2>
-          <a :href="post.route">{{ post.title }}</a>
-        </h2>
-        <p v-if="post.description">{{ post.description }}</p>
-        <p v-if="post.tags.length" class="post-tags">{{ post.tags.join(' · ') }}</p>
+  <div class="post-list">
+    <article v-for="post in posts" :key="post.route" class="post-entry">
+      <div class="post-title-row">
+        <component :is="headingTag">
+          <a :href="post.route"><TypographyText :value="post.title" /></a>
+        </component>
+        <time v-if="post.date" :datetime="post.date">{{
+          formatPublishedDate(post.date, config, dateStyle)
+        }}</time>
       </div>
-      <time v-if="post.date" :datetime="post.date">{{
-        formatPublishedDate(post.date, config)
-      }}</time>
+      <p v-if="post.description" class="post-summary">
+        <TypographyText :value="post.description" />
+      </p>
     </article>
   </div>
 </template>

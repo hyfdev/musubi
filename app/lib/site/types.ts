@@ -1,5 +1,5 @@
 export type ContentStatus = 'Draft' | 'Published'
-export type ContentType = 'Post' | 'Content'
+export type ContentType = 'Post' | 'Page'
 
 export interface SourceContentRow {
   sourceLabel: string
@@ -62,13 +62,7 @@ export interface NavigationItem {
   route: string
 }
 
-export interface PostIndexPage {
-  page: number
-  route: string
-  posts: PublicPageMeta[]
-}
-
-export type RouteKind = 'home' | 'post-index' | 'post' | 'content'
+export type RouteKind = 'home' | 'blog' | 'post' | 'page'
 
 export interface RouteManifestEntry {
   route: string
@@ -81,9 +75,10 @@ export interface RouteManifest {
   entries: RouteManifestEntry[]
   routes: string[]
   posts: PublishedPageMeta[]
-  contentPages: PublishedPageMeta[]
+  standalonePages: PublishedPageMeta[]
   navigation: NavigationItem[]
-  postIndexPages: PostIndexPage[]
+  homePosts: PublicPageMeta[]
+  blogPosts: PublicPageMeta[]
 }
 
 export function toPublicPageMeta(page: PublishedPageMeta): PublicPageMeta {

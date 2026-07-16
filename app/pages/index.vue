@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { createError, useFetch, useHead } from '#imports'
-import PaginationNav from '../components/PaginationNav.vue'
 import PostList from '../components/PostList.vue'
 
-const { data, error } = await useFetch('/api/build/index/1', { key: 'post-index-1' })
+const { data, error } = await useFetch('/api/build/home', { key: 'musubi-home' })
 if (error.value || !data.value) {
   throw createError({
     statusCode: 500,
-    statusMessage: 'The article index could not be loaded',
+    statusMessage: 'The Home page could not be loaded',
     cause: error.value,
   })
 }
@@ -26,15 +25,9 @@ useHead({
 </script>
 
 <template>
-  <section class="index-page shell">
-    <header class="index-header">
-      <p class="section-label"><span aria-hidden="true"></span>Writing</p>
-      <div class="index-header-grid">
-        <h1>Articles</h1>
-        <p>{{ page.config.description }}</p>
-      </div>
-    </header>
-    <PostList :posts="page.index.posts" :config="page.config" />
-    <PaginationNav :page="page.index.page" :page-count="page.pageCount" />
+  <section class="home-page reading-column" aria-labelledby="recent-posts-label">
+    <span id="recent-posts-label" class="visually-hidden" lang="en">Recent posts</span>
+    <PostList v-if="page.posts.length" :posts="page.posts" :config="page.config" />
+    <p v-else class="empty-state" lang="en">No posts have been published yet.</p>
   </section>
 </template>

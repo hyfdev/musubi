@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { MusubiInline } from '../../lib/content/types.ts'
+import TypographyText from '../TypographyText.vue'
 
 defineProps<{
   nodes: readonly MusubiInline[]
@@ -12,7 +13,7 @@ function isExternal(url: string): boolean {
 
 <template>
   <template v-for="(node, index) in nodes" :key="`${node.type}-${index}`">
-    <template v-if="node.type === 'text'">{{ node.value }}</template>
+    <TypographyText v-if="node.type === 'text'" :value="node.value" />
     <strong v-else-if="node.type === 'strong'">
       <InlineRenderer :nodes="node.children" />
     </strong>
@@ -28,7 +29,7 @@ function isExternal(url: string): boolean {
       v-else-if="node.type === 'link'"
       :href="node.url"
       :target="isExternal(node.url) ? '_blank' : undefined"
-      :rel="isExternal(node.url) ? 'noreferrer' : undefined"
+      :rel="isExternal(node.url) ? 'noopener noreferrer' : undefined"
     >
       <InlineRenderer :nodes="node.children" />
     </a>

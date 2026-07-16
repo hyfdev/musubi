@@ -10,10 +10,10 @@ The loop must prove more than compilation and DOM structure. For every user-faci
 
 Use this loop for changes to visible UI, layout, content presentation, themes, responsive behavior, keyboard or pointer interaction, focus, accessibility, and user-visible application states. A code-only change with no observable effect may skip a new visual pass only when the agent states why the visible boundary cannot change.
 
-## No automated test suite
+## Programmatic checks do not replace visual acceptance
 
-- Musubi does not maintain unit, integration, Playwright Test, browser, or end-to-end test suites.
-- Formatting, linting, Vue-aware type checking, and the Nuxt production build are programmatic checks, not substitutes for visual acceptance.
+- Focused unit tests, formatting, linting, Vue-aware type checking, and the Nuxt production build are programmatic checks, not substitutes for visual acceptance.
+- Musubi does not currently maintain a committed browser or end-to-end test suite. Interactive browser acceptance remains an inspected development workflow rather than a project dependency.
 - Interactive browser control may use `agent-browser`, a Playwright or Chrome DevTools wrapper, direct browser tooling, or another controller with the required capabilities. The controller is not a Musubi dependency or a project-level source of truth.
 
 ## Required loop
@@ -45,8 +45,8 @@ Use this loop for changes to visible UI, layout, content presentation, themes, r
 ### 5. Exercise the affected workflow
 
 - Start from a known content and browser state.
-- Exercise `/`, one `/blog/:slug` Post, one `/:slug` Content page, `/blog/page/2` when the fixture has enough Posts, one missing route, and direct entry plus hard refresh for each affected route family. Confirm that no tag route or broken Tags navigation entry is exposed.
-- Inspect navigation with visible, hidden, ordered, and missing-order Content rows when those states are affected. Inspect an X embed as its selected non-interactive link card and verify that provider failure leaves an ordinary usable link and the article body.
+- Exercise `/`, `/blog`, one `/blog/:slug` Post, one `/:slug` Page, one missing route, and direct entry plus hard refresh for each affected route family. Confirm that Home contains at most five recent Posts, Blog contains the complete year-grouped archive, no paginated Blog or tag route is exposed, and no broken navigation entry appears.
+- Inspect navigation with visible, hidden, ordered, and missing-order Page rows when those states are affected. Inspect an X embed as its selected non-interactive link card and verify that provider failure leaves an ordinary usable link and the article body.
 - Perform the actual user actions needed to reach the affected state, including keyboard, pointer, focus, hover, scroll, or responsive interactions when relevant.
 - Inspect page errors, console errors, failed transport requests, HTTP responses with status `400` or higher, and unexpected application warnings.
 - Check loading, success, empty, failure, and recovery states when the change affects them.
@@ -95,4 +95,4 @@ Visual acceptance is complete only when:
 
 ## Source adapted
 
-This workflow was adapted from Yunfei's draft `visual-frontend-devlopment-feedback-loops.md` for Rolldown Playground. Musubi deliberately omits that draft's automated unit tests, Playwright Test scenarios, CI test matrix, product-specific WebContainer behavior, and test-artifact policy.
+This workflow was adapted from Yunfei's draft `visual-frontend-devlopment-feedback-loops.md` for Rolldown Playground. Musubi deliberately omits that draft's committed Playwright Test scenarios, CI browser matrix, product-specific WebContainer behavior, and test-artifact policy.

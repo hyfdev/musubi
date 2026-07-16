@@ -1,22 +1,24 @@
 <script setup lang="ts">
 import type { SiteConfig } from '../lib/site/types.ts'
+import TypographyText from './TypographyText.vue'
 
-const props = defineProps<{
+defineProps<{
   config: SiteConfig
 }>()
 
 const currentYear = new Date().getFullYear()
-const yearRange =
-  props.config.since < currentYear ? `${props.config.since}–${currentYear}` : String(currentYear)
 </script>
 
 <template>
   <footer class="site-footer">
     <div class="shell site-footer-inner">
-      <p>
-        © {{ yearRange }} <a :href="config.link">{{ config.author }}</a>
+      <p>© {{ currentYear }} <TypographyText :value="config.author" /></p>
+      <p lang="en">
+        Built with
+        <a href="https://github.com/hyf0/musubi" target="_blank" rel="noopener noreferrer"
+          >Musubi</a
+        >
       </p>
-      <p>Written in Notion, typeset by Musubi.</p>
     </div>
   </footer>
 </template>

@@ -1,8 +1,19 @@
 # Musubi Font Sources
 
-Musubi does not commit upstream font binaries. The build downloads them into a private checksum-addressed user cache, verifies them, and writes only the public artifacts required by the current generated corpus.
+Musubi does not commit upstream font binaries. The build writes generated public font artifacts under `public/_musubi/generated/fonts/` and records their sources, coverage, and checksums in `fonts-manifest.json`.
 
-- `Luo-Regular.woff2`: [`tw93/Luo`](https://github.com/tw93/Luo) commit `588c4f3dbe3a0e9b3b860ca62f61ca9b373909d1`, path `dist/Luo-Regular.woff2`, SHA-256 `661581c1210598a1b6950c34b160fe0318b4cdc122fea8aeed11691555336724`.
-- `Musubi-CJK-Fallback.woff2`: generated from [`lxgw/LxgwWenKai-Screen`](https://github.com/lxgw/LxgwWenKai-Screen) release `v1.522`, asset `LXGWWenKaiScreen.ttf`, SHA-256 `cd1a6fa39c4ea42fd8f4e289945789b0e510cf7016435640f8893cdad9b220f3`.
+## Tsanger JinKai 02
 
-The generated fallback contains only current-corpus Chinese typography code points absent from Luo. Its family, full, unique, preferred-family, and PostScript identities are rewritten to `Musubi CJK Fallback` identities so the modified font does not use the upstream Reserved Font Name. `fonts-manifest.json` records the exact coverage and artifact checksums for each generation.
+Tsanger JinKai 02 W04 is the preferred Chinese body face and W05 is the preferred Chinese heading and emphasis face. Musubi never obtains them during installation or an ordinary build. A builder opts one checkout in by running `vp run font:setup`, which downloads the pinned files directly from `tsanger.cn`, verifies their exact size and SHA-256, and installs the complete pair in the ignored private `.musubi/font-inputs/` cache. The setup download supports interruption recovery and only makes a verified W04/W05 pair visible to later builds. `MUSUBI_TSANGER_CACHE_DIR` may select another private cache directory for cloud builds or shared local storage.
+
+The build checks paired `MUSUBI_TSANGER_W04_PATH` and `MUSUBI_TSANGER_W05_PATH` overrides first, then the verified setup cache. When neither source is present, the public build remains complete and uses the open-licensed fallback family. Supplying only one explicit path is an error because it would silently collapse the accepted two-weight hierarchy. Setup writes its activation marker only after both pinned files pass verification, so an interrupted first setup remains an ordinary fallback build. Once activated, a missing or corrupt source fails the build with repair and clear commands instead of silently changing typography.
+
+The person building and publishing a deployment is responsible for ensuring that their Tsanger license covers the resulting webfont use and distribution. Musubi's root MIT license does not relicense third-party font files or generated font derivatives.
+
+## Musubi CJK Fallback
+
+`Musubi CJK Fallback` is generated from [`LXGW WenKai GB`](https://github.com/lxgw/LxgwWenKaiGB) Medium release `v1.522`, asset `LXGWWenKaiGB-Medium.ttf`, SHA-256 `b885c51ec0d3f325974013801dfcefda1a9ba0bf385c607cf5f2582dafa2e5ab`. The build downloads the pinned source into a private checksum-addressed user cache, verifies it, and emits every mapped source code point across a complete set of Unicode-range WOFF2 shards rather than trimming the fallback to the current article corpus. Each public shard filename includes its generated-content hash. A browser therefore downloads only the shards needed by the current page, while later runtime content can still resolve against the complete published fallback and safely reuse long-lived cached files.
+
+The deployment host should serve these content-addressed shard URLs with an immutable cache policy such as `Cache-Control: public, max-age=31536000, immutable`. A changed source, tool output, or glyph set produces a different URL; `fonts.css` and `fonts-manifest.json` point to the matching files.
+
+The generated shards replace upstream Reserved Font Name identities with `Musubi CJK Fallback`, retain copyright and OFL metadata, ship the SIL Open Font License 1.1, and are validated before publication. A required build-time Chinese typography code point that is absent from the complete fallback fails generation rather than silently switching to an unrelated system face.

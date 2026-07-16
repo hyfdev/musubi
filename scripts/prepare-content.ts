@@ -2,14 +2,15 @@ import { createHash } from 'node:crypto'
 import { mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import { relative, resolve, sep } from 'node:path'
 
-import { extractTextFromAst } from '../app/lib/content/index.ts'
+import { extractTypographyCorpora } from '../app/lib/content/index.ts'
 import type { GeneratedPage, GeneratedSiteArtifact } from '../app/lib/site/artifact.ts'
 import { resolveSiteConfig } from '../app/lib/site/config.ts'
 import { formatPublishedDate } from '../app/lib/site/format.ts'
 import { buildRouteManifest } from '../app/lib/site/routes.ts'
 import { toPublicPageMeta } from '../app/lib/site/types.ts'
 import { stabilizeDocumentAssets } from './lib/assets.ts'
-import { buildPublicFonts, type FontBuildManifest } from './lib/build-fonts.ts'
+import { buildPublicFonts, type FontBuildManifest, type FontCorpora } from './lib/build-fonts.ts'
+import { highlightDocuments } from './lib/highlight.ts'
 import {
   loadNotionSources,
   loadPublishedNotionPages,
@@ -24,20 +25,27 @@ const generatedPublicDirectory = resolve(projectRoot, 'public/_musubi/generated'
 const artifactPath = resolve(privateBuildDirectory, 'site.json')
 
 const applicationText = [
-  'Articles',
-  'Previous',
-  'Next',
-  'Page',
+  'Home',
+  'Blog',
   'Table of contents',
-  'X post',
-  'Read on X',
+  'Referenced X post',
+  'Read the post on X',
   'Theme',
   'System',
   'Light',
   'Dark',
+  'Copy',
+  'Copied',
+  'Copy failed',
+  'Back to Blog',
+  'Note',
+  'Warning',
+  'Error',
   'Page not found',
   'The page you requested does not exist or is not published.',
-  'Back to the article index',
+  'Back to Home',
+  'No posts have been published yet.',
+  'Built with Musubi',
   '·',
   '—',
 ].join('\n')
@@ -59,23 +67,36 @@ async function listPublicFiles(directory: string, root = directory): Promise<str
   return result.sort()
 }
 
-function publicCorpus(site: Omit<GeneratedSiteArtifact, 'fonts'>): string {
+function publicCorpora(site: Omit<GeneratedSiteArtifact, 'fonts'>): FontCorpora {
   const configText = Object.values(site.config).join('\n')
   const navigationText = site.navigation.map((item) => item.title).join('\n')
-  const pageText = Object.values(site.pages)
-    .flatMap((page) => [
-      page.meta.title,
-      page.meta.description,
-      ...page.meta.tags,
-      extractTextFromAst(page.document),
-    ])
+  const typography = Object.values(site.pages).map((page) =>
+    extractTypographyCorpora(page.document),
+  )
+  const metadataText = Object.values(site.pages)
+    .flatMap((page) => [page.meta.title, page.meta.description, ...page.meta.tags])
+    .join('\n')
+  const titleText = Object.values(site.pages)
+    .map((page) => page.meta.title)
     .join('\n')
   const renderedDates = Object.values(site.pages)
     .flatMap((page) => (page.meta.date ? [formatPublishedDate(page.meta.date, site.config)] : []))
     .join('\n')
-  return [applicationText, configText, navigationText, pageText, renderedDates]
-    .join('\n')
-    .normalize('NFC')
+  return {
+    body: [
+      applicationText,
+      configText,
+      navigationText,
+      metadataText,
+      renderedDates,
+      ...typography.map((corpus) => corpus.body),
+    ]
+      .join('\n')
+      .normalize('NFC'),
+    emphasis: [titleText, ...typography.map((corpus) => corpus.emphasis)]
+      .join('\n')
+      .normalize('NFC'),
+  }
 }
 
 async function writeArtifact(artifact: GeneratedSiteArtifact): Promise<string> {
@@ -88,30 +109,29 @@ async function writeArtifact(artifact: GeneratedSiteArtifact): Promise<string> {
 }
 
 async function writeFontCss(fonts: FontBuildManifest): Promise<void> {
-  const luoUnicodeRange = [
-    'U+00B7',
-    'U+2014',
-    'U+2018-2019',
-    'U+201C-201D',
-    'U+2026',
-    'U+2E3A-2E3B',
-    'U+3000-303F',
-    'U+3400-4DBF',
-    'U+4E00-9FFF',
-    'U+F900-FAFF',
-    'U+FE30-FE4F',
-    'U+FF01-FF60',
-    'U+FFE0-FFE6',
-  ].join(', ')
-  const fallback = fonts.artifacts.fallback
-    ? `\n@font-face {\n  font-family: 'Musubi CJK Fallback';\n  src: url('/_musubi/generated/${fonts.artifacts.fallback.path}') format('woff2');\n  font-display: swap;\n  font-style: normal;\n  font-weight: 400;\n  unicode-range: ${fonts.resolvedCoverage.fallback.cssUnicodeRange};\n}\n`
-    : ''
-  const css = `@font-face {\n  font-family: 'Luo';\n  src: url('/_musubi/generated/${fonts.artifacts.luo.path}') format('woff2');\n  font-display: swap;\n  font-style: normal;\n  font-weight: 400;\n  unicode-range: ${luoUnicodeRange};\n}\n${fallback}`
+  const tsangerFace = (
+    family: string,
+    weight: number,
+    artifact: FontBuildManifest['artifacts']['tsangerW04'],
+  ): string | null => {
+    if (!artifact) return null
+    return `@font-face {\n  font-family: '${family}';\n  src: url('/_musubi/generated/${artifact.path}') format('woff2');\n  font-display: swap;\n  font-style: normal;\n  font-weight: ${weight};\n  unicode-range: ${artifact.coverage.cssUnicodeRange};\n}`
+  }
+  const faces = [
+    tsangerFace('Tsanger JinKai W04', 400, fonts.artifacts.tsangerW04),
+    tsangerFace('Tsanger JinKai W05', 500, fonts.artifacts.tsangerW05),
+    ...fonts.artifacts.fallbackShards.map(
+      (artifact) =>
+        `@font-face {\n  font-family: 'Musubi CJK Fallback';\n  src: url('/_musubi/generated/${artifact.path}') format('woff2');\n  font-display: swap;\n  font-style: normal;\n  font-weight: 400 500;\n  unicode-range: ${artifact.coverage.cssUnicodeRange};\n}`,
+    ),
+  ].filter((face): face is string => face !== null)
+  const css = `${faces.join('\n\n')}\n`
   await writeFile(resolve(generatedPublicDirectory, 'fonts/fonts.css'), css)
 }
 
 async function main(): Promise<void> {
-  await rm(privateBuildDirectory, { recursive: true, force: true })
+  await rm(artifactPath, { force: true })
+  await rm(`${artifactPath}.tmp`, { force: true })
   await rm(generatedPublicDirectory, { recursive: true, force: true })
   await mkdir(generatedPublicDirectory, { recursive: true })
 
@@ -121,7 +141,6 @@ async function main(): Promise<void> {
   const publicFiles = await listPublicFiles(resolve(projectRoot, 'public'))
   const routeManifest = buildRouteManifest(
     sources.content.map(({ row }) => row),
-    config.postsPerPage,
     publicFiles,
   )
   const loadedPages = await loadPublishedNotionPages(environment, sources.content)
@@ -129,9 +148,13 @@ async function main(): Promise<void> {
     loadedPages.map(({ document }) => document),
     generatedPublicDirectory,
   )
+  const highlightedDocuments = await highlightDocuments(stabilized.documents)
 
   const metadataBySource = new Map(
-    [...routeManifest.posts, ...routeManifest.contentPages].map((page) => [page.sourceLabel, page]),
+    [...routeManifest.posts, ...routeManifest.standalonePages].map((page) => [
+      page.sourceLabel,
+      page,
+    ]),
   )
   const pages: Record<string, GeneratedPage> = {}
   for (const [index, loaded] of loadedPages.entries()) {
@@ -143,7 +166,7 @@ async function main(): Promise<void> {
     }
     pages[metadata.route] = {
       meta: toPublicPageMeta(metadata),
-      document: stabilized.documents[index]!,
+      document: highlightedDocuments[index]!,
     }
   }
 
@@ -151,7 +174,8 @@ async function main(): Promise<void> {
     schemaVersion: 1,
     config,
     navigation: routeManifest.navigation,
-    postIndexPages: routeManifest.postIndexPages,
+    homePosts: routeManifest.homePosts,
+    blogPosts: routeManifest.blogPosts,
     pages,
     routes: routeManifest.routes,
     generation: {
@@ -162,7 +186,7 @@ async function main(): Promise<void> {
       notionApiVersion: NOTION_API_VERSION,
     },
   }
-  const fonts = await buildPublicFonts(publicCorpus(siteWithoutFonts), generatedPublicDirectory)
+  const fonts = await buildPublicFonts(publicCorpora(siteWithoutFonts), generatedPublicDirectory)
   await writeFontCss(fonts)
   const artifact: GeneratedSiteArtifact = { ...siteWithoutFonts, fonts }
   const checksum = await writeArtifact(artifact)

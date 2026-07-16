@@ -84,6 +84,20 @@ export interface MusubiCodeBlock extends MusubiNode {
   readonly type: 'code'
   readonly language: string | null
   readonly value: string
+  readonly highlight: MusubiCodeHighlight | null
+}
+
+export interface MusubiCodeHighlight {
+  readonly languageId: string
+  readonly tokens: readonly MusubiCodeToken[]
+}
+
+export interface MusubiCodeToken {
+  readonly content: string
+  readonly light: string
+  readonly dark: string
+  readonly lightStyle: number
+  readonly darkStyle: number
 }
 
 export interface MusubiQuote extends MusubiNode {
@@ -93,10 +107,13 @@ export interface MusubiQuote extends MusubiNode {
 
 export interface MusubiCallout extends MusubiNode {
   readonly type: 'callout'
+  readonly role: MusubiCalloutRole
   readonly icon: string | null
   readonly color: NotionColor | null
   readonly children: readonly MusubiBlock[]
 }
+
+export type MusubiCalloutRole = 'note' | 'warning' | 'error'
 
 export interface MusubiDivider extends MusubiNode {
   readonly type: 'divider'

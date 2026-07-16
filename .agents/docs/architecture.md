@@ -20,7 +20,7 @@ flowchart TB
     normalize["Validate and normalize\ntyped pages + SiteConfig"]
     body["Notion Markdown\nallowlisted Musubi AST"]
     assets["Stable local assets"]
-    fonts["Luo + generated\nmissing-glyph fallback"]
+    fonts["Optional Tsanger subsets + complete\nsharded LXGW fallback"]
     manifest["Complete route and file manifest"]
     nuxt["Nuxt static generation\nVue renderers"]
   end
@@ -65,30 +65,30 @@ The Content data source uses the following project-owned schema:
 | `Slug`             | `rich_text`    | Required and valid under the route contract for every Published row        |
 | `Date`             | `date`         | Required for every Published Post                                          |
 | `Status`           | `select`       | Exactly `Draft` or `Published`                                             |
-| `Type`             | `select`       | Exactly `Post` or `Content`                                                |
+| `Type`             | `select`       | `Post` or `Page`; legacy `Content` is accepted and normalized to `Page`    |
 | `Description`      | `rich_text`    | Optional summary                                                           |
 | `Tags`             | `multi_select` | Optional metadata; never creates routes                                    |
-| `ShowInNavigation` | `checkbox`     | Optional column; a missing column defaults every Content row to visible    |
+| `ShowInNavigation` | `checkbox`     | Optional column; a missing column keeps every Page out of navigation       |
 | `NavigationOrder`  | `number`       | Optional column and value; a missing column or empty value means unordered |
 
-The documented default Content page template sets `ShowInNavigation` to true. Draft rows are never public. Invalid enum values, missing required Published fields, duplicate identities, and route conflicts fail generation.
+The documented default Page template leaves `ShowInNavigation` disabled. A site owner explicitly enables it for a Page that belongs in primary navigation. During migration, legacy `Content` values remain compatible and become canonical Page values before route construction. Draft rows are never public. Invalid enum values, missing required Published fields, duplicate identities, and route conflicts fail generation.
 
 ### Site settings
 
 The Config data source uses `Description` (`title`), `Key` (`select`), `Value` (`rich_text`), and `Enable` (`checkbox`). Only enabled rows participate. `SiteConfig` is an ordinary internal object, not a user-facing configuration system.
 
-| Notion key     | `SiteConfig` field | Accepted value                           |
-| -------------- | ------------------ | ---------------------------------------- |
-| `Title`        | `title`            | Trimmed nonempty string                  |
-| `Description`  | `description`      | Trimmed nonempty string                  |
-| `Author`       | `author`           | Trimmed nonempty string                  |
-| `Link`         | `link`             | Absolute `http:` or `https:` URL         |
-| `Lang`         | `lang`             | Structurally valid BCP 47 language tag   |
-| `Timezone`     | `timezone`         | Valid IANA time-zone identifier          |
-| `Since`        | `since`            | Base-10 integer year from 1 through 9999 |
-| `PostsPerPage` | `postsPerPage`     | Positive base-10 integer                 |
-| `GitHub`       | `github`           | Absolute `http:` or `https:` URL         |
-| `X(Twitter)`   | `x`                | Absolute `http:` or `https:` URL         |
+| Notion key     | `SiteConfig` field | Accepted value                                              |
+| -------------- | ------------------ | ----------------------------------------------------------- |
+| `Title`        | `title`            | Trimmed nonempty string                                     |
+| `Description`  | `description`      | Trimmed nonempty string                                     |
+| `Author`       | `author`           | Trimmed nonempty string                                     |
+| `Link`         | `link`             | Absolute `http:` or `https:` URL                            |
+| `Lang`         | `lang`             | Structurally valid BCP 47 language tag                      |
+| `Timezone`     | `timezone`         | Valid IANA time-zone identifier                             |
+| `Since`        | `since`            | Base-10 integer year from 1 through 9999                    |
+| `PostsPerPage` | `postsPerPage`     | Accepted legacy positive integer; no current route behavior |
+| `GitHub`       | `github`           | Absolute `http:` or `https:` URL                            |
+| `X(Twitter)`   | `x`                | Absolute `http:` or `https:` URL                            |
 
 A repository-owned `defaultSiteConfig: SiteConfig` supplies field-level fallbacks only when optional keys are absent. Duplicate keys, unknown enabled keys, invalid values, and failure to load the authoritative Config source fail generation; Musubi never silently publishes an entirely local fallback site after a Notion failure.
 
@@ -99,7 +99,7 @@ A repository-owned `defaultSiteConfig: SiteConfig` supplies field-level fallback
 3. Page-as-Markdown responses are parsed into an allowlisted Musubi syntax tree. Markdown is data, never executable template code: raw HTML, MDX expressions, unsafe URL schemes, unexplained truncation, unsupported required blocks, and syntax outside the accepted dialect fail generation. A response marked truncated is accepted only when every reported unknown block is individually retrieved, confirmed as a selected optional embed, and represented in the tree.
 4. Vue renderers cover paragraphs, headings below the page title, ordered and unordered lists, links, images with alternative text and captions, code, quotes, callouts, dividers, tables, tasks, and a generated table of contents. A named optional embed is isolated from the article; the initial X embed becomes a non-interactive link card and degrades to an ordinary safe link if provider enrichment fails.
 5. Notion-hosted images and files are downloaded, deduplicated, deterministically named, and rewritten to stable generated paths. A required asset failure fails generation; short-lived authenticated URLs never enter the published artifact.
-6. The build inventories Chinese characters, Chinese punctuation, and full-width symbols in public content, settings, and application text. It uses the pinned Luo font first and generates one deterministic `Musubi CJK Fallback` subset from the matching pinned LXGW source for corpus glyphs Luo lacks. A required glyph missing from both inputs or an invalid generated font fails generation. [DESIGN.md](../../DESIGN.md) owns typography and visual use; [the technology stack](./technology-stack.md) owns the selected font tools.
+6. The build inventories body and emphasis Chinese typography separately. Tsanger JinKai is an explicit per-checkout opt-in: `vp run font:setup` downloads the pinned W04/W05 pair from the official source into a private ignored cache, verifies both files, and writes an activation marker only after the complete pair is ready. Ordinary install, generation, and validation tasks never invoke setup. Paired environment paths remain the highest-priority input for a builder that already manages licensed local files. When either source is available, the build creates deterministic current-corpus subsets for the two roles; otherwise it succeeds with the open-licensed fallback. Independently, it verifies the pinned LXGW WenKai GB Medium source and publishes every mapped source code point across content-addressed Unicode-range `Musubi CJK Fallback` shards so later runtime text can resolve without rebuilding. Generated subsets and fallback shards use content-hashed WOFF2 names. The static preview and deployment contract give content-addressed assets a one-year immutable policy while HTML, generated CSS, and stable metadata URLs revalidate with validators. A required build-time glyph absent from the complete fallback or an invalid generated font fails generation. [DESIGN.md](../../DESIGN.md) owns typography and visual use; [the technology stack](./technology-stack.md) owns the selected font tools.
 7. The route builder creates and validates the complete public route and emitted-file manifest before Nuxt generation. Nuxt build-only server/API handlers may transfer source data into generated HTML or payloads, but no handler is part of the public artifact.
 8. Nuxt statically renders the validated manifest through Vue. A required route or body that cannot be generated fails the build instead of producing a partial site.
 
@@ -108,23 +108,23 @@ A repository-owned `defaultSiteConfig: SiteConfig` supplies field-level fallback
 - A Published slug is explicit and is never derived from its title. Musubi trims surrounding whitespace, normalizes the value to Unicode NFC, allows Unicode, and requires exactly one nonempty URL path segment.
 - A slug must not be `.` or `..` and must not contain a slash, backslash, control character, query delimiter, fragment delimiter, or percent sign. Percent-encoded input is rejected instead of decoded so encoded separators and multiply encoded equivalents cannot create an ambiguous route; authors use raw Unicode instead.
 - Comparisons use the NFC-normalized route and are case-insensitive. Diagnostics name both source rows or the source row and generated artifact involved in a conflict.
-- Top-level Content slugs cannot occupy the reserved `blog`, `_musubi`, `_nuxt`, `__musubi_not_found`, `__nuxt_error`, `200`, or `404` names. Post slugs cannot occupy the `page` pagination namespace. The manifest additionally rejects collisions with Nuxt asset namespaces, error documents, generated routes, generated payloads, and emitted file paths rather than assuming that these fixed names are exhaustive.
+- Top-level Page slugs cannot occupy the reserved `blog`, `_musubi`, `_nuxt`, `__musubi_not_found`, `__nuxt_error`, `200`, or `404` names. The manifest additionally rejects collisions with Nuxt asset namespaces, error documents, generated routes, generated payloads, and emitted file paths rather than assuming that these fixed names are exhaustive.
 
 The canonical public routes are:
 
-| Surface                        | Route                                   |
-| ------------------------------ | --------------------------------------- |
-| First chronological Post index | `/`                                     |
-| Later Post index pages         | `/blog/page/:page`, beginning at page 2 |
-| Published Post                 | `/blog/:slug`                           |
-| Published Content page         | `/:slug`                                |
+| Surface               | Route         |
+| --------------------- | ------------- |
+| Five newest Posts     | `/`           |
+| Complete Blog archive | `/blog`       |
+| Published Post        | `/blog/:slug` |
+| Published Page        | `/:slug`      |
 
-Musubi does not generate `/blog/page/1`, tag routes, Draft routes, or a public content API. Missing and unpublished content returns 404.
+Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a public content API. Missing and unpublished content returns 404.
 
 ## Navigation and public behavior
 
-- Visible Published Content rows form the site navigation. Rows with a numeric `NavigationOrder` sort first by that number; ties and unordered rows sort by title. `ShowInNavigation: false` hides a row from navigation without unpublishing its direct route.
-- Social destinations come from `SiteConfig`, not Content rows. Tags remain optional Post metadata without navigation or route behavior.
+- Published Pages with `ShowInNavigation: true` form the site navigation. Rows with a numeric `NavigationOrder` sort first by that number; ties and unordered rows sort by title. A missing or false value keeps a Page out of navigation without unpublishing its direct route.
+- Social destinations come from `SiteConfig`, not Page rows. Tags remain optional Post metadata without navigation or route behavior.
 - The site provides explicit light and warm dark themes, follows the system preference by default, and offers a reader-controlled choice. Exact tokens, layout, typography, responsive behavior, and the Kami-derived direction live in [DESIGN.md](../../DESIGN.md).
 - Locale-sensitive presentation resolves from `SiteConfig`; the repository defaults are `en-SG` and `Asia/Singapore`.
 - The browser receives one static representation of each body and no unnecessary application runtime. Output size and transferred resources are measured from the generated artifact rather than governed by invented targets.
@@ -134,7 +134,7 @@ Musubi does not generate `/blog/page/1`, tag routes, Draft routes, or a public c
 - Each deployment build fetches the latest Notion state visible to that build and emits provider-neutral `.output/public`. Serving that directory alone is the complete production contract; `.output/server`, Notion access, and a running Nitro process are unnecessary.
 - Failure of either authoritative source, invalid required content or settings, an unstabilized required asset, an invalid route manifest, a missing required glyph, or an incomplete prerender stops publication.
 - Failure of an optional third-party embed remains local to that embed and cannot remove the surrounding article.
-- Automatically starting a build after a Notion change, selecting a deployment provider, connecting the production `hyf.me` source, publishing a duplicable Notion template, and release operations are outside the current repository-local implementation.
+- The maintained example uses the existing `musubi` Vercel project and `musubi.hyf.me`; [Production Operations](../../docs/production.md) defines its manual Notion publication trigger, preview promotion, cache behavior, and rollback. Automatic Notion webhooks, connecting the separate `hyf.me` personal source, publishing a duplicable Notion template, and formal release operations remain outside the initial product.
 
 ## Architectural decisions
 
@@ -142,4 +142,4 @@ Musubi does not generate `/blog/page/1`, tag routes, Draft routes, or a public c
 - The official Notion Markdown response is the external body boundary, while Musubi's allowlisted syntax tree is the rendering boundary. Reconsider a different external representation only when required content is repeatedly lossy or unrepresentable.
 - Static generation is the only publication mode because public pages do not need runtime source access. Reconsider only for a concrete feature that cannot be delivered from static output.
 - Settings use an allowlisted typed object with field-level defaults because public configuration belongs in Notion without becoming an arbitrary framework capability. Add keys only for concrete site behavior.
-- Generated matching font fallback is corpus-scoped because platform fallback visibly mixes styles while shipping the entire matching font is needlessly large. Reconsider only if corpus-driven generation becomes unreliable or the pinned Luo source gains the required coverage.
+- Preferred Tsanger faces are corpus-scoped because they are supplied as build inputs and their two accepted roles have different character inventories. The LXGW fallback is complete but split into stable Unicode ranges because later runtime content must remain covered without forcing every page to download the full family. Reconsider the shard boundaries only when measured page-level transfer or browser behavior shows a concrete problem.

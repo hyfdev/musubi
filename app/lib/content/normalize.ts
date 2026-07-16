@@ -4,6 +4,7 @@ import type { MarkdownSyntaxAttribute, MarkdownSyntaxNode } from './syntax.ts'
 import type {
   MusubiBlock,
   MusubiCallout,
+  MusubiCalloutRole,
   MusubiDocument,
   MusubiInline,
   MusubiList,
@@ -57,7 +58,7 @@ const NOTION_COLORS = new Set<NotionColor>([
   'pink_bg',
   'red_bg',
 ])
-const CODE_LANGUAGE = /^[\p{Letter}\p{Number}+.#_-]+(?: [\p{Letter}\p{Number}+.#_-]+)*$/u
+const CODE_LANGUAGE = /^[\p{Letter}\p{Number}+.#_/-]+(?: [\p{Letter}\p{Number}+.#_/-]+)*$/u
 
 export function normalizeMusubiMarkdown(
   root: MarkdownSyntaxNode,
@@ -224,6 +225,7 @@ function normalizeCode(node: MarkdownSyntaxNode, context: NormalizeContext): Mus
     type: 'code',
     language,
     value: node.value ?? '',
+    highlight: null,
     position: node.position,
   }
 }
@@ -350,13 +352,60 @@ function normalizeCallout(node: MarkdownSyntaxNode, context: NormalizeContext): 
   if (icon && (/\p{Control}/u.test(icon) || icon.length > 64)) {
     invalidExtension(node, context, 'A callout icon is invalid')
   }
+  const declaration = extractCalloutDeclaration(node.children ?? [])
   return {
     type: 'callout',
+    role: declaration.role,
     icon,
     color: normalizeColor(attributes.get('color'), node, context),
-    children: normalizeBlockChildren(node.children, context),
+    children: normalizeBlockChildren(declaration.children, context),
     position: node.position,
   }
+}
+
+const CALLOUT_DECLARATIONS = new Map<string, MusubiCalloutRole>([
+  ['note', 'note'],
+  ['type=note', 'note'],
+  ['warning', 'warning'],
+  ['type=warning', 'warning'],
+  ['error', 'error'],
+  ['type=error', 'error'],
+])
+
+function extractCalloutDeclaration(children: readonly MarkdownSyntaxNode[]): {
+  role: MusubiCalloutRole
+  children: readonly MarkdownSyntaxNode[]
+} {
+  const paragraph = children[0]
+  const firstInline = paragraph?.type === 'paragraph' ? paragraph.children?.[0] : undefined
+  if (!paragraph || !firstInline || firstInline.type !== 'text') {
+    return { role: 'note', children }
+  }
+
+  const value = firstInline.value ?? ''
+  const firstLine = value.split(/\r?\n/u, 1)[0] ?? ''
+  const marker = /^[ \t]*\{([^{}\r\n]+)\}/u.exec(firstLine)
+  if (!marker) return { role: 'note', children }
+
+  const normalized = marker[1]!
+    .trim()
+    .toLocaleLowerCase('en')
+    .replace(/[ \t]*=[ \t]*/gu, '=')
+  const role = CALLOUT_DECLARATIONS.get(normalized)
+  if (!role) return { role: 'note', children }
+
+  let remainder = value.slice(marker[0].length)
+  if (remainder.startsWith('\r\n')) remainder = remainder.slice(2)
+  else if (remainder.startsWith('\n')) remainder = remainder.slice(1)
+
+  const inlineChildren = [...(paragraph.children ?? [])]
+  if (remainder) inlineChildren[0] = { ...firstInline, value: remainder }
+  else inlineChildren.shift()
+
+  const nextChildren = [...children]
+  if (inlineChildren.length > 0) nextChildren[0] = { ...paragraph, children: inlineChildren }
+  else nextChildren.shift()
+  return { role, children: nextChildren }
 }
 
 function normalizeNotionTable(node: MarkdownSyntaxNode, context: NormalizeContext): MusubiTable {
@@ -541,7 +590,11 @@ function normalizeInlineChildren(
 function normalizeInline(node: MarkdownSyntaxNode, context: NormalizeContext): MusubiInline {
   switch (node.type) {
     case 'text':
-      return { type: 'text', value: node.value ?? '', position: node.position }
+      return {
+        type: 'text',
+        value: node.value ?? '',
+        position: node.position,
+      }
     case 'strong':
     case 'emphasis':
     case 'delete':

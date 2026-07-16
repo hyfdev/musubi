@@ -1,6 +1,6 @@
 # Notion Workspace Contract
 
-Musubi reads one Content data source and one Config data source during generation. Both sources should live below one Notion root page shared with a dedicated internal integration that has only the `Read content` capability. Musubi never writes to Notion.
+Musubi reads one Content data source and one Config data source during generation. Both sources should live below one Notion root page shared with a dedicated internal integration that has only the `Read content` capability. Routine generation never writes to Notion; the separately documented migration command requires an explicitly supplied write-capable credential.
 
 ## Environment
 
@@ -24,13 +24,13 @@ Create these properties with the exact names and Notion types:
 | `Slug`             | Text         | Explicit one-segment route slug; required for Published rows |
 | `Date`             | Date         | Required for Published Posts                                 |
 | `Status`           | Select       | `Draft` or `Published`                                       |
-| `Type`             | Select       | `Post` or `Content`                                          |
+| `Type`             | Select       | `Post` or `Page`                                             |
 | `Description`      | Text         | Optional                                                     |
 | `Tags`             | Multi-select | Optional metadata                                            |
-| `ShowInNavigation` | Checkbox     | Default true in the Content page template                    |
+| `ShowInNavigation` | Checkbox     | Disabled by default; enable it to add the Page to navigation |
 | `NavigationOrder`  | Number       | Optional                                                     |
 
-`ShowInNavigation` and `NavigationOrder` may be absent in a compatible source; Musubi then treats Content pages as visible and unordered. Other missing required columns stop generation. Tags never create routes.
+Legacy `Type = Content` rows remain accepted and are normalized to Page while an existing source is migrated. New sources use only `Post` and `Page`. `ShowInNavigation` and `NavigationOrder` may be absent in a compatible source; Musubi then keeps Pages out of navigation and treats them as unordered. The direct Page route remains public. Other missing required columns stop generation. Tags never create routes.
 
 ## Config data source
 

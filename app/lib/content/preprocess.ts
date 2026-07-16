@@ -11,11 +11,51 @@ interface OffsetRange {
   end: number
 }
 
+export const MASKED_CALLOUT_OPEN_BRACE = '\uE000'
+export const MASKED_CALLOUT_CLOSE_BRACE = '\uE001'
+
 export function preprocessNotionMarkdown(markdown: string, pageLabel: string): string {
+  if (
+    markdown.includes(MASKED_CALLOUT_OPEN_BRACE) ||
+    markdown.includes(MASKED_CALLOUT_CLOSE_BRACE)
+  ) {
+    contentError({
+      code: 'UNSUPPORTED_SYNTAX',
+      pageLabel,
+      message: 'The source contains a reserved private-use character',
+    })
+  }
   const syntaxTree = unified().use(remarkParse).use(remarkGfm).parse(markdown) as MarkdownSyntaxNode
   const protectedRanges = collectCodeRanges(syntaxTree)
   rejectKnownUnsupportedSyntax(markdown, pageLabel, protectedRanges)
-  return rewriteNotionVoidTags(markdown, protectedRanges)
+  const masked = maskCalloutTextBraces(markdown, protectedRanges)
+  const withoutEmptyBlocks = rewriteNotionEmptyBlocks(masked, protectedRanges)
+  return rewriteNotionVoidTags(withoutEmptyBlocks, protectedRanges)
+}
+
+export function restoreCalloutTextBraces(value: string): string {
+  return value
+    .replaceAll(MASKED_CALLOUT_OPEN_BRACE, '{')
+    .replaceAll(MASKED_CALLOUT_CLOSE_BRACE, '}')
+}
+
+export function restoreCalloutTextBracesInSyntaxTree(root: MarkdownSyntaxNode): MarkdownSyntaxNode {
+  const restore = (value: unknown): void => {
+    if (!value || typeof value !== 'object') return
+    if (Array.isArray(value)) {
+      for (const item of value) restore(item)
+      return
+    }
+
+    const record = value as Record<string, unknown>
+    for (const [key, child] of Object.entries(record)) {
+      if (typeof child === 'string') record[key] = restoreCalloutTextBraces(child)
+      else restore(child)
+    }
+  }
+
+  restore(root)
+  return root
 }
 
 function collectCodeRanges(root: MarkdownSyntaxNode): OffsetRange[] {
@@ -98,6 +138,70 @@ function rewriteNotionVoidTags(markdown: string, protectedRanges: readonly Offse
     }
     return `${match.slice(0, -1).trimEnd()} />`
   })
+}
+
+function rewriteNotionEmptyBlocks(
+  markdown: string,
+  protectedRanges: readonly OffsetRange[],
+): string {
+  return markdown.replace(/<empty-block\s*\/>/gu, (match, offset) => {
+    const index = Number(offset)
+    if (
+      isEscaped(markdown, index) ||
+      protectedRanges.some((range) => index >= range.start && index < range.end)
+    ) {
+      return match
+    }
+    return ' '.repeat(match.length)
+  })
+}
+
+function maskCalloutTextBraces(markdown: string, protectedRanges: readonly OffsetRange[]): string {
+  const characters = markdown.split('')
+  let calloutDepth = 0
+  let protectedIndex = 0
+  for (let index = 0; index < markdown.length; index += 1) {
+    while (protectedRanges[protectedIndex] && index >= protectedRanges[protectedIndex]!.end) {
+      protectedIndex += 1
+    }
+    const protectedRange = protectedRanges[protectedIndex]
+    if (protectedRange && index >= protectedRange.start && index < protectedRange.end) {
+      index = protectedRange.end - 1
+      continue
+    }
+
+    if (markdown[index] === '<') {
+      const end = findTagEnd(markdown, index)
+      if (end !== -1) {
+        const tag = markdown.slice(index, end + 1)
+        if (/^<\s*\/\s*callout\s*>$/iu.test(tag)) calloutDepth = Math.max(0, calloutDepth - 1)
+        else if (/^<\s*callout(?:\s|>)/iu.test(tag) && !/\/\s*>$/u.test(tag)) calloutDepth += 1
+        index = end
+        continue
+      }
+    }
+
+    if (calloutDepth > 0 && !isEscaped(markdown, index)) {
+      if (markdown[index] === '{') characters[index] = MASKED_CALLOUT_OPEN_BRACE
+      else if (markdown[index] === '}') characters[index] = MASKED_CALLOUT_CLOSE_BRACE
+    }
+  }
+  return characters.join('')
+}
+
+function findTagEnd(source: string, start: number): number {
+  let quote: '"' | "'" | null = null
+  for (let index = start + 1; index < source.length; index += 1) {
+    const character = source[index]
+    if (quote) {
+      if (character === quote && !isEscaped(source, index)) quote = null
+      continue
+    }
+    if (character === '"' || character === "'") quote = character
+    else if (character === '>') return index
+    else if (character === '\n') return -1
+  }
+  return -1
 }
 
 function isEscaped(source: string, index: number): boolean {

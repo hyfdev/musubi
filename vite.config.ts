@@ -41,11 +41,15 @@ export default defineConfig({
         cache: false,
       },
       lint: {
-        command: 'vp lint',
+        command: ['vp lint', 'designmd lint DESIGN.md'],
         cache: false,
       },
       typecheck: {
         command: 'vp run nuxt:typecheck',
+        cache: false,
+      },
+      test: {
+        command: 'vp test run',
         cache: false,
       },
       'brand:verify': {
@@ -76,14 +80,18 @@ export default defineConfig({
         command: 'node scripts/verify-static-artifact.mjs',
         cache: false,
       },
+      production: {
+        command: ['vp run generate', 'vp run artifact'],
+        cache: false,
+      },
       ready: {
         command: [
           'vp run format',
           'vp run lint',
           'vp run typecheck',
+          'vp run test',
           'vp run brand:verify',
-          'vp run generate',
-          'vp run artifact',
+          'vp run production',
         ],
         cache: false,
       },

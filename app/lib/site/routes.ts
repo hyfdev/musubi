@@ -16,7 +16,6 @@ const topLevelReservedSlugs = new Set([
   '200',
   '404',
 ])
-const postReservedSlugs = new Set(['page'])
 const invalidSlugDelimiter = /[\\/?#%]/u
 
 function hasControlCharacter(value: string): boolean {
@@ -75,7 +74,7 @@ function normalizePublishedRow(row: SourceContentRow): PublishedPageMeta {
     throw new Error(`${row.sourceLabel}: Published content requires a nonempty Title`)
   }
   const slug = normalizeSlug(row.slug, row.sourceLabel)
-  const reserved = row.type === 'Content' ? topLevelReservedSlugs : postReservedSlugs
+  const reserved = row.type === 'Page' ? topLevelReservedSlugs : new Set<string>()
   if (reserved.has(comparisonKey(slug))) {
     throw new Error(
       `${row.sourceLabel}: Slug ${JSON.stringify(slug)} occupies a reserved ${row.type} route namespace`,
@@ -90,7 +89,7 @@ function normalizePublishedRow(row: SourceContentRow): PublishedPageMeta {
     type: row.type,
     description: row.description.trim(),
     tags: [...new Set(row.tags.map((tag) => tag.trim()).filter(Boolean))].sort(compareText),
-    showInNavigation: row.showInNavigation ?? true,
+    showInNavigation: row.showInNavigation ?? false,
     navigationOrder: row.navigationOrder,
   }
 }
@@ -149,13 +148,8 @@ function addRoute(
 
 export function buildRouteManifest(
   rows: SourceContentRow[],
-  postsPerPage: number,
   publicFiles: string[] = [],
 ): RouteManifest {
-  if (!Number.isSafeInteger(postsPerPage) || postsPerPage <= 0) {
-    throw new Error('postsPerPage must be a positive integer before building routes')
-  }
-
   const published = rows.filter((row) => row.status === 'Published').map(normalizePublishedRow)
   const posts = published
     .filter((page) => page.type === 'Post')
@@ -163,13 +157,13 @@ export function buildRouteManifest(
       const byDate = Date.parse(right.date!) - Date.parse(left.date!)
       return byDate || compareText(left.title, right.title) || compareText(left.slug, right.slug)
     })
-  const contentPages = published
-    .filter((page) => page.type === 'Content')
+  const standalonePages = published
+    .filter((page) => page.type === 'Page')
     .sort(
       (left, right) => compareText(left.title, right.title) || compareText(left.slug, right.slug),
     )
 
-  const navigation = contentPages
+  const navigation = standalonePages
     .filter((page) => page.showInNavigation)
     .sort((left, right) => {
       const leftOrdered = left.navigationOrder !== undefined
@@ -184,27 +178,18 @@ export function buildRouteManifest(
     })
     .map(({ title, route }) => ({ title, route }))
 
-  const pageCount = Math.max(1, Math.ceil(posts.length / postsPerPage))
-  const postIndexPages = Array.from({ length: pageCount }, (_, index) => {
-    const page = index + 1
-    return {
-      page,
-      route: page === 1 ? '/' : `/blog/page/${page}`,
-      posts: posts.slice(index * postsPerPage, page * postsPerPage).map(toPublicPageMeta),
-    }
-  })
+  const blogPosts = posts.map(toPublicPageMeta)
+  const homePosts = blogPosts.slice(0, 5)
 
   const entries: RouteManifestEntry[] = []
   const seen = new Map<string, RouteManifestEntry>()
-  addRoute(entries, seen, '/', 'home', 'generated first Post index')
-  for (const page of postIndexPages.slice(1)) {
-    addRoute(entries, seen, page.route, 'post-index', `generated Post index page ${page.page}`)
-  }
+  addRoute(entries, seen, '/', 'home', 'generated recent-Post Home')
+  addRoute(entries, seen, '/blog', 'blog', 'generated complete Blog archive')
   for (const post of posts) {
     addRoute(entries, seen, post.route, 'post', post.sourceLabel)
   }
-  for (const page of contentPages) {
-    addRoute(entries, seen, page.route, 'content', page.sourceLabel)
+  for (const page of standalonePages) {
+    addRoute(entries, seen, page.route, 'page', page.sourceLabel)
   }
 
   assertNoFileCollision(entries, publicFiles)
@@ -213,8 +198,9 @@ export function buildRouteManifest(
     entries,
     routes: entries.map(({ route }) => route),
     posts,
-    contentPages,
+    standalonePages,
     navigation,
-    postIndexPages,
+    homePosts,
+    blogPosts,
   }
 }

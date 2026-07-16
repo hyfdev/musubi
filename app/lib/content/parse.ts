@@ -4,7 +4,7 @@ import remarkParse from 'remark-parse'
 import { unified } from 'unified'
 import { MusubiContentError } from './errors.ts'
 import { normalizeMusubiMarkdown, type EmbedUrlsByBlockId } from './normalize.ts'
-import { preprocessNotionMarkdown } from './preprocess.ts'
+import { preprocessNotionMarkdown, restoreCalloutTextBracesInSyntaxTree } from './preprocess.ts'
 import type { MarkdownSyntaxNode } from './syntax.ts'
 import type { MusubiDocument } from './types.ts'
 
@@ -25,7 +25,7 @@ export function parseMusubiMarkdown(
       .use(remarkMdx)
       .parse(preparedMarkdown) as MarkdownSyntaxNode
 
-    return normalizeMusubiMarkdown(syntaxTree, options)
+    return normalizeMusubiMarkdown(restoreCalloutTextBracesInSyntaxTree(syntaxTree), options)
   } catch (error) {
     if (error instanceof MusubiContentError) throw error
     throw new MusubiContentError({
