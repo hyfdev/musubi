@@ -545,13 +545,13 @@ figcaption {
   color: var(--ink);
   font-family: var(--font-heading);
   font-weight: 500;
-  scroll-margin-top: 80px;
 }
 
 .prose-heading > :is(h2, h3, h4, h5) {
   margin: 0;
   font: inherit;
   overflow-wrap: anywhere;
+  scroll-margin-top: 80px;
 }
 
 .prose-heading-h2 {
@@ -1120,6 +1120,10 @@ figcaption {
     right: calc(100% + 8px);
     left: auto;
     opacity: 1;
+  }
+
+  .prose-heading > :is(h2, h3, h4, h5) {
+    scroll-margin-top: 108px;
   }
 
   .heading-anchor::before {

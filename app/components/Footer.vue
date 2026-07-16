@@ -15,7 +15,7 @@ const currentYear = new Date().getFullYear()
       <p>© {{ currentYear }} <TypographyText :value="config.author" /></p>
       <p lang="en">
         Built with
-        <a href="https://github.com/hyf0/musubi" target="_blank" rel="noopener noreferrer"
+        <a href="https://github.com/hyfdev/musubi" target="_blank" rel="noopener noreferrer"
           >Musubi</a
         >
       </p>

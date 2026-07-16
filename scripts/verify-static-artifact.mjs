@@ -1,10 +1,53 @@
 import { lstat, readFile, readdir } from 'node:fs/promises'
-import { relative, resolve, sep } from 'node:path'
+import { join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const REQUIRED_FILES = ['index.html', '404.html']
 
-export async function verifyStaticArtifact(artifactRoot = resolve('.output/public')) {
+async function readExpectedRoutes(routeManifestPath) {
+  const manifestSource = await readFile(routeManifestPath, 'utf8').catch(() => undefined)
+  if (!manifestSource) {
+    throw new Error(`Static route manifest does not exist: ${routeManifestPath}`)
+  }
+
+  let manifest
+  try {
+    manifest = JSON.parse(manifestSource)
+  } catch {
+    throw new Error(`Static route manifest is not valid JSON: ${routeManifestPath}`)
+  }
+
+  if (
+    !Array.isArray(manifest.routes) ||
+    manifest.routes.length === 0 ||
+    manifest.routes.some((route) => typeof route !== 'string')
+  ) {
+    throw new Error(
+      `Static route manifest does not contain a nonempty routes array: ${routeManifestPath}`,
+    )
+  }
+
+  return manifest.routes
+}
+
+function routeArtifactPath(route) {
+  if (
+    !route.startsWith('/') ||
+    route.includes('?') ||
+    route.includes('#') ||
+    route.split('/').some((segment) => segment === '.' || segment === '..')
+  ) {
+    throw new Error(`Static route manifest contains an invalid route: ${route}`)
+  }
+
+  const routeSegments = route.split('/').filter(Boolean)
+  return routeSegments.length === 0 ? 'index.html' : join(...routeSegments, 'index.html')
+}
+
+export async function verifyStaticArtifact(
+  artifactRoot = resolve('.output/public'),
+  { expectedRoutes, routeManifestPath = resolve('.musubi/site.json') } = {},
+) {
   const root = resolve(artifactRoot)
   const rootStat = await lstat(root).catch(() => undefined)
 
@@ -18,6 +61,16 @@ export async function verifyStaticArtifact(artifactRoot = resolve('.output/publi
 
     if (!fileStat?.isFile() || fileStat.size === 0) {
       throw new Error(`Static artifact is missing ${requiredFile}`)
+    }
+  }
+
+  const routes = expectedRoutes ?? (await readExpectedRoutes(routeManifestPath))
+  for (const route of routes) {
+    const relativePath = routeArtifactPath(route)
+    const filePath = resolve(root, relativePath)
+    const fileStat = await lstat(filePath).catch(() => undefined)
+    if (!fileStat?.isFile() || fileStat.size === 0) {
+      throw new Error(`Static artifact is missing route ${route}: ${relativePath}`)
     }
   }
 

@@ -9,7 +9,7 @@ export const defaultSiteConfig: SiteConfig = {
   timezone: 'Asia/Singapore',
   since: 2026,
   postsPerPage: 10,
-  github: 'https://github.com/hyf0/musubi',
+  github: 'https://github.com/hyfdev/musubi',
   x: 'https://x.com/',
 }
 

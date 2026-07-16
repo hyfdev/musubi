@@ -2,9 +2,9 @@
 
 ## Status
 
-Production delivery is in progress. The repository and Notion source are coherent; the remaining path is the existing Vercel `musubi` project Preview, promotion, and live verification.
+Repository-local production readiness is complete. The repository and Notion source are coherent, the production artifact has passed local verification, and the accepted site has passed representative browser acceptance. Per Yunfei's 2026-07-16 direction, this delivery did not authenticate to Vercel, change hosting or DNS configuration, promote a deployment, or claim that the v2 artifact is live.
 
-## Production target
+## Documented production target
 
 - Public URL: `https://musubi.hyf.me`
 - Repository: `hyfdev/musubi`
@@ -52,7 +52,7 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 - The default cloud build uses the open LXGW fallback; private Tsanger setup remains optional.
 - Notion-only publication uses an explicit Vercel redeploy, while code delivery uses a v2 Preview followed by promotion.
 
-## Acceptance evidence so far
+## Local acceptance evidence
 
 - The migration dry run identified only the expected schema, legacy row, About, and Timezone changes.
 - The applied migration reread and verified the complete affected sources.
@@ -67,8 +67,10 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 - Light, Dark, and live System resolution worked; explicit and System choices persisted; heading permalinks changed the fragment; Copy reported success; external links used a new context with `noopener noreferrer`; header and footer were both 89 CSS pixels in the narrow layout; document overflow remained zero.
 - W04 and W05 loaded for their configured roles, the code blocks kept the GitHub palette, the mobile footer remained on one line, direct 404 entry returned HTTP 404 with `noindex`, and no unexpected browser console or page error appeared.
 
-## Remaining production steps
+## External deployment boundary
 
-1. Authenticate to the existing Vercel scope, inspect the earlier v2 failure logs, and configure the three Notion values for the `musubi` project's Preview and Production environments.
-2. Commit and push `v2`.
-3. Verify the `musubi` Preview, promote it, complete live production acceptance, and record the resulting deployment and rollback command.
+The production target, publishing mechanism, and rollback baseline remain documented for an operator who later chooses to deploy the artifact. They are not remaining actions in this repository-local delivery. No Vercel credential or account change is required to reproduce the local production build and acceptance evidence above.
+
+## Known historical residual
+
+The current tracked tree and generated public artifact contain none of the three configured Notion environment values, and a full-history blob scan found no Notion credential. Older public commits do retain Notion source locator IDs and the deleted prototype `.snapshot` corpus. Source locators alone do not authorize workspace access, but removing those historical blobs completely would require a separately authorized source rotation and Git history rewrite. This delivery records the residual and does not force-push or rewrite shared history.

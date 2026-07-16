@@ -26,4 +26,10 @@ describe('publication date formatting', () => {
     expect(formatPublishedDate('2026-07-14', config, 'month-day')).toBe('Jul 14')
     expect(formatPublishedYear('2026-07-14', config)).toBe('2026')
   })
+
+  it('treats a date-only value as a calendar date even in UTC+14', () => {
+    const utcPlusFourteen = { ...config, timezone: 'Pacific/Kiritimati' }
+    expect(formatPublishedDate('2026-07-14', utcPlusFourteen, 'month-day')).toBe('Jul 14')
+    expect(formatPublishedYear('2026-07-14', utcPlusFourteen)).toBe('2026')
+  })
 })

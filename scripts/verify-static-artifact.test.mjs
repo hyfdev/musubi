@@ -18,7 +18,9 @@ describe('static font artifact boundary', () => {
     await mkdir(join(root, '_musubi/generated/fonts'), { recursive: true })
     await writeFile(join(root, '_musubi/generated/fonts/body.woff2'), 'generated subset')
 
-    await expect(verifyStaticArtifact(root)).resolves.toMatchObject({ root })
+    await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).resolves.toMatchObject({
+      root,
+    })
   })
 
   it.each(['ttf', 'otf', 'ttc', 'otc'])(
@@ -28,11 +30,29 @@ describe('static font artifact boundary', () => {
       await mkdir(join(root, '_musubi/generated/fonts'), { recursive: true })
       await writeFile(join(root, `_musubi/generated/fonts/source.${extension}`), 'upstream source')
 
-      await expect(verifyStaticArtifact(root)).rejects.toThrow(
+      await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).rejects.toThrow(
         `Static artifact contains an upstream font source: _musubi/generated/fonts/source.${extension}`,
       )
     },
   )
+})
+
+describe('static route completeness', () => {
+  it('rejects a missing generated route', async () => {
+    const root = await validArtifact()
+    await mkdir(join(root, 'blog/quiet-builds'), { recursive: true })
+    await writeFile(
+      join(root, 'blog/quiet-builds/index.html'),
+      '<!doctype html><title>Post</title>',
+    )
+    await rm(join(root, 'blog/quiet-builds/index.html'))
+
+    await expect(
+      verifyStaticArtifact(root, { expectedRoutes: ['/', '/blog/quiet-builds'] }),
+    ).rejects.toThrow(
+      'Static artifact is missing route /blog/quiet-builds: blog/quiet-builds/index.html',
+    )
+  })
 })
 
 async function validArtifact() {

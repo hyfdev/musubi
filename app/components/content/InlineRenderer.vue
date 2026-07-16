@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import { inject } from 'vue'
 import type { MusubiInline } from '../../lib/content/types.ts'
+import { isExternalSiteLink, siteLinkKey } from '../../lib/site/link.ts'
 import TypographyText from '../TypographyText.vue'
 
 defineProps<{
   nodes: readonly MusubiInline[]
 }>()
 
-function isExternal(url: string): boolean {
-  return /^https?:\/\//i.test(url)
-}
+const siteLink = inject(siteLinkKey, 'https://musubi.invalid/')
 </script>
 
 <template>
@@ -28,8 +28,8 @@ function isExternal(url: string): boolean {
     <a
       v-else-if="node.type === 'link'"
       :href="node.url"
-      :target="isExternal(node.url) ? '_blank' : undefined"
-      :rel="isExternal(node.url) ? 'noopener noreferrer' : undefined"
+      :target="isExternalSiteLink(node.url, siteLink) ? '_blank' : undefined"
+      :rel="isExternalSiteLink(node.url, siteLink) ? 'noopener noreferrer' : undefined"
     >
       <InlineRenderer :nodes="node.children" />
     </a>

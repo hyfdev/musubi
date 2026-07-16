@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { createError, useFetch, useHead } from '#imports'
+import { provide } from 'vue'
 import Footer from './components/Footer.vue'
 import Navbar from './components/Navbar.vue'
+import { siteLinkKey } from './lib/site/link.ts'
 
 const { data, error } = await useFetch('/api/build/shell', { key: 'musubi-site-shell' })
 if (error.value || !data.value) {
@@ -13,6 +15,7 @@ if (error.value || !data.value) {
 }
 
 const shell = data.value
+provide(siteLinkKey, shell.config.link)
 const interactionScript = `(() => {
   const storageKey = 'musubi-theme';
   const root = document.documentElement;
