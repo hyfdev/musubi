@@ -60,7 +60,7 @@ The static preview mirrors the production cache contract: HTML and stable metada
 - `/` shows the five newest Posts; `/blog` shows every published Post in one archive grouped by year.
 - Drafts, tag routes, paginated Blog routes, and a public content API are not generated.
 - Notion Markdown is parsed into Musubi's allowlisted AST and rendered by Vue templates. Raw HTML and executable MDX are rejected.
-- Required remote images and Notion file blocks are copied into stable generated assets. X embeds become non-interactive link cards.
+- Required remote images and Notion file blocks are copied into stable generated assets. A supported X post is enriched at build time into a safe static quotation, then enhanced in the browser with X's official widget when it loads; provider failure remains local to the embed and preserves a usable link.
 - Tsanger JinKai W04 and W05 are accepted as optional local build inputs and are subset by body-versus-emphasis usage when supplied. Preferred subsets and the public LXGW WenKai GB Medium fallback use content-addressed WOFF2 URLs; the fallback preserves every mapped source code point across Unicode-range shards that also cover later runtime text.
 - Light and warm dark themes follow the system by default; a persisted three-choice control selects Light, Dark, or System directly.
 

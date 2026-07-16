@@ -67,8 +67,17 @@ function collectBlockTypography(
         }
       }
       return
-    case 'linkCard':
-      body.push('X')
+    case 'xEmbed':
+      if (block.embed) {
+        collectInlineTypography(block.embed.content, 'body', body, emphasis)
+        body.push(
+          block.embed.authorName,
+          `@${block.embed.authorHandle}`,
+          block.embed.publishedLabel,
+        )
+      } else {
+        body.push('X')
+      }
       return
     case 'divider':
     case 'tableOfContents':
@@ -138,8 +147,15 @@ function extractBlockText(block: MusubiBlock): string[] {
       return [extractInlineText(block.children)]
     case 'table':
       return block.children.flatMap((row) => row.children.map(extractCellText))
-    case 'linkCard':
-      return ['X']
+    case 'xEmbed':
+      return block.embed
+        ? [
+            extractInlineText(block.embed.content),
+            block.embed.authorName,
+            `@${block.embed.authorHandle}`,
+            block.embed.publishedLabel,
+          ]
+        : ['X']
     case 'divider':
     case 'tableOfContents':
       return []

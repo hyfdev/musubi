@@ -18,6 +18,7 @@ import type {
 } from './types.ts'
 import {
   extractNotionBlockIdFromUrl,
+  extractXStatusId,
   parseSafeFileUrl,
   parseSafeImageUrl,
   parseSafeLinkUrl,
@@ -556,12 +557,26 @@ function normalizeUnknown(node: MarkdownSyntaxNode, context: NormalizeContext): 
         : `Embed source ${url} is not a supported X status URL`,
     })
   }
+  const postId = extractXStatusId(xUrl, {
+    pageLabel: context.pageLabel,
+    position: node.position,
+  })
+  if (!postId) {
+    contentError({
+      code: 'UNRESOLVED_EMBED',
+      pageLabel: context.pageLabel,
+      position: node.position,
+      message: `Embed source ${xUrl} did not contain a valid X post identifier`,
+    })
+  }
   return {
-    type: 'linkCard',
+    type: 'xEmbed',
     provider: 'x',
     url: xUrl,
+    postId,
     sourceUrl: url,
     sourceBlockId,
+    embed: null,
     position: node.position,
   }
 }

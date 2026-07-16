@@ -53,7 +53,7 @@ export type MusubiBlock =
   | MusubiFile
   | MusubiTable
   | MusubiTableOfContents
-  | MusubiLinkCard
+  | MusubiXEmbed
 
 export interface MusubiParagraph extends MusubiNode {
   readonly type: 'paragraph'
@@ -161,12 +161,24 @@ export interface MusubiTableOfContents extends MusubiNode {
   readonly color: NotionColor | null
 }
 
-export interface MusubiLinkCard extends MusubiNode {
-  readonly type: 'linkCard'
+export interface MusubiXEmbed extends MusubiNode {
+  readonly type: 'xEmbed'
   readonly provider: 'x'
   readonly url: string
+  readonly postId: string
   readonly sourceUrl: string
   readonly sourceBlockId: string | null
+  readonly embed: MusubiXEmbedData | null
+}
+
+export interface MusubiXEmbedData {
+  readonly content: readonly MusubiInline[]
+  readonly lang: string | null
+  readonly dir: 'ltr' | 'rtl' | 'auto' | null
+  readonly authorName: string
+  readonly authorHandle: string
+  readonly authorUrl: string
+  readonly publishedLabel: string
 }
 
 export interface MusubiTableOfContentsEntry {

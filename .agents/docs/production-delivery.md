@@ -66,6 +66,9 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 - A production-like static browser review used Chrome 150 at `1440x900` and `390x844`. It covered Home, the complete year-grouped Blog, a Chinese Post, an 11-code-block Post, and 404 because production has no Published Page.
 - Light, Dark, and live System resolution worked; explicit and System choices persisted; heading permalinks changed the fragment; Copy reported success; external links used a new context with `noopener noreferrer`; header and footer were both 89 CSS pixels in the narrow layout; document overflow remained zero.
 - W04 and W05 loaded for their configured roles, the code blocks kept the GitHub palette, the mobile footer remained on one line, direct 404 entry returned HTTP 404 with `noindex`, and no unexpected browser console or page error appeared.
+- The later X embed enhancement prepared both Published X posts successfully through the official Publish oEmbed endpoint and recorded `2` enriched, `0` fallback in the schema-version-`2` private site artifact.
+- The corresponding production build again emitted 38 verified public files, now totaling 10,752,614 bytes. Generated Post HTML contains the complete author, handle, post text, publication label, and X link without a Nuxt client entry script.
+- Production-like browser checks at `1440x900` and `390x844` confirmed the official X widget on direct entry, Light-to-Dark widget recreation, zero document overflow, and no unexpected page error. Blocking both X widget hosts left the complete static quotation visible with no iframe; a fresh Home load contained no embed and appended no external X widget script.
 
 ## External deployment boundary
 

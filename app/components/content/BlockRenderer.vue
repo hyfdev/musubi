@@ -8,6 +8,7 @@ import type {
 import TypographyText from '../TypographyText.vue'
 import InlineRenderer from './InlineRenderer.vue'
 import TocList from './TocList.vue'
+import XEmbed from './XEmbed.vue'
 
 const props = defineProps<{
   block: MusubiBlock
@@ -205,11 +206,5 @@ function addCodeFontStyle(
     <TocList :entries="tableOfContents" />
   </nav>
 
-  <aside v-else-if="block.type === 'linkCard'" class="x-link-card" lang="en">
-    <span class="x-link-card-mark" aria-hidden="true">X</span>
-    <div>
-      <p class="x-link-card-label">Referenced X post</p>
-      <a :href="block.url" target="_blank" rel="noopener noreferrer">Read the post on X</a>
-    </div>
-  </aside>
+  <XEmbed v-else-if="block.type === 'xEmbed'" :block="block" />
 </template>

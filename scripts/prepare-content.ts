@@ -18,6 +18,7 @@ import {
   readNotionEnvironment,
   redactNotionSecrets,
 } from './lib/notion.ts'
+import { enrichXEmbeds } from './lib/x-embeds.ts'
 
 const projectRoot = resolve(import.meta.dirname, '..')
 const privateBuildDirectory = resolve(projectRoot, '.musubi')
@@ -30,6 +31,7 @@ const applicationText = [
   'Table of contents',
   'Referenced X post',
   'Read the post on X',
+  'View on X',
   'Theme',
   'System',
   'Light',
@@ -144,10 +146,13 @@ async function main(): Promise<void> {
     publicFiles,
   )
   const loadedPages = await loadPublishedNotionPages(environment, sources.content)
-  const stabilized = await stabilizeDocumentAssets(
-    loadedPages.map(({ document }) => document),
-    generatedPublicDirectory,
-  )
+  const xEmbeds = await enrichXEmbeds(loadedPages.map(({ document }) => document))
+  for (const failure of xEmbeds.failures) {
+    console.warn(
+      `X embed ${failure.url} could not be enriched; keeping the safe link fallback (${failure.message})`,
+    )
+  }
+  const stabilized = await stabilizeDocumentAssets(xEmbeds.documents, generatedPublicDirectory)
   const highlightedDocuments = await highlightDocuments(stabilized.documents)
 
   const metadataBySource = new Map(
@@ -171,7 +176,7 @@ async function main(): Promise<void> {
   }
 
   const siteWithoutFonts: Omit<GeneratedSiteArtifact, 'fonts'> = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     config,
     navigation: routeManifest.navigation,
     homePosts: routeManifest.homePosts,
@@ -183,6 +188,11 @@ async function main(): Promise<void> {
       publishedPages: loadedPages.length,
       configRows: sources.config.length,
       stabilizedAssets: stabilized.files.length,
+      xEmbeds: {
+        total: xEmbeds.total,
+        enriched: xEmbeds.enriched,
+        fallback: xEmbeds.fallback,
+      },
       notionApiVersion: NOTION_API_VERSION,
     },
   }

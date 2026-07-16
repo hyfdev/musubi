@@ -16,6 +16,8 @@ Use a dedicated read-only Notion integration for routine Vercel builds. The broa
 
 The default cloud build uses the complete open-licensed LXGW fallback. `vp run font:setup` remains an optional private local or trusted-builder step; raw Tsanger files and `.musubi/font-inputs` must never become deployment artifacts.
 
+During content preparation, each supported X status URL may make one bounded request to the fixed official `https://publish.x.com/oembed` endpoint. This request uses no X API token. A timeout, provider error, oversized response, or invalid response does not fail the site build; that embed is emitted as a safe ordinary link and the rest of the article continues. A successfully enriched page contains its complete static quotation in generated HTML. Musubi's lightweight interaction script loads `https://platform.x.com/widgets.js` only when enriched X markup is present, without requiring the Nuxt client runtime, so readers of that page make third-party X requests even with the widget's data-non-use option enabled.
+
 ## Publishing
 
 Code changes use the existing Git integration:

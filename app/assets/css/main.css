@@ -943,6 +943,81 @@ figcaption {
   -webkit-box-decoration-break: clone;
 }
 
+.x-embed {
+  min-width: 0;
+  margin: 20px 0;
+}
+
+.x-embed-widget {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.x-embed-widget:empty {
+  display: none;
+}
+
+.x-embed-widget iframe {
+  max-width: 100% !important;
+}
+
+.prose-content .x-embed-fallback {
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.x-embed-fallback[hidden] {
+  display: none;
+}
+
+.x-embed-fallback-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.prose-content .x-embed-author {
+  color: var(--ink);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.x-embed-handle {
+  margin-left: 6px;
+  color: var(--meta);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.x-embed-mark {
+  color: var(--ink);
+  font-size: 17px;
+  line-height: 24px;
+}
+
+.prose-content .x-embed-text {
+  margin: 12px 0;
+  color: var(--text);
+}
+
+.x-embed-fallback-footer {
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.prose-content .x-embed-fallback-footer a {
+  color: var(--meta);
+  text-decoration-color: color-mix(in srgb, var(--meta) 42%, transparent);
+}
+
 .x-link-card {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr);

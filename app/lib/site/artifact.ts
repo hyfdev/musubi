@@ -7,7 +7,7 @@ export interface GeneratedPage {
 }
 
 export interface GeneratedSiteArtifact {
-  schemaVersion: 1
+  schemaVersion: 2
   config: SiteConfig
   navigation: NavigationItem[]
   homePosts: PublicPageMeta[]
@@ -19,6 +19,11 @@ export interface GeneratedSiteArtifact {
     publishedPages: number
     configRows: number
     stabilizedAssets: number
+    xEmbeds: {
+      total: number
+      enriched: number
+      fallback: number
+    }
     notionApiVersion: string
   }
   fonts: unknown

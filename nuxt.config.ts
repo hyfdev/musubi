@@ -15,7 +15,7 @@ async function readPreparedRoutes(): Promise<string[]> {
 
   const artifact = JSON.parse(source) as PreparedArtifactRoutes
   if (
-    artifact.schemaVersion !== 1 ||
+    artifact.schemaVersion !== 2 ||
     !Array.isArray(artifact.routes) ||
     artifact.routes.some((route) => typeof route !== 'string' || !route.startsWith('/'))
   ) {

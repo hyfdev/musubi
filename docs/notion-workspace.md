@@ -60,17 +60,17 @@ The complete deployable site is `.output/public`. Generation reads the current N
 
 Musubi accepts a bounded subset of Notion's page-as-Markdown output and normalizes it into project-owned nodes before Vue renders it. This table is the durable source-syntax mapping:
 
-| Notion Markdown source                                                                             | Musubi node or result                                  |
-| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Paragraph text, emphasis, strong, strikethrough, inline code, safe links, and line breaks          | `paragraph` with allowlisted inline nodes              |
-| Headings 1–4                                                                                       | `heading` with a generated stable fragment and TOC row |
-| Ordered, unordered, nested, and GFM task lists                                                     | `list` and `listItem`                                  |
-| Fenced or indented code                                                                            | `code`                                                 |
-| Blockquote and thematic break                                                                      | `quote` and `divider`                                  |
-| Markdown image with nonempty alternative text                                                      | `image`, then a stable generated asset                 |
-| GFM table                                                                                          | `table`                                                |
-| Allowlisted `<callout>`, `<file>`, `<table>`, `<colgroup>`, `<col>`, `<tr>`, and `<td>` extensions | `callout`, `file`, or `table`                          |
-| Self-closing `<table_of_contents />`                                                               | `tableOfContents` generated from normalized headings   |
-| A source-resolved X `<unknown>` embed                                                              | Non-interactive `linkCard`                             |
+| Notion Markdown source                                                                             | Musubi node or result                                             |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Paragraph text, emphasis, strong, strikethrough, inline code, safe links, and line breaks          | `paragraph` with allowlisted inline nodes                         |
+| Headings 1–4                                                                                       | `heading` with a generated stable fragment and TOC row            |
+| Ordered, unordered, nested, and GFM task lists                                                     | `list` and `listItem`                                             |
+| Fenced or indented code                                                                            | `code`                                                            |
+| Blockquote and thematic break                                                                      | `quote` and `divider`                                             |
+| Markdown image with nonempty alternative text                                                      | `image`, then a stable generated asset                            |
+| GFM table                                                                                          | `table`                                                           |
+| Allowlisted `<callout>`, `<file>`, `<table>`, `<colgroup>`, `<col>`, `<tr>`, and `<td>` extensions | `callout`, `file`, or `table`                                     |
+| Self-closing `<table_of_contents />`                                                               | `tableOfContents` generated from normalized headings              |
+| A source-resolved X `<unknown>` embed                                                              | `xEmbed` with a build-time static quotation or safe link fallback |
 
-Required remote files use absolute HTTPS source URLs and are downloaded, deduplicated, content-named, and rewritten during generation. Raw HTML, executable MDX expressions, custom emoji outside code, unknown tags or attributes, unresolved or unsupported required blocks, unsafe URLs, invalid table shapes, and unexplained truncated Markdown stop generation with source-page and line or block context. The full trust and failure boundary is in [Target Architecture](../.agents/docs/architecture.md).
+Required remote files use absolute HTTPS source URLs and are downloaded, deduplicated, content-named, and rewritten during generation. X enrichment requests the fixed official Publish oEmbed endpoint without an API token, validates the returned post and author URLs, and converts only text, line breaks, and safe links into Musubi's own AST; returned HTML is never rendered directly. If build-time enrichment fails, the article retains a plain safe link. If browser-side widget enhancement fails after successful enrichment, the complete static quotation remains visible. Raw HTML, executable MDX expressions, custom emoji outside code, unknown tags or attributes, unresolved or unsupported required blocks, unsafe URLs, invalid table shapes, and unexplained truncated Markdown stop generation with source-page and line or block context. The full trust and failure boundary is in [Target Architecture](../.agents/docs/architecture.md).

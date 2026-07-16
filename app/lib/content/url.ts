@@ -89,6 +89,11 @@ export function parseXStatusUrl(input: string, context: SafeUrlContext): string 
   return `https://x.com${path}`
 }
 
+export function extractXStatusId(input: string, context: SafeUrlContext): string | null {
+  const canonicalUrl = parseXStatusUrl(input, context)
+  return canonicalUrl ? (new URL(canonicalUrl).pathname.match(X_STATUS_PATH)?.[1] ?? null) : null
+}
+
 export function extractNotionBlockIdFromUrl(input: string, context: SafeUrlContext): string | null {
   const parsed = parseSafeLinkUrl(input, context)
   if (parsed.kind !== 'https') return null

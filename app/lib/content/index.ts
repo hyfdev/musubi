@@ -4,6 +4,7 @@ export { createHeadingIdBase, extractInlineText } from './headings.ts'
 export { normalizeMusubiMarkdown } from './normalize.ts'
 export { parseMusubiMarkdown } from './parse.ts'
 export {
+  extractXStatusId,
   extractNotionBlockIdFromUrl,
   parseSafeFileUrl,
   parseSafeImageUrl,

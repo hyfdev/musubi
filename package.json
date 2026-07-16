@@ -21,6 +21,7 @@
     "@notionhq/client": "5.23.0",
     "fonteditor-core": "2.6.3",
     "h3": "1.15.11",
+    "parse5": "8.0.1",
     "remark-gfm": "4.0.1",
     "remark-mdx": "3.1.1",
     "remark-parse": "11.0.0",

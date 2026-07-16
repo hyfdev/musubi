@@ -373,7 +373,7 @@ function collectResolvedEmbedIds(document: MusubiDocument): Set<string> {
   const ids = new Set<string>()
   const visit = (blocks: MusubiDocument['children']): void => {
     for (const block of blocks) {
-      if (block.type === 'linkCard' && block.sourceBlockId) {
+      if (block.type === 'xEmbed' && block.sourceBlockId) {
         ids.add(block.sourceBlockId)
       } else if (block.type === 'list') {
         for (const item of block.children) {

@@ -30,6 +30,111 @@ const interactionScript = `(() => {
     }
   };
   const resolvedTheme = (choice) => choice === 'system' ? (media.matches ? 'dark' : 'light') : choice;
+  const currentTheme = () => root.dataset.theme === 'dark' ? 'dark' : 'light';
+  const xWidgetsReadyEvent = 'musubi:x-widgets-ready';
+  let xWidgetsPromise;
+  const currentXWidgets = () => typeof window.twttr?.widgets?.createTweet === 'function'
+    ? window.twttr.widgets
+    : null;
+  const loadXWidgets = () => {
+    const readyWidgets = currentXWidgets();
+    if (readyWidgets) return Promise.resolve(readyWidgets);
+    if (xWidgetsPromise) return xWidgetsPromise;
+
+    xWidgetsPromise = new Promise((resolve) => {
+      let settled = false;
+      let timedOut = false;
+      const timeout = window.setTimeout(() => {
+        timedOut = true;
+        finish(null);
+      }, 10000);
+      const finish = (widgets) => {
+        if (settled) {
+          if (timedOut && widgets) document.dispatchEvent(new Event(xWidgetsReadyEvent));
+          return;
+        }
+        settled = true;
+        window.clearTimeout(timeout);
+        if (!widgets) xWidgetsPromise = null;
+        resolve(widgets || null);
+      };
+      const waitForReady = () => {
+        const widgets = currentXWidgets();
+        if (widgets) {
+          finish(widgets);
+          return;
+        }
+        const runtime = window.twttr;
+        if (typeof runtime?.ready === 'function') {
+          runtime.ready((readyRuntime) => finish(readyRuntime?.widgets || currentXWidgets()));
+        }
+      };
+
+      let script = document.querySelector('script[data-musubi-x-widgets]');
+      if (!script) {
+        script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://platform.x.com/widgets.js';
+        script.dataset.musubiXWidgets = '';
+        document.head.append(script);
+      }
+      script.addEventListener('load', waitForReady, { once: true });
+      script.addEventListener('error', () => {
+        script.remove();
+        finish(null);
+      }, { once: true });
+      waitForReady();
+    });
+    return xWidgetsPromise;
+  };
+  const renderXEmbeds = async (theme) => {
+    const embeds = [...document.querySelectorAll('.x-embed')];
+    if (!embeds.length) return;
+    const widgets = await loadXWidgets();
+    if (!widgets?.createTweet) return;
+
+    for (const embed of embeds) {
+      const slot = embed.querySelector('.x-embed-widget');
+      const fallback = embed.querySelector('.x-embed-fallback');
+      const postUrl = fallback?.getAttribute('cite');
+      let postId = null;
+      try {
+        postId = postUrl ? new URL(postUrl).pathname.match(/\\/status\\/([1-9]\\d*)\\/?$/)?.[1] : null;
+      } catch {}
+      if (!postId || !slot || !fallback) continue;
+      if (embed.dataset.xRenderedTheme === theme && slot.querySelector('iframe')) continue;
+
+      const renderToken = String(Number(embed.dataset.xRenderToken || 0) + 1);
+      embed.dataset.xRenderToken = renderToken;
+      delete embed.dataset.xRenderedTheme;
+      slot.replaceChildren();
+      slot.setAttribute('aria-hidden', 'true');
+      fallback.hidden = false;
+      try {
+        const rendered = await widgets.createTweet(postId, slot, {
+          align: 'center',
+          conversation: 'none',
+          dnt: true,
+          theme,
+        });
+        if (!embed.isConnected || embed.dataset.xRenderToken !== renderToken) {
+          rendered?.remove();
+          continue;
+        }
+        if (!rendered) throw new Error('X widget did not render');
+        fallback.hidden = true;
+        slot.removeAttribute('aria-hidden');
+        embed.dataset.xRenderedTheme = theme;
+      } catch {
+        if (!embed.isConnected || embed.dataset.xRenderToken !== renderToken) continue;
+        slot.replaceChildren();
+        slot.setAttribute('aria-hidden', 'true');
+        fallback.hidden = false;
+      }
+    }
+  };
+  document.addEventListener('musubi:x-embed-mounted', () => void renderXEmbeds(currentTheme()));
+  document.addEventListener(xWidgetsReadyEvent, () => void renderXEmbeds(currentTheme()));
   const updateThemeControl = (choice, systemResolved) => {
     const switcher = document.querySelector('.theme-switcher');
     if (!switcher) return;
@@ -52,6 +157,7 @@ const interactionScript = `(() => {
     root.dataset.themeChoice = choice;
     root.style.colorScheme = resolved;
     updateThemeControl(choice, resolvedTheme('system'));
+    if (document.readyState !== 'loading') void renderXEmbeds(resolved);
     if (persist) {
       try { localStorage.setItem(storageKey, choice); } catch {}
     }

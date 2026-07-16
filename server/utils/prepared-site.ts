@@ -8,7 +8,7 @@ let preparedSite: Promise<GeneratedSiteArtifact> | undefined
 async function readPreparedSite(): Promise<GeneratedSiteArtifact> {
   const artifactPath = resolve('.musubi/site.json')
   const artifact = JSON.parse(await readFile(artifactPath, 'utf8')) as GeneratedSiteArtifact
-  if (artifact.schemaVersion !== 1 || !Array.isArray(artifact.routes)) {
+  if (artifact.schemaVersion !== 2 || !Array.isArray(artifact.routes)) {
     throw new Error(`Invalid prepared Musubi artifact: ${artifactPath}`)
   }
   return artifact
