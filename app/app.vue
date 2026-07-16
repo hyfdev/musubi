@@ -94,7 +94,8 @@ const interactionScript = `(() => {
     if (!widgets?.createTweet) return;
 
     for (const embed of embeds) {
-      const slot = embed.querySelector('.x-embed-widget');
+      const slot = embed.querySelector(':scope > .x-embed-widget:not(.x-embed-widget-staging)');
+      const pendingSlot = embed.querySelector(':scope > .x-embed-widget-staging');
       const fallback = embed.querySelector('.x-embed-fallback');
       const postUrl = fallback?.getAttribute('cite');
       let postId = null;
@@ -102,34 +103,57 @@ const interactionScript = `(() => {
         postId = postUrl ? new URL(postUrl).pathname.match(/\\/status\\/([1-9]\\d*)\\/?$/)?.[1] : null;
       } catch {}
       if (!postId || !slot || !fallback) continue;
-      if (embed.dataset.xRenderedTheme === theme && slot.querySelector('iframe')) continue;
+      const hasCurrentWidget = Boolean(slot.querySelector('iframe'));
+      if (embed.dataset.xRenderedTheme === theme && hasCurrentWidget) {
+        if (embed.dataset.xPendingTheme && embed.dataset.xPendingTheme !== theme) {
+          embed.dataset.xRenderToken = String(Number(embed.dataset.xRenderToken || 0) + 1);
+          pendingSlot?.remove();
+          delete embed.dataset.xPendingTheme;
+        }
+        continue;
+      }
+      if (embed.dataset.xPendingTheme === theme) continue;
 
       const renderToken = String(Number(embed.dataset.xRenderToken || 0) + 1);
       embed.dataset.xRenderToken = renderToken;
-      delete embed.dataset.xRenderedTheme;
-      slot.replaceChildren();
-      slot.setAttribute('aria-hidden', 'true');
-      fallback.hidden = false;
+      pendingSlot?.remove();
+      const nextSlot = document.createElement('div');
+      nextSlot.className = 'x-embed-widget x-embed-widget-staging';
+      nextSlot.setAttribute('aria-hidden', 'true');
+      embed.dataset.xPendingTheme = theme;
+      embed.append(nextSlot);
+      let renderTimeout;
       try {
-        const rendered = await widgets.createTweet(postId, slot, {
-          align: 'center',
-          conversation: 'none',
-          dnt: true,
-          theme,
-        });
+        const rendered = await Promise.race([
+          widgets.createTweet(postId, nextSlot, {
+            align: 'center',
+            conversation: 'none',
+            dnt: true,
+            theme,
+          }),
+          new Promise((resolve) => {
+            renderTimeout = window.setTimeout(() => resolve(null), 10000);
+          }),
+        ]);
         if (!embed.isConnected || embed.dataset.xRenderToken !== renderToken) {
           rendered?.remove();
+          nextSlot.remove();
           continue;
         }
         if (!rendered) throw new Error('X widget did not render');
+        nextSlot.classList.remove('x-embed-widget-staging');
+        nextSlot.removeAttribute('aria-hidden');
+        slot.replaceWith(nextSlot);
         fallback.hidden = true;
-        slot.removeAttribute('aria-hidden');
         embed.dataset.xRenderedTheme = theme;
+        delete embed.dataset.xPendingTheme;
       } catch {
         if (!embed.isConnected || embed.dataset.xRenderToken !== renderToken) continue;
-        slot.replaceChildren();
-        slot.setAttribute('aria-hidden', 'true');
-        fallback.hidden = false;
+        nextSlot.remove();
+        delete embed.dataset.xPendingTheme;
+        fallback.hidden = Boolean(slot.querySelector('iframe'));
+      } finally {
+        window.clearTimeout(renderTimeout);
       }
     }
   };

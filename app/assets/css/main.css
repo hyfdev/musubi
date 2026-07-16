@@ -944,6 +944,7 @@ figcaption {
 }
 
 .x-embed {
+  position: relative;
   min-width: 0;
   margin: 20px 0;
 }
@@ -956,6 +957,18 @@ figcaption {
 
 .x-embed-widget:empty {
   display: none;
+}
+
+.x-embed-widget-staging {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.x-embed-widget-staging:empty {
+  display: flex;
 }
 
 .x-embed-widget iframe {
