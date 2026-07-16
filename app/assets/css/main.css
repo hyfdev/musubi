@@ -356,16 +356,6 @@ a {
   height: 21px;
 }
 
-.theme-system-status-light,
-.theme-system-status-dark {
-  display: none;
-}
-
-.theme-switcher.theme-system-resolved-light .theme-system-status-light,
-.theme-switcher.theme-system-resolved-dark .theme-system-status-dark {
-  display: block;
-}
-
 .home-page,
 .blog-page {
   padding-block: 64px 80px;

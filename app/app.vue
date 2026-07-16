@@ -33,8 +33,6 @@ const interactionScript = `(() => {
   const updateThemeControl = (choice, systemResolved) => {
     const switcher = document.querySelector('.theme-switcher');
     if (!switcher) return;
-    switcher.classList.toggle('theme-system-resolved-light', systemResolved === 'light');
-    switcher.classList.toggle('theme-system-resolved-dark', systemResolved === 'dark');
     for (const button of switcher.querySelectorAll('.theme-option[value]')) {
       const buttonChoice = button.value || 'system';
       const selected = buttonChoice === choice;

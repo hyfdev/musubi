@@ -41,16 +41,8 @@
       title="System (light)"
     >
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect x="2.5" y="6.5" width="15" height="10.5" rx="1.5"></rect>
-        <path d="M7 20.5h6M10 17v3.5"></path>
-        <g class="theme-system-status-light">
-          <circle cx="19" cy="5" r="1.8"></circle>
-          <path d="M19 1.5v1M19 7.5v1M15.5 5h1M21.5 5h1"></path>
-        </g>
-        <path
-          class="theme-system-status-dark"
-          d="M22 6.5a3.2 3.2 0 0 1-4.5-4.3A3.2 3.2 0 1 0 22 6.5Z"
-        ></path>
+        <rect x="3" y="4.5" width="18" height="12.5" rx="1.5"></rect>
+        <path d="M8 20.5h8M12 17v3.5"></path>
       </svg>
     </button>
   </div>
