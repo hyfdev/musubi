@@ -58,7 +58,7 @@ flowchart TB
 
 ## Distribution and trust boundaries
 
-- Musubi is one Nuxt application distributed as source. A user can fork it, connect a Notion workspace that follows the documented two-source contract, provide `NOTION_TOKEN`, `NOTION_CONTENT_DATA_SOURCE_ID`, and `NOTION_CONFIG_DATA_SOURCE_ID`, and deploy the default website without editing source or a local configuration file.
+- Musubi is one Nuxt application distributed as source. A user can fork it, connect a Notion workspace that follows the documented two-page contract, provide `NOTION_TOKEN`, `NOTION_DB_PAGE_ID`, and `NOTION_CONFIG_PAGE_ID`, and deploy the default website without editing source or a local configuration file. The private fetcher resolves the sole data source inside each page before querying it.
 - The ordinary onboarding model is a dedicated Notion internal integration with only `Read content`, shared with the root containing both data sources. Public OAuth and broader personal workspace credentials are outside the product contract.
 - Notion is the sole canonical editing source for public content and public site settings. Git Markdown, browser-side editing, multiple source adapters, and a public arbitrary-configuration interface are not product capabilities.
 - Notion credentials and live source responses exist only under `scripts/notion/`. Its `index.ts` entry persists the fetched content under the Git-tracked `.musubi/notion-data-snapshot/`; local generation and application components consume those files without importing the Notion SDK or fetching the source.

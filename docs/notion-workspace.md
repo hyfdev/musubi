@@ -1,20 +1,22 @@
 # Notion Workspace Contract
 
-Musubi reads one Content data source and one Config data source when `vp run notion:setup` refreshes the local Notion Data snapshot. Both sources should live below one Notion root page shared with a dedicated internal integration that has only the `Read content` capability. Musubi never writes to Notion.
+Musubi reads two visible Notion database pages when `vp run notion:setup` refreshes the local Notion Data snapshot: one page for Content and one page for Config. Both pages should live below one Notion root page shared with a dedicated internal integration that has only the `Read content` capability. Musubi never writes to Notion.
 
 ## Environment
 
 Copy `.env.example` to `.env.local` and fill exactly these values:
 
-| Variable                        | Value                                                     |
-| ------------------------------- | --------------------------------------------------------- |
-| `NOTION_TOKEN`                  | Secret from the dedicated read-only Notion integration    |
-| `NOTION_CONTENT_DATA_SOURCE_ID` | ID of the Content data source, not its parent database ID |
-| `NOTION_CONFIG_DATA_SOURCE_ID`  | ID of the Config data source, not its parent database ID  |
+| Variable                | Value                                                  |
+| ----------------------- | ------------------------------------------------------ |
+| `NOTION_TOKEN`          | Secret from the dedicated read-only Notion integration |
+| `NOTION_DB_PAGE_ID`     | Page ID copied from the Content database page URL      |
+| `NOTION_CONFIG_PAGE_ID` | Page ID copied from the Config database page URL       |
 
 The values are build secrets. They must not use a public prefix, appear in client code, or be copied into generated output.
 
-## Content data source
+Each page must contain exactly one Notion data source. Musubi resolves that internal data source when it refreshes the snapshot; users do not need to find or configure data-source IDs. A page with zero or multiple data sources stops the refresh with a direct error.
+
+## Content page
 
 Create these properties with the exact names and Notion types:
 
@@ -32,7 +34,7 @@ Create these properties with the exact names and Notion types:
 
 Legacy `Type = Content` rows remain accepted and are normalized to Page while an existing source is migrated. New sources use only `Post` and `Page`. `ShowInNavigation` and `NavigationOrder` may be absent in a compatible source; Musubi then keeps Pages out of navigation and treats them as unordered. The direct Page route remains public. Other missing required columns stop generation. Tags never create routes.
 
-## Config data source
+## Config page
 
 Create these properties with the exact names and Notion types:
 

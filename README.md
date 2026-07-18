@@ -11,7 +11,7 @@ You do not need to change source code or create a local website configuration fi
 1. Fork this repository.
 2. Create or duplicate a Notion workspace that follows the [Content and Config contract](./docs/notion-workspace.md).
 3. Create a dedicated Notion internal integration with only `Read content`, then share the workspace root with it.
-4. Copy `.env.example` to `.env.local` and fill the token plus both data-source IDs.
+4. Copy `.env.example` to `.env.local` and fill the token plus both Notion page IDs.
 5. Install, fetch the first Notion Data snapshot, and verify the site through Vite+:
 
 ```sh

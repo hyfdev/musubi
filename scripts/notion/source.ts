@@ -1,6 +1,7 @@
 import {
   Client,
   collectAllDataSourceRows,
+  isFullDatabase,
   isFullPage,
   type DataSourceObjectResponse,
   type GetBlockResponse,
@@ -18,16 +19,12 @@ import { mapConcurrent } from './concurrency.ts'
 
 export const NOTION_API_VERSION = '2026-03-11'
 const REQUEST_CONCURRENCY = 4
-const NOTION_SECRET_NAMES = [
-  'NOTION_TOKEN',
-  'NOTION_CONTENT_DATA_SOURCE_ID',
-  'NOTION_CONFIG_DATA_SOURCE_ID',
-] as const
+const NOTION_SECRET_NAMES = ['NOTION_TOKEN', 'NOTION_DB_PAGE_ID', 'NOTION_CONFIG_PAGE_ID'] as const
 
 export interface NotionEnvironment {
   token: string
-  contentDataSourceId: string
-  configDataSourceId: string
+  dbPageId: string
+  configPageId: string
 }
 
 export interface FetchedNotionData {
@@ -40,16 +37,22 @@ export function readNotionEnvironment(
   environment: NodeJS.ProcessEnv = process.env,
 ): NotionEnvironment {
   const required = (
-    name: 'NOTION_TOKEN' | 'NOTION_CONTENT_DATA_SOURCE_ID' | 'NOTION_CONFIG_DATA_SOURCE_ID',
+    name: 'NOTION_TOKEN' | 'NOTION_DB_PAGE_ID' | 'NOTION_CONFIG_PAGE_ID',
   ): string => {
-    const value = environment[name]?.trim()
+    const legacyName =
+      name === 'NOTION_DB_PAGE_ID'
+        ? 'NOTION_CONTENT_DATABASE_ID'
+        : name === 'NOTION_CONFIG_PAGE_ID'
+          ? 'NOTION_CONFIG_DATABASE_ID'
+          : undefined
+    const value = environment[name]?.trim() || (legacyName && environment[legacyName]?.trim())
     if (!value) throw new Error(`Missing required build environment variable ${name}`)
     return value
   }
   return {
     token: required('NOTION_TOKEN'),
-    contentDataSourceId: required('NOTION_CONTENT_DATA_SOURCE_ID'),
-    configDataSourceId: required('NOTION_CONFIG_DATA_SOURCE_ID'),
+    dbPageId: required('NOTION_DB_PAGE_ID'),
+    configPageId: required('NOTION_CONFIG_PAGE_ID'),
   }
 }
 
@@ -95,10 +98,22 @@ function notionErrorDetail(error: unknown, environment: NotionEnvironment): stri
   const prefix = [code, status ? `HTTP ${status}` : undefined].filter(Boolean).join(', ')
   const detail = redactNotionSecrets(message, {
     NOTION_TOKEN: environment.token,
-    NOTION_CONTENT_DATA_SOURCE_ID: environment.contentDataSourceId,
-    NOTION_CONFIG_DATA_SOURCE_ID: environment.configDataSourceId,
+    NOTION_DB_PAGE_ID: environment.dbPageId,
+    NOTION_CONFIG_PAGE_ID: environment.configPageId,
   })
   return prefix ? `${prefix}: ${detail}` : detail
+}
+
+export function onlyDataSourceId(
+  pageLabel: string,
+  dataSources: ReadonlyArray<{ id: string; name: string }>,
+): string {
+  if (dataSources.length !== 1) {
+    throw new Error(
+      `${pageLabel} must contain exactly one data source; found ${dataSources.length}.`,
+    )
+  }
+  return canonicalNotionId(dataSources[0]!.id, `${pageLabel} data source ID`)
 }
 
 async function notionRequest<T>(
@@ -191,20 +206,33 @@ export async function fetchNotionData(
   previousPages: ReadonlyMap<string, NotionPageSnapshot> = new Map(),
 ): Promise<FetchedNotionData> {
   const notion = createNotionClient(environment.token)
+  const [contentPage, configPage] = await Promise.all([
+    notionRequest(environment, 'Content page', 'retrieval', () =>
+      notion.databases.retrieve({ database_id: environment.dbPageId }),
+    ),
+    notionRequest(environment, 'Config page', 'retrieval', () =>
+      notion.databases.retrieve({ database_id: environment.configPageId }),
+    ),
+  ])
+  if (!isFullDatabase(contentPage)) throw new Error('Content page retrieval returned partial data')
+  if (!isFullDatabase(configPage)) throw new Error('Config page retrieval returned partial data')
+  const contentDataSourceId = onlyDataSourceId('Content page', contentPage.data_sources)
+  const configDataSourceId = onlyDataSourceId('Config page', configPage.data_sources)
+
   const [contentDataSource, configDataSource, contentResults, configResults] = await Promise.all([
     notionRequest(environment, 'Content data source', 'schema retrieval', () =>
-      notion.dataSources.retrieve({ data_source_id: environment.contentDataSourceId }),
+      notion.dataSources.retrieve({ data_source_id: contentDataSourceId }),
     ),
     notionRequest(environment, 'Config data source', 'schema retrieval', () =>
-      notion.dataSources.retrieve({ data_source_id: environment.configDataSourceId }),
+      notion.dataSources.retrieve({ data_source_id: configDataSourceId }),
     ),
     notionRequest(environment, 'Content data source', 'paginated query', () =>
       collectAllDataSourceRows(notion, {
-        data_source_id: environment.contentDataSourceId,
+        data_source_id: contentDataSourceId,
       }),
     ),
     notionRequest(environment, 'Config data source', 'paginated query', () =>
-      collectAllDataSourceRows(notion, { data_source_id: environment.configDataSourceId }),
+      collectAllDataSourceRows(notion, { data_source_id: configDataSourceId }),
     ),
   ])
 

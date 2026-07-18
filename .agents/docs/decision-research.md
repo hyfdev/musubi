@@ -17,7 +17,7 @@ These directions were explicitly selected in conversation and distilled into the
 - The overall blog style references Kami's white print one-pager and ships the inspected warm dark palette alongside the light theme.
 - Luo is the first Chinese typeface. During generation, Musubi creates a matching `Musubi CJK Fallback` subset containing only current-corpus CJK characters, Chinese punctuation, and full-width symbols that the pinned Luo input lacks.
 - The completed migration removes `nuxt-prerender-kit` and replaces its accepted prerender responsibilities with Nuxt-native build-only data routes and explicit static page generation.
-- Ordinary users fork Musubi, duplicate its Notion template, grant a dedicated read-only internal integration access, provide `NOTION_TOKEN`, `NOTION_CONTENT_DATA_SOURCE_ID`, and `NOTION_CONFIG_DATA_SOURCE_ID`, and deploy without editing source or local configuration.
+- Ordinary users fork Musubi, duplicate its Notion template, grant a dedicated read-only internal integration access, provide `NOTION_TOKEN`, `NOTION_DB_PAGE_ID`, and `NOTION_CONFIG_PAGE_ID`, and deploy without editing source or local configuration.
 - Notion is the only canonical editing source for content and public site settings. The local site-config object exists only as an internal fallback.
 - Musubi uses deployment-time SSG: each build fetches the Notion data used by that build and emits a static artifact. Automatic build triggering is deferred.
 - The canonical routes are `/`, `/blog/page/:page` beginning at page 2, `/blog/:slug` for Posts, and `/:slug` for Content pages. Tags remain metadata and do not create routes; Content navigation is controlled and ordered in Notion.
@@ -52,7 +52,7 @@ The earlier packet incorrectly combined this product decision with “official A
 
 ### Selected Notion onboarding and editing model
 
-The documented template owns one content data source and one key/value configuration data source under a shareable root. The ordinary-user default is a workspace-scoped internal integration with only `Read content`; personal tokens remain acceptable temporary development credentials but are not the product contract, and public OAuth is not selected. The three required environment variables are `NOTION_TOKEN`, `NOTION_CONTENT_DATA_SOURCE_ID`, and `NOTION_CONFIG_DATA_SOURCE_ID`.
+The documented template owns one Content database page and one key/value Config database page under a shareable root. Each page contains exactly one data source, which the private fetcher resolves internally. The ordinary-user default is a workspace-scoped internal integration with only `Read content`; personal tokens remain acceptable temporary development credentials but are not the product contract, and public OAuth is not selected. The three required environment variables are `NOTION_TOKEN`, `NOTION_DB_PAGE_ID`, and `NOTION_CONFIG_PAGE_ID`.
 
 The content source retains `Title`, `Slug`, `Date`, `Status`, `Type`, `Description`, and `Tags`. The target template also includes `ShowInNavigation` and `NavigationOrder`; its default Content page template leaves the former disabled and the latter empty. A compatible source that omits those properties entirely uses hidden-from-navigation and unordered as defaults. `Draft` and `Published` are the only status values; `Post` and `Content` are the only type values. Published rows require a title and slug, Published Posts also require a date, and Tags remain metadata only.
 

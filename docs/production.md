@@ -11,8 +11,8 @@ The repository pins Node through `.node-version`, pnpm through `packageManager`,
 Configure these values as Workers Builds variables or secrets, not Worker runtime bindings:
 
 - `NOTION_TOKEN`
-- `NOTION_CONTENT_DATA_SOURCE_ID`
-- `NOTION_CONFIG_DATA_SOURCE_ID`
+- `NOTION_DB_PAGE_ID`
+- `NOTION_CONFIG_PAGE_ID`
 
 Use a dedicated read-only Notion integration for routine production builds. Musubi does not require a write-capable Notion credential. Non-production branch builds remain disabled initially; if enabled later, they should run `vp run check:build` from the tracked snapshot without receiving Notion credentials.
 

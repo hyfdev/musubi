@@ -4,6 +4,13 @@ Judgments the human actually expressed about architecture — selections, accept
 
 ## Decided
 
+### User-facing Notion page inputs
+
+- **Ruling:** Musubi's public environment contract must accept `NOTION_DB_PAGE_ID` and `NOTION_CONFIG_PAGE_ID` for the two visible Notion database pages; `scripts/notion/` must resolve the sole data source inside each page before querying it.
+- **Limits:** Each page must contain exactly one data source. Zero or multiple data sources stop refresh with a direct error. Data-source IDs remain private implementation details and must not become user configuration.
+- **Why:** From the user's perspective, setup consists of connecting two Notion pages. Exposing Notion's internal data-source layer adds an unnecessary concept and makes setup harder to understand.
+- **Source:** Yunfei He (@hyf0), 2026-07-19, explicit correction during the Cloudflare setup discussion.
+
 ### Git-tracked Notion Data boundary
 
 [VOUCHED @hyf0 2026-07-18]
