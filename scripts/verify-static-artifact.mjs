@@ -139,7 +139,19 @@ export async function verifyStaticArtifact(
   return { root, fileCount, totalBytes }
 }
 
+export async function verifyNoGeneratedDeployRedirect(
+  deployConfigPath = resolve('.wrangler/deploy/config.json'),
+) {
+  const redirect = await lstat(deployConfigPath).catch(() => undefined)
+  if (redirect) {
+    throw new Error(
+      'Static generation created .wrangler/deploy/config.json; this would redirect Wrangler away from the repository assets-only configuration',
+    )
+  }
+}
+
 async function main() {
+  await verifyNoGeneratedDeployRedirect()
   const artifact = await verifyStaticArtifact()
   console.log(
     `Static artifact verified: ${artifact.fileCount} files, ${artifact.totalBytes} bytes in ${artifact.root}`,

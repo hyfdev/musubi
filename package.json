@@ -13,7 +13,7 @@
     "prepare": "vp config",
     "nuxt:dev": "nuxt dev",
     "nuxt:typecheck": "nuxt typecheck",
-    "nuxt:generate": "nuxt generate",
+    "nuxt:generate": "nuxt generate --preset static",
     "static:finalize": "node scripts/finalize-static-artifact.mjs",
     "static:serve": "node scripts/serve-static.mjs"
   },

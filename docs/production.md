@@ -4,11 +4,13 @@ Musubi's maintained example targets Cloudflare Workers Static Assets at `https:/
 
 ## Build contract
 
-Workers Builds installs the pinned pnpm dependencies, runs `pnpm run build`, and `pnpm exec wrangler deploy` publishes only `.output/public`. `vp run build` refreshes `.musubi/notion-data-snapshot/` through `vp run notion:setup`, then runs the same local static build and artifact checks exposed as `vp run check:build`. Production never serves `.output/server`, a Nitro process, a Notion API route, the Notion Data snapshot, or browser-side Notion credentials.
+Workers Builds installs the pinned pnpm dependencies, runs `pnpm exec vp run check:build` for the maintained snapshot-based example, and publishes only `.output/public` with `pnpm exec wrangler deploy`. This path reads the Git-tracked `.musubi/notion-data-snapshot/` and does not contact Notion. A separately connected site can use `pnpm run build` to refresh that snapshot through `vp run notion:setup` before running the same static build and artifact checks. Neither path serves `.output/server`, a Nitro process, a Notion API route, the Notion Data snapshot, or browser-side Notion credentials.
 
-The repository pins Node through `.node-version`, pnpm through `packageManager`, and Wrangler as a development dependency. Configure the Worker build with production branch `main`, build command `pnpm run build`, deploy command `pnpm exec wrangler deploy`, and `PNPM_VERSION=11.14.0`. `NODE_VERSION=24.18.0` may also be set explicitly as a redundant build-image guard.
+Musubi's internal generation command explicitly passes Nitro's `static` preset. Workers Builds otherwise identifies itself as Cloudflare CI and the Nuxt CLI selects its runtime `cloudflare-module` preset, whose generated `.wrangler/deploy/config.json` redirects Wrangler away from the repository's static-assets configuration and expects `.output/server/index.mjs`. That runtime entry is intentionally absent from `nuxt generate`. The artifact gate rejects any such generated redirect before deployment.
 
-Configure these values as Workers Builds variables or secrets, not Worker runtime bindings:
+The repository pins Node through `.node-version`, pnpm through `packageManager`, and Wrangler as a development dependency. Configure the Worker build with production branch `main`, build command `pnpm exec vp run check:build` for the maintained snapshot-based example, deploy command `pnpm exec wrangler deploy`, and `PNPM_VERSION=11.14.0`. `NODE_VERSION=24.18.0` may also be set explicitly as a redundant build-image guard. A site that intentionally publishes the latest connected Notion workspace on every deployment uses `pnpm run build` instead and supplies the three build-only Notion values below.
+
+Only a connected site that uses `pnpm run build` needs these Workers Builds variables or secrets. They are build inputs, not Worker runtime bindings:
 
 - `NOTION_TOKEN`
 - `NOTION_DB_PAGE_ID`
@@ -16,7 +18,7 @@ Configure these values as Workers Builds variables or secrets, not Worker runtim
 
 Use a dedicated read-only Notion integration for routine production builds. Musubi does not require a write-capable Notion credential. Non-production branch builds remain disabled initially; if enabled later, they should run `vp run check:build` from the tracked snapshot without receiving Notion credentials.
 
-The default cloud build uses the complete open-licensed LXGW fallback. `vp run font:setup` remains an optional private local or trusted-builder step; raw Tsanger files and the ignored `.musubi/font/` cache must never become deployment artifacts.
+The default cloud build verifies and copies the checked-in, open-licensed LXGW fallback WOFF2 shards instead of downloading the 25 MB source TTF and regenerating the same complete coverage. The repository retains the source version, checksums, renamed identity, OFL notice, and a maintenance-only rebuild program. `vp run font:setup` remains an optional private local or trusted-builder step; raw Tsanger files and the ignored `.musubi/font/` cache must never become deployment artifacts.
 
 The snapshot keeps remote Notion image and file URLs unchanged; production does not copy those media into the artifact. An X embed keeps only its source URL and renders as a safe ordinary link. Neither `vp run notion:setup` nor the static build requests X oEmbed data or loads X's browser widget script.
 

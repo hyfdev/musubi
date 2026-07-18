@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
-import { verifyStaticArtifact } from './verify-static-artifact.mjs'
+import { verifyNoGeneratedDeployRedirect, verifyStaticArtifact } from './verify-static-artifact.mjs'
 
 const temporaryDirectories = []
 const HEADER_BLOCKS = {
@@ -75,6 +75,18 @@ describe('static delivery controls', () => {
 
     await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).rejects.toThrow(
       `Static artifact _headers is missing required block: ${name}`,
+    )
+  })
+
+  it('rejects a generated Wrangler redirect', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'musubi-wrangler-redirect-'))
+    temporaryDirectories.push(root)
+    const redirect = join(root, '.wrangler/deploy/config.json')
+    await mkdir(join(root, '.wrangler/deploy'), { recursive: true })
+    await writeFile(redirect, '{}')
+
+    await expect(verifyNoGeneratedDeployRedirect(redirect)).rejects.toThrow(
+      'this would redirect Wrangler away from the repository assets-only configuration',
     )
   })
 })

@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto'
 import { chmod, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
-import { basename, dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createFont, woff2 } from 'fonteditor-core'
 import subsetFont from 'subset-font'
 import {
@@ -11,6 +12,10 @@ import {
 import { inspectTsangerFontCache } from './tsanger-fonts.ts'
 
 const require = createRequire(import.meta.url)
+const PREBUILT_FALLBACK_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), 'prebuilt-fallback')
+const PREBUILT_FALLBACK_MANIFEST = 'fonts-manifest.json'
+const PREBUILT_FALLBACK_MANIFEST_SHA256 =
+  '28176676c917e2a8bf54b74c1d2bf765649eab3b80f97c6e238e025c9a8a2d21'
 
 const LXGW_SOURCE = {
   repository: 'https://github.com/lxgw/LxgwWenKaiGB',
@@ -149,29 +154,18 @@ export async function buildPublicFonts(
     throw new TypeError('The generated public directory must be a nonempty path.')
   }
 
-  await assertToolVersion('subset-font', TOOL_VERSIONS.subsetFont)
-  await assertToolVersion('fonteditor-core', TOOL_VERSIONS.fonteditorCore)
-  await woff2.init()
-
   const outputRoot = resolve(generatedPublicDirectory)
   await mkdir(join(outputRoot, 'fonts'), { recursive: true })
-  const fallbackLicense = await readVerifiedRepositoryFile(FALLBACK_LICENSE)
-  await writeAtomic(join(outputRoot, OUTPUT_PATHS.fallbackLicense), fallbackLicense, 0o644)
-
-  const fallbackSource = await loadCachedSource(LXGW_SOURCE)
-  const fallbackCmap = readCmap(fallbackSource.buffer, 'ttf')
-  const fallbackCodePoints = [...fallbackCmap].sort((left, right) => left - right)
-  const fallbackAvailable = new Set(fallbackCodePoints)
-  const fallbackShards = await buildFallbackShards(
-    fallbackSource.buffer,
-    fallbackCodePoints,
-    outputRoot,
-  )
+  const prebuiltFallback = await installPrebuiltFallback(outputRoot)
+  const fallbackShards = prebuiltFallback.artifacts.fallbackShards
 
   const body = collectChineseTypographyCodePoints(corpora.body)
   const emphasis = collectChineseTypographyCodePoints(corpora.emphasis)
   const required = [...new Set([...body.codePoints, ...emphasis.codePoints])]
-  const unavailable = required.filter((codePoint) => !fallbackAvailable.has(codePoint))
+  const unavailable = required.filter(
+    (codePoint) =>
+      !fallbackShards.some((artifact) => coverageContains(artifact.coverage, codePoint)),
+  )
   if (unavailable.length > 0) {
     throw new Error(
       `Required Chinese typography code points are absent from the complete fallback: ${formatCodePoints(unavailable).join(', ')}`,
@@ -188,6 +182,9 @@ export async function buildPublicFonts(
   let tsangerW05: FontArtifact | null = null
   await removeTsangerOutputs(outputRoot)
   if (tsangerSources) {
+    await assertToolVersion('subset-font', TOOL_VERSIONS.subsetFont)
+    await assertToolVersion('fonteditor-core', TOOL_VERSIONS.fonteditorCore)
+    await woff2.init()
     tsangerW04 = await buildTsangerSubset(
       tsangerSources.w04.buffer,
       body.codePoints,
@@ -225,13 +222,7 @@ export async function buildPublicFonts(
           : null,
       },
       fallback: {
-        repository: LXGW_SOURCE.repository,
-        release: LXGW_SOURCE.release,
-        asset: LXGW_SOURCE.asset,
-        url: LXGW_SOURCE.url,
-        bytes: fallbackSource.bytes,
-        sha256: LXGW_SOURCE.sha256,
-        cmapCodePointCount: fallbackCmap.size,
+        ...prebuiltFallback.sources.fallback,
       },
     },
     selectedCorpora: {
@@ -258,6 +249,221 @@ export async function buildPublicFonts(
     0o644,
   )
   return manifest
+}
+
+async function installPrebuiltFallback(outputRoot: string): Promise<FontBuildManifest> {
+  const manifest = await readPrebuiltFallbackManifest()
+  const files = [
+    manifest.licenses.fallback,
+    ...manifest.artifacts.fallbackShards.map((artifact) => ({
+      path: artifact.path,
+      sha256: artifact.sha256,
+      bytes: artifact.bytes,
+    })),
+  ]
+  for (const file of files) {
+    const relativePath = checkedPrebuiltRelativePath(file.path)
+    const buffer = await readFile(checkedPrebuiltPath(relativePath))
+    if (sha256(buffer) !== file.sha256 || ('bytes' in file && buffer.length !== file.bytes)) {
+      throw new Error(`Checked-in fallback font artifact failed verification: ${file.path}`)
+    }
+    await writeAtomic(resolve(outputRoot, relativePath), buffer, 0o644)
+  }
+  return manifest
+}
+
+async function readPrebuiltFallbackManifest(): Promise<FontBuildManifest> {
+  const manifestBytes = await readFile(checkedPrebuiltPath(PREBUILT_FALLBACK_MANIFEST))
+  if (sha256(manifestBytes) !== PREBUILT_FALLBACK_MANIFEST_SHA256) {
+    throw new Error(
+      'The checked-in fallback font manifest changed without updating its reviewed checksum.',
+    )
+  }
+  const manifest = JSON.parse(manifestBytes.toString('utf8')) as FontBuildManifest
+  if (
+    manifest.schemaVersion !== 3 ||
+    manifest.tools.subsetFont !== TOOL_VERSIONS.subsetFont ||
+    manifest.tools.fonteditorCore !== TOOL_VERSIONS.fonteditorCore ||
+    manifest.sources.fallback.release !== LXGW_SOURCE.release ||
+    manifest.sources.fallback.asset !== LXGW_SOURCE.asset ||
+    manifest.sources.fallback.url !== LXGW_SOURCE.url ||
+    manifest.sources.fallback.sha256 !== LXGW_SOURCE.sha256 ||
+    manifest.licenses.fallback.path !== OUTPUT_PATHS.fallbackLicense ||
+    manifest.licenses.fallback.sha256 !== FALLBACK_LICENSE.sha256 ||
+    manifest.artifacts.tsangerW04 !== null ||
+    manifest.artifacts.tsangerW05 !== null ||
+    manifest.artifacts.fallbackShards.length !== FALLBACK_SHARDS.length
+  ) {
+    throw new Error('The checked-in fallback font manifest does not match this Musubi version.')
+  }
+
+  for (const artifact of manifest.artifacts.fallbackShards) {
+    if (
+      artifact.family !== FALLBACK_FAMILY ||
+      artifact.coverage.count <= 0 ||
+      artifact.coverage.ranges.length === 0 ||
+      artifact.coverage.cssUnicodeRange !== artifact.coverage.ranges.join(', ')
+    ) {
+      throw new Error(`Checked-in fallback font coverage is invalid: ${artifact.path}`)
+    }
+    for (const range of artifact.coverage.ranges) parseCoverageRange(range)
+  }
+  return manifest
+}
+
+function checkedPrebuiltPath(relativePath: string): string {
+  const canonicalPath = checkedPrebuiltRelativePath(relativePath)
+  const path = resolve(PREBUILT_FALLBACK_ROOT, canonicalPath)
+  if (path !== PREBUILT_FALLBACK_ROOT && !path.startsWith(`${PREBUILT_FALLBACK_ROOT}${sep}`)) {
+    throw new Error(`Checked-in fallback font path escapes its directory: ${relativePath}`)
+  }
+  return path
+}
+
+function checkedPrebuiltRelativePath(relativePath: string): string {
+  if (
+    relativePath.length === 0 ||
+    relativePath.startsWith('/') ||
+    relativePath.includes('\\') ||
+    relativePath.split('/').some((segment) => segment === '' || segment === '.' || segment === '..')
+  ) {
+    throw new Error(`Checked-in fallback font path is not canonical: ${relativePath}`)
+  }
+  return relativePath
+}
+
+function coverageContains(coverage: UnicodeCoverage, codePoint: number): boolean {
+  return coverage.ranges.some((range) => {
+    const [start, end] = parseCoverageRange(range)
+    return codePoint >= start && codePoint <= end
+  })
+}
+
+function parseCoverageRange(range: string): readonly [number, number] {
+  const match = /^U\+([0-9A-F]{4,6})(?:-([0-9A-F]{4,6}))?$/u.exec(range)
+  if (!match) throw new Error(`Checked-in fallback font contains an invalid range: ${range}`)
+  const start = Number.parseInt(match[1]!, 16)
+  const end = match[2] ? Number.parseInt(match[2], 16) : start
+  if (start > end || end > 0x10ffff) {
+    throw new Error(`Checked-in fallback font contains an invalid range: ${range}`)
+  }
+  return [start, end]
+}
+
+export async function verifyPrebuiltFallbackCoverage(): Promise<void> {
+  const manifest = await readPrebuiltFallbackManifest()
+  await woff2.init()
+  const combined = new Set<number>()
+  for (const artifact of manifest.artifacts.fallbackShards) {
+    const buffer = await readFile(checkedPrebuiltPath(artifact.path))
+    if (buffer.length !== artifact.bytes || sha256(buffer) !== artifact.sha256) {
+      throw new Error(`Checked-in fallback font artifact failed verification: ${artifact.path}`)
+    }
+    const actual = [...readCmap(buffer, 'woff2')].sort((left, right) => left - right)
+    const declared = expandCoverage(artifact.coverage)
+    if (!sameNumbers(actual, declared)) {
+      throw new Error(`Checked-in fallback cmap differs from its manifest: ${artifact.path}`)
+    }
+    for (const codePoint of actual) {
+      if (combined.has(codePoint)) {
+        throw new Error(`Checked-in fallback shards overlap at ${formatCodePoint(codePoint)}.`)
+      }
+      combined.add(codePoint)
+    }
+  }
+  if (combined.size !== manifest.sources.fallback.cmapCodePointCount) {
+    throw new Error(
+      `Checked-in fallback cmap has ${combined.size} code points; expected ${manifest.sources.fallback.cmapCodePointCount}.`,
+    )
+  }
+}
+
+function expandCoverage(coverage: UnicodeCoverage): number[] {
+  const codePoints = new Set<number>()
+  for (const range of coverage.ranges) {
+    const [start, end] = parseCoverageRange(range)
+    for (let codePoint = start; codePoint <= end; codePoint += 1) codePoints.add(codePoint)
+  }
+  const expanded = [...codePoints].sort((left, right) => left - right)
+  if (expanded.length !== coverage.count) {
+    throw new Error(
+      `Checked-in fallback coverage declares ${coverage.count} code points but expands to ${expanded.length}.`,
+    )
+  }
+  return expanded
+}
+
+export async function rebuildPrebuiltFallback(): Promise<void> {
+  await assertToolVersion('subset-font', TOOL_VERSIONS.subsetFont)
+  await assertToolVersion('fonteditor-core', TOOL_VERSIONS.fonteditorCore)
+  await woff2.init()
+
+  const temporaryRoot = `${PREBUILT_FALLBACK_ROOT}.${process.pid}.tmp`
+  await rm(temporaryRoot, { recursive: true, force: true })
+  await mkdir(join(temporaryRoot, 'fonts'), { recursive: true })
+  try {
+    const fallbackLicense = await readVerifiedRepositoryFile(FALLBACK_LICENSE)
+    await writeAtomic(join(temporaryRoot, OUTPUT_PATHS.fallbackLicense), fallbackLicense, 0o644)
+
+    const fallbackSource = await loadCachedSource(LXGW_SOURCE)
+    const fallbackCmap = readCmap(fallbackSource.buffer, 'ttf')
+    const fallbackCodePoints = [...fallbackCmap].sort((left, right) => left - right)
+    const fallbackShards = await buildFallbackShards(
+      fallbackSource.buffer,
+      fallbackCodePoints,
+      temporaryRoot,
+    )
+    const manifest: FontBuildManifest = {
+      schemaVersion: 3,
+      familyStack: {
+        body: ['Tsanger JinKai W04', 'Musubi CJK Fallback'],
+        emphasis: ['Tsanger JinKai W05', 'Musubi CJK Fallback'],
+      },
+      tools: {
+        subsetFont: TOOL_VERSIONS.subsetFont,
+        fonteditorCore: TOOL_VERSIONS.fonteditorCore,
+      },
+      sources: {
+        tsanger: { mode: 'absent', w04: null, w05: null },
+        fallback: {
+          repository: LXGW_SOURCE.repository,
+          release: LXGW_SOURCE.release,
+          asset: LXGW_SOURCE.asset,
+          url: LXGW_SOURCE.url,
+          bytes: fallbackSource.bytes,
+          sha256: LXGW_SOURCE.sha256,
+          cmapCodePointCount: fallbackCmap.size,
+        },
+      },
+      selectedCorpora: {
+        body: createCoverage([]),
+        emphasis: createCoverage([]),
+      },
+      artifacts: {
+        tsangerW04: null,
+        tsangerW05: null,
+        fallbackShards,
+        manifestPath: PREBUILT_FALLBACK_MANIFEST,
+      },
+      licenses: {
+        fallback: {
+          path: OUTPUT_PATHS.fallbackLicense,
+          sha256: FALLBACK_LICENSE.sha256,
+        },
+      },
+    }
+    await writeAtomic(
+      join(temporaryRoot, PREBUILT_FALLBACK_MANIFEST),
+      `${JSON.stringify(manifest, null, 2)}\n`,
+      0o644,
+    )
+    await rm(PREBUILT_FALLBACK_ROOT, { recursive: true, force: true })
+    await rename(temporaryRoot, PREBUILT_FALLBACK_ROOT)
+  } catch (error) {
+    await rm(temporaryRoot, { recursive: true, force: true })
+    throw error
+  }
+  console.log('Rebuilt the checked-in Musubi CJK fallback font bundle.')
 }
 
 async function loadLocalTsangerSources(): Promise<LocalTsangerSources | null> {

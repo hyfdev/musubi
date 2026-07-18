@@ -8,7 +8,13 @@ export default defineConfig({
     singleQuote: true,
     trailingComma: 'all',
     endOfLine: 'lf',
-    ignorePatterns: ['.snapshot', '.musubi/notion-data-snapshot', 'AGENTS.md', 'CLAUDE.md'],
+    ignorePatterns: [
+      '.snapshot',
+      '.musubi/notion-data-snapshot',
+      'scripts/font/prebuilt-fallback/fonts-manifest.json',
+      'AGENTS.md',
+      'CLAUDE.md',
+    ],
   },
   lint: {
     jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],

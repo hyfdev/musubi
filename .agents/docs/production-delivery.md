@@ -44,24 +44,25 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 
 ## Repository delivery contract
 
-- `pnpm run build` refreshes Notion Data and then runs the checked static generation and artifact verifier.
+- The maintained example uses `pnpm exec vp run check:build` to build the tracked Notion Data without source credentials; a connected site can use `pnpm run build` to refresh Notion Data first.
 - `wrangler.jsonc` selects a static-only deployment of `.output/public`, serves the generated 404, and preserves slashless canonical routes.
+- The internal Nuxt command passes `--preset static`, and the artifact gate rejects a generated Wrangler redirect that would replace the assets-only deployment with a runtime Worker.
 - `public/_headers` gives hashed Nuxt assets and generated WOFF2 files one-year immutable caching while preventing `workers.dev` previews from being indexed.
 - HTML and stable generated metadata retain revalidation.
-- Production requires only the three documented Notion environment values.
-- Routine Workers Builds use a read-only Notion integration supplied only as build-time configuration.
+- A connected build requires only the three documented Notion environment values and supplies its read-only integration only as build-time configuration; the maintained snapshot build requires none of them.
 - Development, `check:build`, and `ready` consume the tracked per-page Notion Data snapshot without Notion access.
-- The default cloud build uses the open LXGW fallback; private Tsanger setup remains optional.
+- The default cloud build verifies and copies the checked-in open LXGW WOFF2 fallback bundle; it does not download or regenerate the 25 MB source. Private Tsanger setup remains optional.
 - Notion-only publication uses an explicit Workers Build retrigger, while code delivery builds the `main` production branch.
 
 ## Local acceptance evidence
 
-- `vp run notion:setup` wrote one Config file and 19 Published Page Data files; an immediate second refresh reused all 19 page bodies and produced byte-identical snapshot files.
-- With all three Notion environment variables removed, `vp run ready` passed formatting, lint, Google's official `designmd lint DESIGN.md`, Nuxt type checking, 49 focused tests, brand verification, local static generation, and artifact verification.
-- The same fallback-only font inputs completed a cold generation, while the verified private build fingerprint reduced an unchanged subsequent font step from approximately 27 seconds to approximately 0.4 seconds.
-- `vp run build` then exercised the production command boundary: it refreshed Notion Data, reused all 19 unchanged page bodies, reused the verified font output, generated 24 prerender inputs, and emitted 36 verified public files totaling 10,488,428 bytes.
-- The existing local Tsanger opt-in cache was moved from the obsolete `.musubi/font-inputs/` path into `.musubi/font/tsanger/` without downloading it again. A local `check:build` then verified the W04/W05 output as 38 public files totaling 10,662,055 bytes, and the next font step reused that complete output immediately.
-- The public artifact contains Home, Blog, 19 Post routes, and the real 404 document; it contains no About route, snapshot directory, Notion token, raw font source, public API, X widget script, or X oEmbed representation.
+- The latest `vp run notion:setup` refresh wrote one Config file and 16 Published Page Data files, reused all 16 unchanged page bodies, and removed the three pages no longer Published from the tracked snapshot.
+- With all three Notion environment variables removed, `vp run ready` passed formatting, lint, Google's official `designmd lint DESIGN.md`, Nuxt type checking, 59 focused tests, brand verification, local static generation, and artifact verification. The font-bundle test decodes all eight WOFF2 files and proves that their actual cmaps equal the manifest's non-overlapping 46,490-code-point coverage.
+- Before the fallback bundle was checked in, a fresh local clone spent approximately 105 seconds of a 114-second `check:build` generating the same fallback fonts; Cloudflare spent approximately 193 seconds on that step. The new fallback-only cold font path completed in 1.7 seconds without a source download, and the complete forced-Cloudflare `check:build` completed in 10.5 seconds including Vite+ package verification and Nuxt generation.
+- With `WORKERS_CI=1` and `NITRO_PRESET=cloudflare_module` forced, Nuxt still reported `Nitro preset: static`, created neither `.wrangler/deploy/config.json` nor `.output/server/index.mjs`, and passed the static artifact gate. `pnpm exec wrangler deploy --dry-run` then read the repository assets-only configuration, found no bindings, and completed successfully.
+- A fallback-only build under forced Cloudflare CI inputs generated 21 prerender inputs and emitted 34 verified public files totaling 10,410,165 bytes. The corresponding Wrangler dry run read 55 deployable asset and control files.
+- The existing local Tsanger opt-in cache remains private under `.musubi/font/tsanger/`. A local `check:build` verified its W04/W05 subsets together with the prebuilt fallback as 36 public files totaling 10,413,452 bytes, and the next unchanged font step can reuse that complete output.
+- The public artifact contains Home, Blog, 16 Post routes, and the real 404 document; it contains no About route, snapshot directory, Notion token, raw font source, public API, X widget script, or X oEmbed representation.
 - The two X references render as ordinary safe external links. Notion image and attachment URLs remain remote by the accepted initial architecture rather than being copied into the artifact.
 
 ## External deployment boundary

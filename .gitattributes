@@ -1,2 +1,3 @@
 # Preserve the verified upstream font-license bytes, including source spacing.
 licenses/fonts/OFL-*.txt -whitespace
+scripts/font/prebuilt-fallback/fonts/OFL-*.txt -whitespace
