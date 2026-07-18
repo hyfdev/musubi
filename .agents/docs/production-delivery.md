@@ -2,18 +2,19 @@
 
 ## Status
 
-Repository-local production readiness is complete. The repository and Notion source are coherent, the production artifact has passed local verification, and the accepted site has passed representative browser acceptance. Per Yunfei's 2026-07-16 direction, this delivery did not authenticate to Vercel, change hosting or DNS configuration, promote a deployment, or claim that the v2 artifact is live.
+Repository-local production readiness is complete, and the delivery target is being migrated from Vercel to Cloudflare Workers Static Assets. The repository and Notion source are coherent, the production artifact has passed local verification, and the accepted site has passed representative browser acceptance. Repository preparation does not authenticate to Cloudflare, change hosting or DNS configuration, promote a deployment, or claim that the v2 artifact is live.
 
 ## Documented production target
 
 - Public URL: `https://musubi.hyf.me`
 - Repository: `hyfdev/musubi`
 - Source branch: `v2`
-- Hosting project: Vercel project `musubi` in the existing `hyf` scope
-- DNS path: Cloudflare-proxied `musubi.hyf.me` to the existing Vercel project
+- Hosting target: Cloudflare Worker `musubi`, serving static assets only
+- Migration path: validate the `workers.dev` deployment before attaching `musubi.hyf.me` as a Worker Custom Domain
+- Temporary rollback path: the existing Vercel project remains connected until the Worker is accepted
 - Separate system: the `hyf.me` Vercel project and its personal-site Notion source are not part of this delivery
 
-No DNS change is required. Before replacement, public DNS returned Cloudflare anycast IPv4 `104.18.24.74` and `104.18.25.74` plus IPv6 `2606:4700::6812:184a` and `2606:4700::6812:194a`; the live response contained both Cloudflare and Vercel headers.
+The final cutover replaces the current Cloudflare-proxied Vercel origin with a Worker Custom Domain. Before replacement, public DNS returned Cloudflare anycast IPv4 `104.18.24.74` and `104.18.25.74` plus IPv6 `2606:4700::6812:184a` and `2606:4700::6812:194a`; the live response contained both Cloudflare and Vercel headers.
 
 ## Rollback baseline
 
@@ -44,14 +45,14 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 ## Repository delivery contract
 
 - `pnpm run build` refreshes Notion Data and then runs the checked static generation and artifact verifier.
-- `vercel.json` selects a static deployment of `.output/public`.
-- Hashed Nuxt assets and generated WOFF2 files receive one-year immutable caching.
+- `wrangler.jsonc` selects a static-only deployment of `.output/public`, serves the generated 404, and preserves slashless canonical routes.
+- `public/_headers` gives hashed Nuxt assets and generated WOFF2 files one-year immutable caching while preventing `workers.dev` previews from being indexed.
 - HTML and stable generated metadata retain revalidation.
 - Production requires only the three documented Notion environment values.
-- Routine Vercel builds use a read-only Notion integration.
+- Routine Workers Builds use a read-only Notion integration supplied only as build-time configuration.
 - Development, `check:build`, and `ready` consume the tracked per-page Notion Data snapshot without Notion access.
 - The default cloud build uses the open LXGW fallback; private Tsanger setup remains optional.
-- Notion-only publication uses an explicit Vercel redeploy, while code delivery uses a v2 Preview followed by promotion.
+- Notion-only publication uses an explicit Workers Build retrigger, while code delivery builds the `v2` production branch.
 
 ## Local acceptance evidence
 
@@ -65,7 +66,7 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 
 ## External deployment boundary
 
-The production target, publishing mechanism, and rollback baseline remain documented for an operator who later chooses to deploy the artifact. They are not remaining actions in this repository-local delivery. No Vercel credential or account change is required to reproduce the local production build and acceptance evidence above.
+The production target, publishing mechanism, migration rollback, and Vercel baseline remain documented for the Cloudflare cutover. No Cloudflare credential or account change is required to reproduce the local production build and acceptance evidence above.
 
 ## Known historical residual
 

@@ -177,10 +177,10 @@ Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a p
 
 ## Publication and failure behavior
 
-- A production build refreshes the latest Notion state visible to that build into the same Notion Data shape used locally, then emits provider-neutral `.output/public`. Development and check builds use the Git-tracked Notion Data without source access. Serving `.output/public` alone is the complete production contract; `.output/server`, Notion access, and a running Nitro process are unnecessary.
+- A production build refreshes the latest Notion state visible to that build into the same Notion Data shape used locally, then emits provider-neutral `.output/public`. Development and check builds use the Git-tracked Notion Data without source access. Cloudflare Workers Static Assets serves `.output/public` without a Worker script; `.output/server`, runtime Notion access, and a running Nitro process are unnecessary.
 - Failure of either authoritative source, invalid required content or settings, an invalid route manifest, a missing required glyph, or an incomplete prerender stops publication. Remote-media reachability is not checked in the initial architecture.
 - Failure of an optional third-party embed remains local to that embed and cannot remove the surrounding article.
-- The maintained example uses the existing `musubi` Vercel project and `musubi.hyf.me`; [Production Operations](../../docs/production.md) defines its manual Notion publication trigger, preview promotion, cache behavior, and rollback. Automatic Notion webhooks, connecting the separate `hyf.me` personal source, publishing a duplicable Notion template, and formal release operations remain outside the initial product.
+- The maintained example targets the `musubi` Cloudflare Worker and `musubi.hyf.me`; [Production Operations](../../docs/production.md) defines its manual Notion publication trigger, static delivery behavior, cache policy, migration rollback, and Worker version rollback. Automatic Notion webhooks, connecting the separate `hyf.me` personal source, publishing a duplicable Notion template, and formal release operations remain outside the initial product.
 
 ## Architectural decisions
 

@@ -76,4 +76,11 @@ Judgments the human actually expressed about architecture — selections, accept
 - **Why:** Yunfei corrected the task names to match Vite+ semantics and selected conventional `build` and `check:build` names; no additional rationale was given.
 - **Source:** Yunfei He (@hyf0), 2026-07-18, explicit corrections and vouch during the Musubi architecture discussion.
 
+### Static deployment target
+
+- **Ruling:** The maintained Musubi example must deploy `.output/public` through Cloudflare Workers Static Assets, not Cloudflare Pages and not a Nuxt runtime Worker.
+- **Limits:** The Worker has no `main`, assets binding, runtime Notion credentials, or Nitro server. A small checked Wrangler configuration may define static routing behavior that Cloudflare cannot infer safely. The existing Vercel project may remain during migration only as a rollback path and can be removed after the Workers deployment is accepted.
+- **Why:** Yunfei rejected Pages because it is being retired in favor of Workers, selected Workers explicitly, and prefers Cloudflare's direct framework support over manually maintained provider machinery. Local verification showed that generic Nuxt auto-configuration would add an unnecessary runtime Worker, while zero-config static deployment would lose Musubi's visible 404 and slashless canonical URL behavior.
+- **Source:** Yunfei He (@hyf0), 2026-07-19, explicit direction during the Cloudflare migration discussion; verified locally with Wrangler 4.112.0 automatic configuration and static-asset routing.
+
 ## Open

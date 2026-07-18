@@ -1,0 +1,11 @@
+/*
+  Strict-Transport-Security: max-age=63072000
+
+/_nuxt/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/_musubi/generated/fonts/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+https://:version.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex

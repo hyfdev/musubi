@@ -2,7 +2,25 @@ import { lstat, readFile, readdir } from 'node:fs/promises'
 import { join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const REQUIRED_FILES = ['index.html', '404.html']
+const REQUIRED_FILES = ['index.html', '404.html', '_headers']
+const REQUIRED_HEADER_BLOCKS = [
+  {
+    name: 'HSTS',
+    value: '/*\n  Strict-Transport-Security: max-age=63072000',
+  },
+  {
+    name: 'Nuxt immutable cache',
+    value: '/_nuxt/*\n  Cache-Control: public, max-age=31536000, immutable',
+  },
+  {
+    name: 'font immutable cache',
+    value: '/_musubi/generated/fonts/*.woff2\n  Cache-Control: public, max-age=31536000, immutable',
+  },
+  {
+    name: 'workers.dev noindex',
+    value: 'https://:version.:subdomain.workers.dev/*\n  X-Robots-Tag: noindex',
+  },
+]
 
 async function readExpectedRoutes() {
   const { loadSiteFromSnapshot } = await import('../server/site/get-site.ts')
@@ -56,6 +74,13 @@ export async function verifyStaticArtifact(
   const notFoundDocument = await readFile(resolve(root, '404.html'), 'utf8')
   if (!notFoundDocument.includes('Page not found') || !notFoundDocument.includes('href="/"')) {
     throw new Error('Static artifact 404.html does not contain the visible recovery page')
+  }
+
+  const headersDocument = await readFile(resolve(root, '_headers'), 'utf8')
+  for (const requiredBlock of REQUIRED_HEADER_BLOCKS) {
+    if (!headersDocument.includes(requiredBlock.value)) {
+      throw new Error(`Static artifact _headers is missing required block: ${requiredBlock.name}`)
+    }
   }
   for (const forbiddenPath of ['200.html', '__musubi_not_found']) {
     const forbidden = await lstat(resolve(root, forbiddenPath)).catch(() => undefined)

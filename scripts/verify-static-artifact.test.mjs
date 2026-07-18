@@ -5,6 +5,15 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { verifyStaticArtifact } from './verify-static-artifact.mjs'
 
 const temporaryDirectories = []
+const HEADER_BLOCKS = {
+  hsts: ['/*', '  Strict-Transport-Security: max-age=63072000'],
+  nuxt: ['/_nuxt/*', '  Cache-Control: public, max-age=31536000, immutable'],
+  fonts: [
+    '/_musubi/generated/fonts/*.woff2',
+    '  Cache-Control: public, max-age=31536000, immutable',
+  ],
+  preview: ['https://:version.:subdomain.workers.dev/*', '  X-Robots-Tag: noindex'],
+}
 
 afterEach(async () => {
   await Promise.all(
@@ -55,13 +64,35 @@ describe('static route completeness', () => {
   })
 })
 
-async function validArtifact() {
+describe('static delivery controls', () => {
+  it.each([
+    ['HSTS', 'hsts'],
+    ['Nuxt immutable cache', 'nuxt'],
+    ['font immutable cache', 'fonts'],
+    ['workers.dev noindex', 'preview'],
+  ])('rejects a missing %s header block', async (name, omittedBlock) => {
+    const root = await validArtifact({ omittedHeaderBlock: omittedBlock })
+
+    await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).rejects.toThrow(
+      `Static artifact _headers is missing required block: ${name}`,
+    )
+  })
+})
+
+async function validArtifact({ omittedHeaderBlock } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'musubi-static-artifact-'))
   temporaryDirectories.push(root)
   await writeFile(join(root, 'index.html'), '<!doctype html><title>Musubi</title>')
   await writeFile(
     join(root, '404.html'),
     '<!doctype html><title>Page not found</title><a href="/">Home</a>',
+  )
+  await writeFile(
+    join(root, '_headers'),
+    Object.entries(HEADER_BLOCKS)
+      .filter(([name]) => name !== omittedHeaderBlock)
+      .flatMap(([, lines]) => [...lines, ''])
+      .join('\n'),
   )
   return root
 }

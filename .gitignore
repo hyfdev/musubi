@@ -30,6 +30,9 @@ logs
 
 # Deployment
 .vercel
+.wrangler
+.dev.vars*
+!.dev.vars.example
 
 # Build-generated stable public assets
 public/_musubi/generated
