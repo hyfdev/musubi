@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SiteConfig } from '../lib/site/types.ts'
+import type { SiteConfig } from '#shared/site/types'
 import TypographyText from './TypographyText.vue'
 
 defineProps<{

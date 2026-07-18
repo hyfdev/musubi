@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { inject } from 'vue'
-import type { MusubiInline } from '../../lib/content/types.ts'
+import type { MusubiInline } from '#shared/content/types'
 import { isExternalSiteLink, siteLinkKey } from '../../lib/site/link.ts'
 import TypographyText from '../TypographyText.vue'
 

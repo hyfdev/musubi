@@ -27,7 +27,12 @@ useHead({
 <template>
   <section class="home-page reading-column" aria-labelledby="recent-posts-label">
     <span id="recent-posts-label" class="visually-hidden" lang="en">Recent posts</span>
-    <PostList v-if="page.posts.length" :posts="page.posts" :config="page.config" />
+    <template v-if="page.posts.length">
+      <PostList :posts="page.posts" :config="page.config" />
+      <p v-if="page.hasMorePosts" class="home-more-posts" lang="en">
+        <a href="/blog">More posts</a>
+      </p>
+    </template>
     <p v-else class="empty-state" lang="en">No posts have been published yet.</p>
   </section>
 </template>

@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-8191-bf36-ed14c007bed0",
+    "markdown": "TypeScript 4.1 introduced template literal types, bringing string manipulation to the type level. They're more useful than you might think.\n## Basic Syntax\nTemplate literal types work like JavaScript template literals, but for types:\n```typescript\ntype Greeting = `hello ${string}`;\n\nconst a: Greeting = \"hello world\";  // OK\nconst b: Greeting = \"hello\";        // OK\nconst c: Greeting = \"goodbye world\"; // Error\n```\n## Typed Route Strings\n```typescript\ntype ApiRoute = `/api/${\"users\" | \"posts\" | \"comments\"}`;\n// \"/api/users\" | \"/api/posts\" | \"/api/comments\"\n\ntype DetailRoute = `${ApiRoute}/${number}`;\n// \"/api/users/${number}\" | \"/api/posts/${number}\" | ...\n```\n## Event Name Patterns\n```typescript\ntype EventTarget = \"user\" | \"post\" | \"comment\";\ntype EventAction = \"created\" | \"updated\" | \"deleted\";\ntype EventName = `${EventTarget}:${EventAction}`;\n// \"user:created\" | \"user:updated\" | \"user:deleted\" | \"post:created\" | ...\n\nfunction onEvent(name: EventName, handler: () => void) { }\n\nonEvent(\"user:created\", () => { });  // OK\nonEvent(\"user:renamed\", () => { });  // Error\n```\n## CSS Units\n```typescript\ntype CSSUnit = \"px\" | \"rem\" | \"em\" | \"%\" | \"vh\" | \"vw\";\ntype CSSValue = `${number}${CSSUnit}`;\n\nfunction setWidth(value: CSSValue) { }\n\nsetWidth(\"100px\");   // OK\nsetWidth(\"1.5rem\");  // OK\nsetWidth(\"100\");     // Error: missing unit\nsetWidth(\"wide\");    // Error\n```\n## Built-in String Manipulation\nTypeScript provides utility types for transforming string types:\n```typescript\ntype Upper = Uppercase<\"hello\">;      // \"HELLO\"\ntype Lower = Lowercase<\"HELLO\">;      // \"hello\"\ntype Cap = Capitalize<\"hello\">;       // \"Hello\"\ntype Uncap = Uncapitalize<\"Hello\">;   // \"hello\"\n```\nCombine them for real patterns:\n```typescript\ntype PropGetter<T extends string> = `get${Capitalize<T>}`;\ntype PropSetter<T extends string> = `set${Capitalize<T>}`;\n\ntype NameGetter = PropGetter<\"name\">; // \"getName\"\ntype NameSetter = PropSetter<\"name\">; // \"setName\"\n```\n---\nTemplate literal types turn strings from opaque blobs into structured, type-checked values. They're especially powerful for APIs where string patterns matter — routes, events, CSS values, and configuration keys.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:30:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-8191-bf36-ed14c007bed0",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:30:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2025-10-14",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Using TypeScript's template literal types to build typed route strings, event names, and CSS units.",
+            "text": {
+              "content": "Using TypeScript's template literal types to build typed route strings, event names, and CSS units.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "template-literal-types",
+            "text": {
+              "content": "template-literal-types",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "blue",
+            "id": "3e0d2a96-7198-4eba-91bd-9f4092539d58",
+            "name": "TypeScript"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Template Literal Types in TypeScript",
+            "text": {
+              "content": "Template Literal Types in TypeScript",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Template-Literal-Types-in-TypeScript-312fe8ddacd68191bf36ed14c007bed0",
+    "url": "https://app.notion.com/p/Template-Literal-Types-in-TypeScript-312fe8ddacd68191bf36ed14c007bed0"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

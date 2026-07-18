@@ -4,7 +4,7 @@ import type {
   MusubiCalloutRole,
   MusubiCodeToken,
   MusubiTableOfContentsEntry,
-} from '../../lib/content/types.ts'
+} from '#shared/content/types'
 import TypographyText from '../TypographyText.vue'
 import InlineRenderer from './InlineRenderer.vue'
 import TocList from './TocList.vue'
@@ -100,8 +100,9 @@ function addCodeFontStyle(
         v-if="item.checked !== null"
         type="checkbox"
         :checked="item.checked"
-        disabled
+        aria-disabled="true"
         aria-label="Task status"
+        tabindex="-1"
       />
       <div class="list-item-body">
         <BlockRenderer

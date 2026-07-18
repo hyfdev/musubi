@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "39cfe8dd-acd6-814a-81f6-d2dd7eb353d1",
+    "markdown": "桌边有一把很小的剪刀。它剪不开厚纸板，也没有漂亮的机械结构，但每次拆线、开信封、修掉一根毛边，我都会自然地伸手去拿它。\n# 为什么它一直留在桌上\n好工具不一定让人兴奋。它更像一种被身体记住的路径：拿起、使用、放回，不需要重新学习，也不要求你先整理心情。\n> 可靠不是永远不坏，而是坏之前有迹象，坏了以后知道怎样恢复。\n这把剪刀的优点很普通：*轻*、**顺手**、不会在最需要时突然增加一个账户登录。它没有~~季度路线图~~，只有两片仍然对得准的刀刃。\n# 维护不是不断增加功能\n我对小工具的维护，通常只有三件事：\n- 保持边界清楚\n\t- 它擅长什么\n\t- 什么事情应该交给别的工具\n- 保持失败方式诚实\n\t- 出错时留下能读懂的信息\n\t- 不把半成品伪装成成功\n- 保持离开的成本很低\n\t- 数据可以导出\n\t- 旧版本仍有清楚的说明\n这些原则也适用于软件。项目的[关于页](https://app.notion.com/about)可以写愿景，但日常信任往往来自一次普通升级之后，原来的命令仍然按预期工作。\n## 我现在的检查清单\n- [x] 核心用途仍能用一句话说清楚\n- [x] 默认行为不制造意外\n- [ ] 删除一个已经失去用途的选项\n- [ ] 为最常见的失败补一条说明\n先把手边的东西照顾好。<br>等真正的新需求出现，再决定它是否值得变复杂。\n---\n有些工具留下来，不是因为它们无所不能，而是因为许多年以后，它们仍然愿意只做好一件小事。",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "39bfe8dd-acd6-81c8-9b7c-002761709f06",
+      "object": "user"
+    },
+    "created_time": "2026-07-13T17:24:00.000Z",
+    "icon": null,
+    "id": "39cfe8dd-acd6-814a-81f6-d2dd7eb353d1",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "39bfe8dd-acd6-81c8-9b7c-002761709f06",
+      "object": "user"
+    },
+    "last_edited_time": "2026-07-13T17:25:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2026-07-13",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "从一把小剪刀谈起：工具不必宏大，但要在需要时可靠地出现。",
+            "text": {
+              "content": "从一把小剪刀谈起：工具不必宏大，但要在需要时可靠地出现。",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "small-tools-that-stay",
+            "text": {
+              "content": "small-tools-that-stay",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "green",
+            "id": "9c49dfc4-edb8-4c24-95bf-35aa5549e1ed",
+            "name": "Tooling"
+          },
+          {
+            "color": "default",
+            "id": "a3d8eb51-77ce-4e83-a9ae-68da9cee63fa",
+            "name": "Design"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "一把用了很多年的小剪刀",
+            "text": {
+              "content": "一把用了很多年的小剪刀",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/39cfe8ddacd6814a81f6d2dd7eb353d1",
+    "url": "https://app.notion.com/p/39cfe8ddacd6814a81f6d2dd7eb353d1"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

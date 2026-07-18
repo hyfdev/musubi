@@ -43,32 +43,25 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 
 ## Repository delivery contract
 
-- `pnpm run build` runs the production generation and static artifact verifier.
+- `pnpm run build` refreshes Notion Data and then runs the checked static generation and artifact verifier.
 - `vercel.json` selects a static deployment of `.output/public`.
-- Hashed Nuxt assets, generated content assets, and generated WOFF2 files receive one-year immutable caching.
+- Hashed Nuxt assets and generated WOFF2 files receive one-year immutable caching.
 - HTML and stable generated metadata retain revalidation.
 - Production requires only the three documented Notion environment values.
 - Routine Vercel builds use a read-only Notion integration.
+- Development, `check:build`, and `ready` consume the tracked per-page Notion Data snapshot without Notion access.
 - The default cloud build uses the open LXGW fallback; private Tsanger setup remains optional.
 - Notion-only publication uses an explicit Vercel redeploy, while code delivery uses a v2 Preview followed by promotion.
 
 ## Local acceptance evidence
 
-- The migration dry run identified only the expected schema, legacy row, About, and Timezone changes.
-- The applied migration reread and verified the complete affected sources.
-- A second apply was an idempotent no-op.
-- Focused Page compatibility tests and Nuxt type checking passed.
-- Repository lint passed, including Google's official `designmd lint DESIGN.md`.
-- A production build with an intentionally empty Tsanger cache completed using only the open fallback.
-- The static artifact verifier passed with 36 files and 10,497,722 bytes.
-- The artifact contains no `/about` route, exact Notion secrets, raw TTF/OTF/WOFF sources, Tsanger subset, or expiring Notion asset URL.
-- The complete uncached `vp run ready` gate passed with 43 tests and a configured W04/W05 build; its verified artifact contains 38 files and 10,671,349 bytes.
-- A production-like static browser review used Chrome 150 at `1440x900` and `390x844`. It covered Home, the complete year-grouped Blog, a Chinese Post, an 11-code-block Post, and 404 because production has no Published Page.
-- Light, Dark, and live System resolution worked; explicit and System choices persisted; heading permalinks changed the fragment; Copy reported success; external links used a new context with `noopener noreferrer`; header and footer were both 89 CSS pixels in the narrow layout; document overflow remained zero.
-- W04 and W05 loaded for their configured roles, the code blocks kept the GitHub palette, the mobile footer remained on one line, direct 404 entry returned HTTP 404 with `noindex`, and no unexpected browser console or page error appeared.
-- The later X embed enhancement prepared both Published X posts successfully through the official Publish oEmbed endpoint and recorded `2` enriched, `0` fallback in the schema-version-`2` private site artifact.
-- The latest corresponding production build again emitted 38 verified public files, now totaling 10,777,056 bytes. Generated Post HTML contains the complete author, handle, post text, publication label, and X link without a Nuxt client entry script.
-- Production-like browser checks at `1440x900` and `390x844` confirmed the official X widget on direct entry and zero document overflow. The later staged Light-to-Dark recreation kept the visible component at `692px` and the following paragraph at the same physical position for the complete rebuild, showed no static fallback, and swapped to the dark iframe only after it was ready; the production page still shipped no Nuxt client entry script and reported no application page error. A rapid return to the current theme canceled the hidden replacement, while a deliberately failed replacement timed out, removed its staging node, and retained the prior widget. Blocking both X widget hosts on initial entry left the complete static quotation visible with no iframe; a fresh Home load contained no embed and appended no external X widget script.
+- `vp run notion:setup` wrote one Config file and 19 Published Page Data files; an immediate second refresh reused all 19 page bodies and produced byte-identical snapshot files.
+- With all three Notion environment variables removed, `vp run ready` passed formatting, lint, Google's official `designmd lint DESIGN.md`, Nuxt type checking, 49 focused tests, brand verification, local static generation, and artifact verification.
+- The same fallback-only font inputs completed a cold generation, while the verified private build fingerprint reduced an unchanged subsequent font step from approximately 27 seconds to approximately 0.4 seconds.
+- `vp run build` then exercised the production command boundary: it refreshed Notion Data, reused all 19 unchanged page bodies, reused the verified font output, generated 24 prerender inputs, and emitted 36 verified public files totaling 10,488,428 bytes.
+- The existing local Tsanger opt-in cache was moved from the obsolete `.musubi/font-inputs/` path into `.musubi/font/tsanger/` without downloading it again. A local `check:build` then verified the W04/W05 output as 38 public files totaling 10,662,055 bytes, and the next font step reused that complete output immediately.
+- The public artifact contains Home, Blog, 19 Post routes, and the real 404 document; it contains no About route, snapshot directory, Notion token, raw font source, public API, X widget script, or X oEmbed representation.
+- The two X references render as ordinary safe external links. Notion image and attachment URLs remain remote by the accepted initial architecture rather than being copied into the artifact.
 
 ## External deployment boundary
 

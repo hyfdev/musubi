@@ -12,21 +12,25 @@ const { data, error } = await useFetch('/api/build/page', {
   key: `published-page:${pageRoute}`,
   query: { route: pageRoute },
 })
-if (error.value || !data.value || data.value.page.meta.type !== 'Post') {
+if (error.value || !data.value) {
   throw createError({ statusCode: 404, statusMessage: 'Article not found', cause: error.value })
 }
 const response = data.value
-const canonical = new URL(response.page.meta.route, response.config.link).toString()
+const page = response.page
+if (page.type !== 'Post') {
+  throw createError({ statusCode: 404, statusMessage: 'Article not found' })
+}
+const canonical = new URL(page.route, response.config.link).toString()
 
 useHead({
-  title: response.page.meta.title,
+  title: page.title,
   link: [{ rel: 'canonical', href: canonical }],
   meta: [
-    { name: 'description', content: response.page.meta.description || response.config.description },
-    { property: 'og:title', content: response.page.meta.title },
+    { name: 'description', content: page.description || response.config.description },
+    { property: 'og:title', content: page.title },
     {
       property: 'og:description',
-      content: response.page.meta.description || response.config.description,
+      content: page.description || response.config.description,
     },
     { property: 'og:type', content: 'article' },
     { property: 'og:url', content: canonical },
@@ -35,5 +39,5 @@ useHead({
 </script>
 
 <template>
-  <PostPage :page="response.page" :config="response.config" />
+  <PostPage :page="page" :config="response.config" />
 </template>

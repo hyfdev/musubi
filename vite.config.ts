@@ -8,7 +8,7 @@ export default defineConfig({
     singleQuote: true,
     trailingComma: 'all',
     endOfLine: 'lf',
-    ignorePatterns: ['.snapshot', 'AGENTS.md', 'CLAUDE.md'],
+    ignorePatterns: ['.snapshot', '.musubi/notion-data-snapshot', 'AGENTS.md', 'CLAUDE.md'],
   },
   lint: {
     jsPlugins: [{ name: 'vite-plus', specifier: 'vite-plus/oxlint-plugin' }],
@@ -67,21 +67,18 @@ export default defineConfig({
         command: ['vp run brand:verify', 'node scripts/update-brand-color.ts --write'],
         cache: false,
       },
-      generate: {
+      'check:build': {
         command: [
           'vp run brand:check',
-          'vp run content:prepare',
+          'vp run font:build',
           'vp run nuxt:generate',
           'vp run static:finalize',
+          'vp run artifact',
         ],
         cache: false,
       },
       artifact: {
         command: 'node scripts/verify-static-artifact.mjs',
-        cache: false,
-      },
-      production: {
-        command: ['vp run generate', 'vp run artifact'],
         cache: false,
       },
       ready: {
@@ -91,16 +88,8 @@ export default defineConfig({
           'vp run typecheck',
           'vp run test',
           'vp run brand:verify',
-          'vp run production',
+          'vp run check:build',
         ],
-        cache: false,
-      },
-      'visual:dev': {
-        command: ['vp run brand:check', 'vp run content:prepare', 'vp run nuxt:dev'],
-        cache: false,
-      },
-      'visual:static': {
-        command: 'vp run static:serve',
         cache: false,
       },
     },

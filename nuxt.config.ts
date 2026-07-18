@@ -1,30 +1,6 @@
-import { readFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { loadSiteFromSnapshot } from './server/site/get-site.ts'
 
-interface PreparedArtifactRoutes {
-  schemaVersion: number
-  routes: unknown
-}
-
-async function readPreparedRoutes(): Promise<string[]> {
-  const artifactPath = resolve('.musubi/site.json')
-  const source = await readFile(artifactPath, 'utf8').catch(() => undefined)
-  if (!source) {
-    return ['/']
-  }
-
-  const artifact = JSON.parse(source) as PreparedArtifactRoutes
-  if (
-    artifact.schemaVersion !== 2 ||
-    !Array.isArray(artifact.routes) ||
-    artifact.routes.some((route) => typeof route !== 'string' || !route.startsWith('/'))
-  ) {
-    throw new Error(`Prepared Musubi artifact has an invalid route manifest: ${artifactPath}`)
-  }
-  return artifact.routes as string[]
-}
-
-const prerenderRoutes = [...(await readPreparedRoutes()), '/__musubi_not_found']
+const prerenderRoutes = [...(await loadSiteFromSnapshot()).routes, '/__musubi_not_found']
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-07-12',
@@ -68,6 +44,13 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    typescript: {
+      tsConfig: {
+        compilerOptions: {
+          allowImportingTsExtensions: true,
+        },
+      },
+    },
     prerender: {
       crawlLinks: false,
       routes: prerenderRoutes,

@@ -1,5 +1,5 @@
 import { createError, defineEventHandler, getQuery } from 'h3'
-import { getPreparedSite } from '../../utils/prepared-site'
+import { getSite } from '../../site/get-site'
 
 export default defineEventHandler(async (event) => {
   const route = getQuery(event).route
@@ -7,8 +7,8 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'A page route is required' })
   }
 
-  const site = await getPreparedSite()
-  const page = site.pages[route]
+  const site = await getSite()
+  const page = site.byRoute.get(route)
   if (!page) {
     throw createError({ statusCode: 404, statusMessage: 'Page not found' })
   }

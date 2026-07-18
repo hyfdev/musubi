@@ -1,0 +1,167 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-8127-9527-f1e755a95424",
+    "markdown": "For years, building an accessible modal required a UI library or hundreds of lines of JavaScript. The HTML `<dialog>` element gives us all of this natively.\n## Basic Usage\n```html\n<dialog id=\"my-dialog\">\n  <h2>Dialog Title</h2>\n  <p>This is a native modal dialog.</p>\n  <button onclick=\"this.closest('dialog').close()\">Close</button>\n</dialog>\n\n<button onclick=\"document.getElementById('my-dialog').showModal()\">\n  Open Dialog\n</button>\n```\nCalling `showModal()` does everything a modal needs:\n- Centers the dialog on screen\n- Adds a backdrop overlay\n- Traps focus inside the dialog\n- Closes on Escape key\n- Marks the rest of the page as `inert`\n## Styling the Backdrop\nThe `::backdrop` pseudo-element lets you style the overlay:\n```css\ndialog::backdrop {\n  background: rgba(0, 0, 0, 0.5);\n  backdrop-filter: blur(4px);\n}\n\ndialog {\n  border: none;\n  border-radius: 12px;\n  padding: 2rem;\n  max-width: 480px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);\n}\n```\n## Close on Backdrop Click\nOne thing `<dialog>` doesn't do by default is close when clicking the backdrop. Here's a clean way to add it:\n```javascript\ndialog.addEventListener(\"click\", (e) => {\n  if (e.target === dialog) {\n    dialog.close();\n  }\n});\n```\n## Form Integration\nForms inside a dialog can use `method=\"dialog\"` to close the dialog on submit and pass a return value:\n```html\n<dialog id=\"confirm\">\n  <form method=\"dialog\">\n    <p>Are you sure?</p>\n    <button value=\"cancel\">Cancel</button>\n    <button value=\"confirm\">Confirm</button>\n  </form>\n</dialog>\n```\n```javascript\nconst dialog = document.getElementById(\"confirm\");\ndialog.addEventListener(\"close\", () => {\n  console.log(dialog.returnValue); // \"cancel\" or \"confirm\"\n});\n```\n## Animations\nYou can animate the dialog's entrance and exit with CSS:\n```css\ndialog[open] {\n  animation: fade-in 0.2s ease-out;\n}\n\n@keyframes fade-in {\n  from {\n    opacity: 0;\n    transform: translateY(-10px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n```\n---\nThe `<dialog>` element is supported in all modern browsers. For most modal use cases, you no longer need a UI library — the platform handles accessibility, focus management, and keyboard interactions for free.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:30:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-8127-9527-f1e755a95424",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:30:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2026-01-05",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Build accessible modals with the native HTML dialog element — no dependencies needed. Covers showModal(), ::backdrop, and form integration.",
+            "text": {
+              "content": "Build accessible modals with the native HTML dialog element — no dependencies needed. Covers showModal(), ::backdrop, and form integration.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "html-dialog-element",
+            "text": {
+              "content": "html-dialog-element",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "orange",
+            "id": "57e885b9-bfdb-4f54-bf9b-458ae37c1e20",
+            "name": "HTML"
+          },
+          {
+            "color": "purple",
+            "id": "bc29b07d-5582-4af2-9981-a88b705c66e0",
+            "name": "CSS"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "HTML Dialog Element: Modals Without JS Libraries",
+            "text": {
+              "content": "HTML Dialog Element: Modals Without JS Libraries",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/HTML-Dialog-Element-Modals-Without-JS-Libraries-312fe8ddacd681279527f1e755a95424",
+    "url": "https://app.notion.com/p/HTML-Dialog-Element-Modals-Without-JS-Libraries-312fe8ddacd681279527f1e755a95424"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

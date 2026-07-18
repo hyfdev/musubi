@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-8155-bafe-fcae9663aad1",
+    "markdown": "Unnecessary re-renders are the most common performance issue in React apps. Here's how to find and fix them.\n## Finding Re-renders\n### React DevTools Profiler\nThe Profiler tab in React DevTools is the best tool for this:\n1. Open React DevTools, go to the **Profiler** tab\n2. Click **Record**, interact with your app, then **Stop**\n3. The flame graph shows which components rendered and why\nLook for components that render frequently but don't visually change — those are your targets.\n### Highlight Updates\nIn React DevTools settings, enable **\"Highlight updates when components render.\"** This adds a visual flash around components as they re-render. If you see the entire page flashing on every keystroke, you have a problem.\n## Common Causes\n### 1. New Object References\nThe most common cause. Every render creates new objects and arrays:\n```javascript\n// Bad: new object every render\n<Button style={{ color: \"red\" }} />\n\n// Bad: new array every render\n<List items={data.filter((d) => d.active)} />\n```\n### 2. Inline Functions\n```javascript\n// Bad: new function every render\n<Button onClick={() => handleClick(id)} />\n```\n### 3. Context Changes\nWhen a context value changes, **every** consumer re-renders, even if they only use a part of the context that didn't change.\n## Fixing Re-renders\n### React.memo\nWraps a component to skip re-renders when props haven't changed:\n```javascript\nconst ExpensiveList = React.memo(function ExpensiveList({ items }) {\n  return items.map((item) => <ExpensiveItem key={item.id} item={item} />);\n});\n```\n<callout icon=\"⚠️\" color=\"yellow_bg\">\n\t`React.memo` only does a **shallow comparison**. If you pass new object/array references as props, it won't help — you need to stabilize the references too.\n</callout>\n### useMemo and useCallback\n```javascript\n// Stabilize computed values\nconst filtered = useMemo(\n  () => data.filter((d) => d.active),\n  [data]\n);\n\n// Stabilize callbacks\nconst handleClick = useCallback(\n  (id) => dispatch({ type: \"select\", id }),\n  [dispatch]\n);\n```\n### useMemo Pitfalls\n- **Don't memoize everything.** Memoization has a cost (comparison + cache). Only memoize expensive computations or values passed to memoized children.\n- **Missing dependencies** cause stale data. Always include everything the computation depends on.\n- **useMemo doesn't guarantee** the value persists — React may evict it. Don't use it for side effects.\n---\nThe approach: **measure first** with the Profiler, identify the biggest offenders, then apply targeted fixes. Resist the urge to wrap everything in `React.memo` — most components don't need it.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:30:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-8155-bafe-fcae9663aad1",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:30:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2025-10-28",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "How to find and fix unnecessary re-renders in React using DevTools Profiler, React.memo, and common useMemo pitfalls.",
+            "text": {
+              "content": "How to find and fix unnecessary re-renders in React using DevTools Profiler, React.memo, and common useMemo pitfalls.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "debugging-react-rerenders",
+            "text": {
+              "content": "debugging-react-rerenders",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "pink",
+            "id": "db3d3f0b-413a-4711-aff0-fea1bc30bb84",
+            "name": "React"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Debugging React Re-renders",
+            "text": {
+              "content": "Debugging React Re-renders",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Debugging-React-Re-renders-312fe8ddacd68155bafefcae9663aad1",
+    "url": "https://app.notion.com/p/Debugging-React-Re-renders-312fe8ddacd68155bafefcae9663aad1"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

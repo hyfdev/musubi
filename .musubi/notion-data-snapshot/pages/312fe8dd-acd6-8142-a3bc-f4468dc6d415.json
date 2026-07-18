@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-8142-a3bc-f4468dc6d415",
+    "markdown": "These are the five extensions I install immediately on any new VS Code setup. No bloat, just the essentials.\n## 1. ESLint\nThe cornerstone of any JavaScript/TypeScript project. Catches bugs, enforces patterns, and auto-fixes on save.\n```json\n// settings.json\n{\n  \"editor.codeActionsOnSave\": {\n    \"source.fixAll.eslint\": \"explicit\"\n  }\n}\n```\n## 2. Prettier\nAutomatic code formatting. No more arguing about semicolons or tab width — just hit save.\n```json\n{\n  \"editor.defaultFormatter\": \"esbenp.prettier-vscode\",\n  \"editor.formatOnSave\": true\n}\n```\n## 3. GitLens\nInline git blame, file history, and commit visualization. The killer feature: hovering over any line shows who last changed it and when. Invaluable for understanding *why* code looks the way it does.\n## 4. CSS Peek\nCtrl+click on a class name in HTML to jump to its CSS definition. Also works in JSX. Small but saves a surprising amount of time when working with stylesheets.\n## 5. Error Lens\nShows errors and warnings **inline** next to the problematic line, instead of only in the Problems panel. This makes issues impossible to miss:\n- Red highlight for errors\n- Yellow for warnings\n- Blue for info\nYou catch problems the moment you type them, not when you scroll through a list.\n---\nHonorable mentions: **Auto Rename Tag** (syncs opening/closing HTML tags), **TODO Highlight** (makes TODO comments visible), and **Import Cost** (shows the bundle size of imported packages inline).",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:29:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-8142-a3bc-f4468dc6d415",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:29:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2025-08-03",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "The five VS Code extensions I install on every machine: ESLint, Prettier, GitLens, CSS Peek, and Error Lens.",
+            "text": {
+              "content": "The five VS Code extensions I install on every machine: ESLint, Prettier, GitLens, CSS Peek, and Error Lens.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "vscode-extensions-frontend",
+            "text": {
+              "content": "vscode-extensions-frontend",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "green",
+            "id": "9c49dfc4-edb8-4c24-95bf-35aa5549e1ed",
+            "name": "Tooling"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Five VS Code Extensions for Frontend Devs",
+            "text": {
+              "content": "Five VS Code Extensions for Frontend Devs",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Five-VS-Code-Extensions-for-Frontend-Devs-312fe8ddacd68142a3bcf4468dc6d415",
+    "url": "https://app.notion.com/p/Five-VS-Code-Extensions-for-Frontend-Devs-312fe8ddacd68142a3bcf4468dc6d415"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-8101-964a-daa0dafc612a",
+    "markdown": "For years, we've been using media queries to make responsive layouts. But media queries have a fundamental flaw: they respond to the **viewport**, not to the **container** a component lives in.\nThis means a card component that looks great in a full-width layout breaks when you put it in a sidebar. Container queries fix this.\n## The Problem with Media Queries\nConsider a card component used in two contexts:\n1. A main content area (wide)\n2. A sidebar (narrow)\nWith media queries, you'd write something like:\n```css\n.card {\n  display: grid;\n  grid-template-columns: 200px 1fr;\n}\n\n@media (max-width: 600px) {\n  .card {\n    grid-template-columns: 1fr;\n  }\n}\n```\nBut what if the sidebar is 300px wide on a 1200px screen? The media query doesn't fire — the card stays in its wide layout, even though it doesn't have enough space.\n<callout icon=\"💡\" color=\"blue_bg\">\n\t**The core insight:** Components should adapt to *their own available space*, not the viewport width. This is what container queries give us.\n</callout>\n## How Container Queries Work\nContainer queries require two things:\n1. A **containment context** on the parent\n2. A **@container rule** on the child\n```css\n/* Step 1: Establish containment context */\n.card-wrapper {\n  container-type: inline-size;\n}\n\n/* Step 2: Query the container */\n@container (min-width: 400px) {\n  .card {\n    display: grid;\n    grid-template-columns: 200px 1fr;\n  }\n}\n\n@container (max-width: 399px) {\n  .card {\n    display: flex;\n    flex-direction: column;\n  }\n}\n```\nNow the card adapts based on how much space its *wrapper* provides — regardless of viewport size.\n## Named Containers\nWhen you have nested containers, you can name them to be explicit about which one you're querying:\n```css\n.sidebar {\n  container-type: inline-size;\n  container-name: sidebar;\n}\n\n.main-content {\n  container-type: inline-size;\n  container-name: main;\n}\n\n/* Target a specific container */\n@container sidebar (max-width: 300px) {\n  .nav-links {\n    flex-direction: column;\n  }\n}\n```\nYou can also use the shorthand:\n```css\n.sidebar {\n  container: sidebar / inline-size;\n}\n```\n## Practical Example: Responsive Card\nHere's a complete card component that works in any context:\n```html\n<div class=\"card-container\">\n  <article class=\"card\">\n    <img src=\"thumbnail.jpg\" alt=\"\" class=\"card-image\" />\n    <div class=\"card-body\">\n      <h3 class=\"card-title\">Article Title</h3>\n      <p class=\"card-text\">A brief description of the article...</p>\n    </div>\n  </article>\n</div>\n```\n```css\n.card-container {\n  container-type: inline-size;\n}\n\n.card {\n  display: flex;\n  flex-direction: column;\n  border-radius: 8px;\n  overflow: hidden;\n  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);\n}\n\n.card-image {\n  width: 100%;\n  aspect-ratio: 16 / 9;\n  object-fit: cover;\n}\n\n/* When the container is wide enough, switch to horizontal layout */\n@container (min-width: 500px) {\n  .card {\n    flex-direction: row;\n  }\n\n  .card-image {\n    width: 200px;\n    aspect-ratio: auto;\n  }\n}\n\n/* Extra-wide container: add more spacing */\n@container (min-width: 700px) {\n  .card-body {\n    padding: 2rem;\n  }\n\n  .card-title {\n    font-size: 1.5rem;\n  }\n}\n```\nDrop this card into a sidebar, a grid, a modal, or full-width — it just works.\n## Container Query Units\nContainer queries also introduce new units relative to the container's dimensions:\n1. `cqw` — 1% of the container's width\n2. `cqh` — 1% of the container's height\n3. `cqi` — 1% of the container's inline size\n4. `cqb` — 1% of the container's block size\n```css\n.card-title {\n  /* Font size scales with container width */\n  font-size: clamp(1rem, 3cqi, 1.5rem);\n}\n```\n## Browser Support\nContainer queries are supported in all modern browsers since February 2023:\n- Chrome 105+\n- Firefox 110+\n- Safari 16+\nFor older browsers, the media-query-based layout serves as a natural fallback — the `@container` rules simply don't apply.\n---\nContainer queries are a paradigm shift. Instead of building pages that are responsive, we can now build **components** that are responsive. This makes them truly portable and reusable across different layouts without modification.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:28:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-8101-964a-daa0dafc612a",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:28:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2025-09-20",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "How container queries enable truly responsive components that adapt to their parent, not the viewport.",
+            "text": {
+              "content": "How container queries enable truly responsive components that adapt to their parent, not the viewport.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "css-container-queries",
+            "text": {
+              "content": "css-container-queries",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "purple",
+            "id": "bc29b07d-5582-4af2-9981-a88b705c66e0",
+            "name": "CSS"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "CSS Container Queries Changed How I Build Components",
+            "text": {
+              "content": "CSS Container Queries Changed How I Build Components",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/CSS-Container-Queries-Changed-How-I-Build-Components-312fe8ddacd68101964adaa0dafc612a",
+    "url": "https://app.notion.com/p/CSS-Container-Queries-Changed-How-I-Build-Components-312fe8ddacd68101964adaa0dafc612a"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

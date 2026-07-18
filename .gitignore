@@ -4,7 +4,11 @@
 .nuxt
 .nitro
 .cache
-.musubi
+.musubi/*
+!.musubi/notion-data-snapshot/
+!.musubi/notion-data-snapshot/config.json
+!.musubi/notion-data-snapshot/pages/
+!.musubi/notion-data-snapshot/pages/*.json
 dist
 
 # Node dependencies

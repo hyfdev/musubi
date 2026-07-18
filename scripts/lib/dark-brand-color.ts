@@ -47,7 +47,7 @@ export interface DarkBrandColorDetails {
 }
 
 /** The only brand-color input a Musubi owner changes. */
-export const MUSUBI_BRAND_SEED = '#1B365D'
+export const MUSUBI_BRAND_SEED = '#A64156'
 
 /** Fixed backgrounds where the dark brand color is actually used as foreground text or a mark. */
 export const MUSUBI_DARK_ACCENT_BACKGROUNDS = ['#141413', '#30302E', '#26364B'] as const

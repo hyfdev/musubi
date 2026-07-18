@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 import { createError, useFetch, useHead } from '#imports'
 import PostList from '../../components/PostList.vue'
-import { formatPublishedYear } from '../../lib/site/format.ts'
-import type { PublicPageMeta } from '../../lib/site/types.ts'
+import { formatPublishedYear } from '#shared/site/format'
+import type { PublicPageMeta } from '#shared/site/types'
 
 const { data, error } = await useFetch('/api/build/blog', { key: 'musubi-blog' })
 if (error.value || !data.value) {

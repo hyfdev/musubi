@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MusubiTableOfContentsEntry } from '../../lib/content/types.ts'
+import type { MusubiTableOfContentsEntry } from '#shared/content/types'
 import TypographyText from '../TypographyText.vue'
 
 defineProps<{

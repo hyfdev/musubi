@@ -4,30 +4,9 @@ import { pathToFileURL } from 'node:url'
 
 const REQUIRED_FILES = ['index.html', '404.html']
 
-async function readExpectedRoutes(routeManifestPath) {
-  const manifestSource = await readFile(routeManifestPath, 'utf8').catch(() => undefined)
-  if (!manifestSource) {
-    throw new Error(`Static route manifest does not exist: ${routeManifestPath}`)
-  }
-
-  let manifest
-  try {
-    manifest = JSON.parse(manifestSource)
-  } catch {
-    throw new Error(`Static route manifest is not valid JSON: ${routeManifestPath}`)
-  }
-
-  if (
-    !Array.isArray(manifest.routes) ||
-    manifest.routes.length === 0 ||
-    manifest.routes.some((route) => typeof route !== 'string')
-  ) {
-    throw new Error(
-      `Static route manifest does not contain a nonempty routes array: ${routeManifestPath}`,
-    )
-  }
-
-  return manifest.routes
+async function readExpectedRoutes() {
+  const { loadSiteFromSnapshot } = await import('../server/site/get-site.ts')
+  return (await loadSiteFromSnapshot()).routes
 }
 
 function routeArtifactPath(route) {
@@ -46,7 +25,7 @@ function routeArtifactPath(route) {
 
 export async function verifyStaticArtifact(
   artifactRoot = resolve('.output/public'),
-  { expectedRoutes, routeManifestPath = resolve('.musubi/site.json') } = {},
+  { expectedRoutes } = {},
 ) {
   const root = resolve(artifactRoot)
   const rootStat = await lstat(root).catch(() => undefined)
@@ -64,7 +43,7 @@ export async function verifyStaticArtifact(
     }
   }
 
-  const routes = expectedRoutes ?? (await readExpectedRoutes(routeManifestPath))
+  const routes = expectedRoutes ?? (await readExpectedRoutes())
   for (const route of routes) {
     const relativePath = routeArtifactPath(route)
     const filePath = resolve(root, relativePath)

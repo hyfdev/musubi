@@ -4,7 +4,7 @@
 
 Musubi has one light-mode brand seed and deterministically derives one corresponding dark-mode brand color. Product code consumes the two stored colors; it does not run the model in the browser or generate a palette of component-specific colors.
 
-The current seed is `#1B365D`. Algorithm v2 generates `#82A1D9` for the current places where the color appears: the page background `#141413`, strong surface `#30302E`, and selected-state background `#26364B`. The generated hex is a consequence of the seed, algorithm, those usage contexts, and contrast requirements, not an independently selected permanent brand color.
+The current seed is `#A64156`. Algorithm v2 generates `#E78394` for the current places where the color appears: the page background `#141413`, strong surface `#30302E`, and selected-state background `#26364B`. The generated hex is a consequence of the seed, algorithm, those usage contexts, and contrast requirements, not an independently selected permanent brand color.
 
 ## Public boundary
 

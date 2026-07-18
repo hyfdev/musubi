@@ -28,7 +28,6 @@ afterEach(async () => {
 describe('static artifact cache policy', () => {
   it.each([
     ['_nuxt/entry.D_6GC0Tp.css', IMMUTABLE_CACHE_CONTROL],
-    [`_musubi/generated/assets/${'a'.repeat(64)}.png`, IMMUTABLE_CACHE_CONTROL],
     [
       '_musubi/generated/fonts/Tsanger-JinKai-W04-subset-0123456789abcdef.woff2',
       IMMUTABLE_CACHE_CONTROL,

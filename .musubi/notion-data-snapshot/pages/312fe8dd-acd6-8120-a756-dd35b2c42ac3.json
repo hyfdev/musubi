@@ -1,0 +1,195 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-8120-a756-dd35b2c42ac3",
+    "markdown": "<table_of_contents/>\nJavaScript bundlers are one of those tools we use every day but rarely think about. Yet the history of bundlers tells the story of how frontend development itself has evolved — from simple script concatenation to sophisticated build pipelines.\n## The Early Days: Why We Needed Bundlers\nBefore bundlers, we loaded JavaScript with multiple `<script>` tags:\n```html\n<script src=\"jquery.js\"></script>\n<script src=\"jquery-ui.js\"></script>\n<script src=\"app.js\"></script>\n<script src=\"utils.js\"></script>\n```\nThis had serious problems:\n- **Load order mattered** — dependencies had to come first\n- **Global scope pollution** — everything lived on `window`\n- **No dependency management** — you manually tracked what needed what\n- **Performance** — each file was a separate HTTP request\n## Browserify and CommonJS\nNode.js introduced `require()` and CommonJS modules. **Browserify** (2011) brought this to the browser:\n```javascript\n// Now you could write this for the browser\nconst _ = require(\"lodash\");\nconst utils = require(\"./utils\");\n\nmodule.exports = function process(data) {\n  return _.map(data, utils.transform);\n};\n```\nBrowserify would follow the `require()` calls, bundle everything into a single file, and wrap modules in closures. Simple, revolutionary, but limited.\n## Webpack: The Kitchen Sink\nWebpack (2014) took bundling to the next level by treating **everything** as a module — not just JavaScript, but CSS, images, fonts, and more.\n```javascript\n// webpack.config.js\nmodule.exports = {\n  entry: \"./src/index.js\",\n  module: {\n    rules: [\n      { test: /\\.css$/, use: [\"style-loader\", \"css-loader\"] },\n      { test: /\\.png$/, use: [\"file-loader\"] },\n      { test: /\\.jsx?$/, use: [\"babel-loader\"] },\n    ],\n  },\n  plugins: [\n    new HtmlWebpackPlugin(),\n    new MiniCssExtractPlugin(),\n  ],\n};\n```\nWebpack's loader and plugin system was incredibly powerful. It could handle code splitting, hot module replacement, tree shaking, and more. But this power came at a cost:\n- **Configuration complexity** — webpack configs became notorious for their size and difficulty\n- **Slow builds** — large projects could take minutes to build\n- **Steep learning curve** — understanding loaders, plugins, and optimization took significant effort\n## Rollup: ES Modules and Tree Shaking\nRollup (2015) took a different approach. Instead of wrapping modules in CommonJS-like closures, it leveraged **ES modules** to produce cleaner, smaller bundles:\n```javascript\n// rollup.config.js\nexport default {\n  input: \"src/index.js\",\n  output: {\n    file: \"dist/bundle.js\",\n    format: \"esm\",\n  },\n};\n```\nRollup pioneered effective **tree shaking** — eliminating unused exports by analyzing the static structure of ES module imports. This made it the go-to choice for library authors.\n## The ESM Revolution: Vite\nIn 2020, Evan You created **Vite**, and it changed everything.\nThe key insight: modern browsers natively support ES modules. During development, there's no need to bundle at all.\n```javascript\n// vite.config.js — that's it\nimport { defineConfig } from \"vite\";\n\nexport default defineConfig({\n  // Most projects need zero config\n});\n```\nVite's architecture is split in two:\n- **Dev server** — serves source files as native ES modules, with on-demand transformation via esbuild. Startup is nearly instant regardless of project size.\n- **Production build** — uses Rollup to produce optimized bundles with code splitting, tree shaking, and minification.\nThis dual approach gave developers the best of both worlds: blazing-fast development and optimized production builds.\n## The Rust Wave: Rolldown and Turbopack\n<unknown url=\"https://app.notion.com/p/312fe8ddacd68120a756dd35b2c42ac3#312fe8ddacd680fa8b56d4ebe990c931\" alt=\"tweet\"/>\nThe latest chapter in bundler evolution is the move to **systems languages** for maximum performance.\n**Rolldown** is a Rust-based bundler designed as a drop-in replacement for Rollup, but significantly faster. It aims to unify Vite's dev and build pipelines — currently, Vite uses esbuild for dev and Rollup for builds, which can cause subtle inconsistencies.\n```javascript\n// Rolldown aims for Rollup-compatible config\nexport default {\n  input: \"src/index.js\",\n  output: {\n    format: \"esm\",\n  },\n};\n```\n**Turbopack** (from Vercel) takes a different approach with incremental computation — only rebuilding what changed. It's tightly integrated with Next.js.\n## What's Next\nThe trend is clear: **faster, simpler, more integrated**.\n- **Unified pipelines** — same bundler for dev and production (Rolldown's goal for Vite)\n- **Zero-config by default** — convention over configuration\n- **Native-speed tooling** — Rust and Go replacing JavaScript for build tools\n- **Integrated toolchains** — bundler + formatter + linter + type checker as one tool\n---\nWe've come a long way from concatenating files with `cat *.js > bundle.js`. Each generation of bundlers solved real problems while creating new ones. The current generation — Vite, Rolldown, Turbopack — is getting closer to the ideal: instant feedback during development, optimal output in production, and minimal configuration.",
+    "object": "page_markdown",
+    "truncated": true,
+    "unknown_block_ids": [
+      "312fe8dd-acd6-80fa-8b56-d4ebe990c931"
+    ]
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:28:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-8120-a756-dd35b2c42ac3",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:38:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2026-02-27",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "From Webpack to Vite to Rolldown — a look at how JavaScript bundlers have evolved and where they're heading.",
+            "text": {
+              "content": "From Webpack to Vite to Rolldown — a look at how JavaScript bundlers have evolved and where they're heading.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "javascript-bundlers-evolution",
+            "text": {
+              "content": "javascript-bundlers-evolution",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "yellow",
+            "id": "8fc74ab9-ed21-46b0-b066-fb2a0af87358",
+            "name": "JavaScript"
+          },
+          {
+            "color": "green",
+            "id": "9c49dfc4-edb8-4c24-95bf-35aa5549e1ed",
+            "name": "Tooling"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "The Evolution of JavaScript Bundlers",
+            "text": {
+              "content": "The Evolution of JavaScript Bundlers",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/The-Evolution-of-JavaScript-Bundlers-312fe8ddacd68120a756dd35b2c42ac3",
+    "url": "https://app.notion.com/p/The-Evolution-of-JavaScript-Bundlers-312fe8ddacd68120a756dd35b2c42ac3"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": [
+    {
+      "created_by": {
+        "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+        "object": "user"
+      },
+      "created_time": "2026-02-25T16:38:00.000Z",
+      "embed": {
+        "caption": [],
+        "url": "https://x.com/youyuxi/status/1709943106215530867"
+      },
+      "has_children": false,
+      "id": "312fe8dd-acd6-80fa-8b56-d4ebe990c931",
+      "in_trash": false,
+      "last_edited_by": {
+        "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+        "object": "user"
+      },
+      "last_edited_time": "2026-02-25T16:38:00.000Z",
+      "object": "block",
+      "parent": {
+        "page_id": "312fe8dd-acd6-8120-a756-dd35b2c42ac3",
+        "type": "page_id"
+      },
+      "type": "embed"
+    }
+  ]
+}

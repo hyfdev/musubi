@@ -5,7 +5,8 @@ Start with the record that owns the question instead of treating the folder as a
 | Area or question                                                                           | Record                                                                                        |
 | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
 | What Musubi is for, whom it serves, and what it deliberately is not                        | [Project goal](./goal.md)                                                                     |
-| System boundaries, Notion onboarding/schema, routes, navigation, and decisions             | [Target architecture](./architecture.md)                                                      |
+| System boundaries, Notion onboarding/schema, routes, and navigation                        | [Target architecture](./architecture.md)                                                      |
+| Human-vouched architecture selections, rejections, and open choices                        | [Architecture decisions](./architecture-decisions.md)                                         |
 | Selected framework, language, styling, package, core-library, and development-tool choices | [Target technology stack](./technology-stack.md)                                              |
 | Required real-browser development and visual acceptance loop                               | [Visual frontend development and acceptance](./visual-frontend-development-and-acceptance.md) |
 | How one light brand seed deterministically produces the dark-mode brand color              | [Dark brand color derivation](./dark-brand-color-derivation.md)                               |

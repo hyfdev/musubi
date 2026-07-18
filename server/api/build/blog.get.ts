@@ -1,10 +1,11 @@
 import { defineEventHandler } from 'h3'
-import { getPreparedSite } from '../../utils/prepared-site'
+import { getSite } from '../../site/get-site'
+import { contentToPublicPageMeta } from '#shared/site/types'
 
 export default defineEventHandler(async () => {
-  const site = await getPreparedSite()
+  const site = await getSite()
   return {
     config: site.config,
-    posts: site.blogPosts,
+    posts: site.posts.map(contentToPublicPageMeta),
   }
 })

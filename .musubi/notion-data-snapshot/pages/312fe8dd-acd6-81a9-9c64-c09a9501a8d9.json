@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-81a9-9c64-c09a9501a8d9",
+    "markdown": "CSS has long been missing a way to style a parent based on its children. The `:has()` selector changes that — it's often called the \"parent selector,\" but it's much more powerful than that.\n## Basic Usage\nStyle a parent based on what it contains:\n```css\n/* Style a card that contains an image */\n.card:has(img) {\n  grid-template-rows: 200px 1fr;\n}\n\n/* Style a form group that has an invalid input */\n.form-group:has(:invalid) {\n  border-color: red;\n}\n```\n## Practical Examples\n### Form Validation Styling\n```css\n/* Highlight the label when its input is focused */\nlabel:has(+ input:focus) {\n  color: blue;\n  font-weight: bold;\n}\n\n/* Show error message only when sibling input is invalid */\n.error-message {\n  display: none;\n}\ninput:invalid ~ .error-message {\n  display: block;\n}\n```\n### Card Hover Effects\n```css\n/* When hovering any link inside a card, style the whole card */\n.card:has(a:hover) {\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transform: translateY(-2px);\n}\n```\n### Conditional Layouts\n```css\n/* If the page has a sidebar, adjust the main content */\nmain:has(+ aside) {\n  max-width: 70%;\n}\n\n/* Style a list differently if it has more than 3 items */\nul:has(li:nth-child(4)) {\n  columns: 2;\n}\n```\n## Browser Support\nSupported in Chrome 105+, Safari 15.4+, and Firefox 121+. It's safe to use in production for most audiences today.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:29:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-81a9-9c64-c09a9501a8d9",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:29:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2025-04-18",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "CSS finally has a parent selector. Here are practical examples using :has() for form validation, card hovers, and sibling styling.",
+            "text": {
+              "content": "CSS finally has a parent selector. Here are practical examples using :has() for form validation, card hovers, and sibling styling.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "css-has-selector",
+            "text": {
+              "content": "css-has-selector",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "purple",
+            "id": "bc29b07d-5582-4af2-9981-a88b705c66e0",
+            "name": "CSS"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "TIL: The CSS :has() Selector",
+            "text": {
+              "content": "TIL: The CSS :has() Selector",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/TIL-The-CSS-has-Selector-312fe8ddacd681a99c64c09a9501a8d9",
+    "url": "https://app.notion.com/p/TIL-The-CSS-has-Selector-312fe8ddacd681a99c64c09a9501a8d9"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

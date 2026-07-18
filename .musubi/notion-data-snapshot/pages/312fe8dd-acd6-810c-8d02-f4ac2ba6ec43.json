@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-810c-8d02-f4ac2ba6ec43",
+    "markdown": "CSS specificity determines which styles win when multiple rules target the same element. Understanding it saves hours of debugging.\n## The Scoring System\nSpecificity is calculated as a three-part score: **(A, B, C)**\n- **A** — ID selectors (`#header`)\n- **B** — Class selectors (`.card`), attribute selectors (`[type=\"text\"]`), pseudo-classes (`:hover`)\n- **C** — Element selectors (`div`), pseudo-elements (`::before`)\n```css\n/* (0, 0, 1) */\np { color: black; }\n\n/* (0, 1, 0) */\n.text { color: blue; }\n\n/* (0, 1, 1) */\np.text { color: green; }\n\n/* (1, 0, 0) */\n#main { color: red; }\n\n/* (1, 1, 1) */\n#main p.text { color: purple; }\n```\nHigher specificity always wins. Within the same specificity, the last rule wins.\n## :where() and :is()\nThese pseudo-classes take a selector list, but differ in specificity:\n```css\n/* :is() takes the highest specificity of its arguments */\n:is(#header, .nav) a { } /* specificity: (1, 0, 1) */\n\n/* :where() always has zero specificity */\n:where(#header, .nav) a { } /* specificity: (0, 0, 1) */\n```\n`:where()` is perfect for writing default styles that are easy to override:\n```css\n/* Easy to override — zero specificity from :where() */\n:where(.card) {\n  padding: 1rem;\n  border-radius: 8px;\n}\n\n/* Any class selector overrides the above */\n.featured-card {\n  padding: 2rem;\n}\n```\n## Cascade Layers\nCSS `@layer` gives you explicit control over which groups of styles take priority:\n```css\n@layer base, components, utilities;\n\n@layer base {\n  a { color: blue; }\n}\n\n@layer components {\n  .nav a { color: white; }\n}\n\n@layer utilities {\n  .text-red { color: red; }\n}\n```\nLater layers always beat earlier layers, regardless of specificity. This means a simple `.text-red` in the utilities layer beats `#main .nav a.link` in the components layer.\n---\nThe modern specificity toolkit: use `:where()` for easily-overridable defaults, `:is()` for concise selectors, and `@layer` for architectural control over your stylesheet.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:30:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-810c-8d02-f4ac2ba6ec43",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:30:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2025-08-30",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "How CSS specificity scoring works, and how cascade layers and :where() give you more control than ever.",
+            "text": {
+              "content": "How CSS specificity scoring works, and how cascade layers and :where() give you more control than ever.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "css-specificity",
+            "text": {
+              "content": "css-specificity",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "purple",
+            "id": "bc29b07d-5582-4af2-9981-a88b705c66e0",
+            "name": "CSS"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Understanding CSS Specificity",
+            "text": {
+              "content": "Understanding CSS Specificity",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Understanding-CSS-Specificity-312fe8ddacd6810c8d02f4ac2ba6ec43",
+    "url": "https://app.notion.com/p/Understanding-CSS-Specificity-312fe8ddacd6810c8d02f4ac2ba6ec43"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

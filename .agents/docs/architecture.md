@@ -13,14 +13,22 @@ flowchart TB
     config["Config data source"]
   end
 
-  env["Read-only integration\n3 build environment values"]
+  env["Read-only integration\n3 refresh environment values"]
 
-  subgraph build["Deployment build — private boundary"]
-    adapter["Build-only source adapter\nread each source once"]
+  refresh["scripts/notion/index.ts\nexplicit update or production build"]
+
+  subgraph data[".musubi/notion-data-snapshot — Git-tracked"]
+    pageData["pages/\none JSON file per Published page"]
+    configData["config.json"]
+  end
+
+  fontData[".musubi/font\nGit-ignored local font data"]
+
+  subgraph build["Local generation boundary"]
+    reader["Nuxt snapshot reader\nin-memory conversion only"]
     normalize["Validate and normalize\ntyped pages + SiteConfig"]
     body["Notion Markdown\nallowlisted Musubi AST"]
-    assets["Stable local assets"]
-    fonts["Optional Tsanger subsets + complete\nsharded LXGW fallback"]
+    fonts["scripts/font/\nfont setup and generation"]
     manifest["Complete route and file manifest"]
     nuxt["Nuxt static generation\nVue renderers"]
   end
@@ -28,17 +36,20 @@ flowchart TB
   output[".output/public"]
   browser["Browser — static files only\nno Notion, public content API, or Nitro server"]
 
-  env --> adapter
-  content --> adapter
-  config --> adapter
-  adapter --> normalize
-  adapter --> body
-  adapter --> assets
+  env --> refresh
+  content --> refresh
+  config --> refresh
+  refresh --> pageData
+  refresh --> configData
+  pageData --> reader
+  configData --> reader
+  fontData --> fonts
+  reader --> normalize
+  reader --> body
   normalize --> manifest
   normalize --> fonts
   normalize --> nuxt
   body --> nuxt
-  assets --> nuxt
   fonts --> nuxt
   manifest --> nuxt
   nuxt --> output
@@ -50,7 +61,7 @@ flowchart TB
 - Musubi is one Nuxt application distributed as source. A user can fork it, connect a Notion workspace that follows the documented two-source contract, provide `NOTION_TOKEN`, `NOTION_CONTENT_DATA_SOURCE_ID`, and `NOTION_CONFIG_DATA_SOURCE_ID`, and deploy the default website without editing source or a local configuration file.
 - The ordinary onboarding model is a dedicated Notion internal integration with only `Read content`, shared with the root containing both data sources. Public OAuth and broader personal workspace credentials are outside the product contract.
 - Notion is the sole canonical editing source for public content and public site settings. Git Markdown, browser-side editing, multiple source adapters, and a public arbitrary-configuration interface are not product capabilities.
-- Notion credentials and responses exist only inside the private deployment build. Application components consume project-owned types and never import Notion SDK or converter response types.
+- Notion credentials and live source responses exist only under `scripts/notion/`. Its `index.ts` entry persists the fetched content under the Git-tracked `.musubi/notion-data-snapshot/`; local generation and application components consume those files without importing the Notion SDK or fetching the source.
 - Musubi is not a Nuxt layer, independently versioned framework package, plugin system, or stable extension API. Downstream forks own their source changes and upgrades.
 
 ## Notion input contracts
@@ -94,14 +105,49 @@ A repository-owned `defaultSiteConfig: SiteConfig` supplies field-level fallback
 
 ## Generation pipeline
 
-1. A build-only adapter paginates both data sources, retrieves every Published page body once, applies bounded concurrency and rate-limit retry, and reports failures with source and page context.
-2. Project-owned validators produce typed page metadata and one resolved `SiteConfig`. They reject invalid input before any public route is emitted.
+1. `scripts/notion/index.ts`, run explicitly or at the start of a production build, paginates both data sources, filters Draft rows, retrieves every Published page body once, and persists `.musubi/notion-data-snapshot/config.json` plus one Page Data JSON file per Published page under `.musubi/notion-data-snapshot/pages/`. It applies bounded concurrency and rate-limit retry and reports failures with source and page context.
+2. Development and check builds skip the online refresh, and Nuxt reads the Git-tracked Notion Data directly. Project-owned validators produce typed page metadata and one resolved `SiteConfig` in memory; they reject invalid input before any public route is emitted. This conversion does not write a second aggregated content JSON.
 3. Page-as-Markdown responses are parsed into an allowlisted Musubi syntax tree. Markdown is data, never executable template code: raw HTML, MDX expressions, unsafe URL schemes, unexplained truncation, unsupported required blocks, and syntax outside the accepted dialect fail generation. A response marked truncated is accepted only when every reported unknown block is individually retrieved, confirmed as a selected optional embed, and represented in the tree.
-4. Vue renderers cover paragraphs, headings below the page title, ordered and unordered lists, links, images with alternative text and captions, code, quotes, callouts, dividers, tables, tasks, and a generated table of contents. A named optional embed is isolated from the article. For X, generation requests the fixed official Publish oEmbed endpoint with bounded concurrency, timeout, and response size only to create the static readable representation, validates that the response matches the requested canonical status and author, parses only allowlisted text, line breaks, and safe links into Musubi's AST, and never renders provider HTML. That bounded oEmbed enrichment is the sole X-related generation request and cannot be used to derive widget height. Generation makes no network request and launches no local or remote browser to calculate height; future space reservation may use only deterministic local content, configuration, or defaults and cannot become a publication requirement. Failure before enrichment yields an ordinary safe link. A successful enrichment emits a complete static quotation; Musubi's lightweight browser interaction script may replace it with X's official widget. Initial widget failure retains the quotation. When the resolved Light or Dark theme changes after a widget is visible, the current iframe remains in place while a same-width hidden replacement is created with a bounded wait, then the two are swapped only after success; failure retains the prior widget. This enhancement does not require the production artifact to ship Nuxt's client runtime.
-5. Notion-hosted images and files are downloaded, deduplicated, deterministically named, and rewritten to stable generated paths. A required asset failure fails generation; short-lived authenticated URLs never enter the published artifact.
-6. The build inventories body and emphasis Chinese typography separately. Tsanger JinKai is an explicit per-checkout opt-in: `vp run font:setup` downloads the pinned W04/W05 pair from the official source into a private ignored cache, verifies both files, and writes an activation marker only after the complete pair is ready. Ordinary install, generation, and validation tasks never invoke setup. Paired environment paths remain the highest-priority input for a builder that already manages licensed local files. When either source is available, the build creates deterministic current-corpus subsets for the two roles; otherwise it succeeds with the open-licensed fallback. Independently, it verifies the pinned LXGW WenKai GB Medium source and publishes every mapped source code point across content-addressed Unicode-range `Musubi CJK Fallback` shards so later runtime text can resolve without rebuilding. Generated subsets and fallback shards use content-hashed WOFF2 names. The static preview and deployment contract give content-addressed assets a one-year immutable policy while HTML, generated CSS, and stable metadata URLs revalidate with validators. A required build-time glyph absent from the complete fallback or an invalid generated font fails generation. [DESIGN.md](../../DESIGN.md) owns typography and visual use; [the technology stack](./technology-stack.md) owns the selected font tools.
+4. Vue renderers cover paragraphs, headings below the page title, ordered and unordered lists, links, images with alternative text and captions, code, quotes, callouts, dividers, tables, tasks, and a generated table of contents. A named optional embed is isolated from the article. Notion Data preserves X embeds as source URLs only. Generation performs no X request and emits an ordinary safe link; any future browser-only enhancement is optional and cannot alter the snapshot or publication contract.
+5. Image and attachment URLs remain as returned in Notion Data and are rendered remotely. The initial architecture deliberately does not download, cache, rewrite, or Git-track their bytes; expiry of a Notion-hosted URL is an accepted limitation until it causes a concrete problem.
+6. Font setup and generation live under `scripts/font/`, with all repository-local inputs, caches, and working data under the private Git-ignored `.musubi/font/`. The build inventories body and emphasis Chinese typography separately. Tsanger JinKai is an explicit per-checkout opt-in: `vp run font:setup` downloads the pinned W04/W05 pair from the official source, verifies both files, and writes an activation marker only after the complete pair is ready. Ordinary install, generation, and validation tasks never invoke setup. Paired environment paths remain the highest-priority input for a builder that already manages licensed local files. When either source is available, the build creates deterministic current-corpus subsets for the two roles; otherwise it succeeds with the open-licensed fallback. Independently, it verifies the pinned LXGW WenKai GB Medium source and publishes every mapped source code point across content-addressed Unicode-range `Musubi CJK Fallback` shards so later runtime text can resolve without rebuilding. Generated subsets and fallback shards use content-hashed WOFF2 names. `font:build` fingerprints the tracked snapshot, font implementation, dependency lockfile, and optional local font inputs under `.musubi/font/build-state.json`; it reuses an unchanged generated set only after verifying every output hash. This private content-aware reuse is separate from the disabled Vite+ task-result cache. The static preview and deployment contract give content-addressed assets a one-year immutable policy while HTML, generated CSS, and stable metadata URLs revalidate with validators. A required build-time glyph absent from the complete fallback or an invalid generated font fails generation. [DESIGN.md](../../DESIGN.md) owns typography and visual use; [the technology stack](./technology-stack.md) owns the selected font tools.
 7. The route builder creates and validates the complete public route and emitted-file manifest before Nuxt generation. Nuxt build-only server/API handlers may transfer source data into generated HTML or payloads, but no handler is part of the public artifact.
 8. Nuxt statically renders the validated manifest through Vue. A required route or body that cannot be generated fails the build instead of producing a partial site.
+
+## Nuxt snapshot consumption
+
+Nuxt keeps the data path divided by responsibility:
+
+```text
+shared/
+  site/
+    types.ts
+    create.ts
+  content/
+    types.ts
+    parse.ts
+server/
+  site/
+    load-snapshot.ts
+    get-site.ts
+  api/build/
+    shell.get.ts
+    home.get.ts
+    blog.get.ts
+    page.get.ts
+app/
+  pages/
+  components/
+```
+
+- `server/site/load-snapshot.ts` owns filesystem access and validates `.musubi/notion-data-snapshot/config.json` plus every file under `pages/`. It makes no source-network request.
+- Pure code under `shared/site/` and `shared/content/` converts the snapshot into one in-memory `Site`. `Site` contains one `SiteConfig`, ordered `Post[]` and `Page[]` collections, a route lookup, navigation, and parsed `MusubiDocument` values. `Post` and `Page` share identity, title, slug, route, description, and document fields; a `Post` additionally requires a publication date, while a `Page` carries navigation visibility and optional ordering.
+- Config defaults and validation, the `Post` or `Page` choice, Markdown parsing, route construction, collision checks, Home's five newest Posts, the complete Blog order, and navigation are derived in memory. None are written back into the snapshot or into another aggregate file.
+- `server/site/get-site.ts` creates the `Site` once per Node process during production generation. Development recreates it after a snapshot file changes. A missing or invalid file, duplicate slug, route conflict, invalid Config value, or unparseable required body fails with the responsible snapshot filename and source context.
+- The four handlers under `server/api/build/` are thin build-time views of that `Site`: shell returns Config and navigation, Home returns Config and five Posts, Blog returns Config and all Posts, and page returns Config plus one matching `Post` or `Page`. Nuxt uses them while prerendering; they are absent from the public artifact.
+- `app/pages/` selects the appropriate view and metadata, while `app/components/` renders the supplied serializable data. Browser code never reads the snapshot or receives the complete `Site` by default.
+- `nuxt.config.ts` derives the prerender route list through the same snapshot-to-Site code instead of reading a separate route manifest. A separate Node process may recreate the in-memory `Site`; local deterministic conversion is intentionally preferred over a persistent cross-process aggregate.
+- X URLs and remote-media URLs pass through this conversion as inert content data; the conversion performs no network request. Font generation and any future external enrichment stay outside it.
 
 ## Slug and route contract
 
@@ -131,13 +177,20 @@ Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a p
 
 ## Publication and failure behavior
 
-- Each deployment build fetches the latest Notion state visible to that build and emits provider-neutral `.output/public`. Serving that directory alone is the complete production contract; `.output/server`, Notion access, and a running Nitro process are unnecessary.
-- Failure of either authoritative source, invalid required content or settings, an unstabilized required asset, an invalid route manifest, a missing required glyph, or an incomplete prerender stops publication.
+- A production build refreshes the latest Notion state visible to that build into the same Notion Data shape used locally, then emits provider-neutral `.output/public`. Development and check builds use the Git-tracked Notion Data without source access. Serving `.output/public` alone is the complete production contract; `.output/server`, Notion access, and a running Nitro process are unnecessary.
+- Failure of either authoritative source, invalid required content or settings, an invalid route manifest, a missing required glyph, or an incomplete prerender stops publication. Remote-media reachability is not checked in the initial architecture.
 - Failure of an optional third-party embed remains local to that embed and cannot remove the surrounding article.
 - The maintained example uses the existing `musubi` Vercel project and `musubi.hyf.me`; [Production Operations](../../docs/production.md) defines its manual Notion publication trigger, preview promotion, cache behavior, and rollback. Automatic Notion webhooks, connecting the separate `hyf.me` personal source, publishing a duplicable Notion template, and formal release operations remain outside the initial product.
 
 ## Architectural decisions
 
+- The source boundary is Git-tracked Notion Data: one Config Data JSON file and one Page Data JSON file per Published page. This keeps source access outside local generation, avoids repeated Notion fetches during development and checks, and keeps ordinary Git diffs local to the changed page. The human-vouched ruling and its limits live in [Architecture decisions](./architecture-decisions.md#git-tracked-notion-data-boundary).
+- Notion retrieval is an external script subsystem rooted at `scripts/notion/index.ts`; its sole content output is the Git-tracked `.musubi/notion-data-snapshot/`. Nuxt consumes those files directly and performs Musubi-specific conversion in memory instead of writing a second aggregate such as `.musubi/site.json`. The ruling and its limits live in [Architecture decisions](./architecture-decisions.md#notion-code-and-snapshot-locations).
+- Font setup and generation live under `scripts/font/`; their repository-local inputs, caches, and working data stay under the Git-ignored `.musubi/font/`. The location ruling and its limits live in [Architecture decisions](./architecture-decisions.md#font-code-and-working-data-locations).
+- Nuxt reads the snapshot through `server/site/`, creates its typed `Site` in memory with pure `shared/` code, exposes only thin build-time views to pages, and never persists that Site as another aggregate. The human-vouched flow and its limits live in [Architecture decisions](./architecture-decisions.md#nuxt-snapshot-consumption-and-rendering-flow).
+- Snapshot files use stable Notion page IDs and deterministic JSON, refresh atomically from the complete Published roster, and reuse only version-compatible unchanged pages. The vouched contract lives in [Architecture decisions](./architecture-decisions.md#snapshot-content-and-refresh).
+- Media remains remote initially, and X remains a URL without build-time enrichment. These intentionally simple boundaries live in [Notion media remains remote initially](./architecture-decisions.md#notion-media-remains-remote-initially) and [X data stays a URL](./architecture-decisions.md#x-data-stays-a-url).
+- User-facing tasks are `notion:setup`, optional `font:setup`, `dev`, `build`, `check:build`, and `ready`; `generate` remains an internal implementation detail. The exact boundary lives in [User-facing task and network boundary](./architecture-decisions.md#user-facing-task-and-network-boundary).
 - Source distribution stays a single application because Yunfei wants direct ownership and a no-source-edit default fork path, not a separately maintained downstream compatibility surface. Reconsider only if a concrete Yunfei requirement needs independent versioning.
 - The official Notion Markdown response is the external body boundary, while Musubi's allowlisted syntax tree is the rendering boundary. Reconsider a different external representation only when required content is repeatedly lossy or unrepresentable.
 - Static generation is the only publication mode because public pages do not need runtime source access. Reconsider only for a concrete feature that cannot be delivered from static output.

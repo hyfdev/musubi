@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from '#imports'
-import type { NavigationItem, SiteConfig } from '../lib/site/types.ts'
+import type { NavigationItem, SiteConfig } from '#shared/site/types'
 import ColorModeToggle from './ColorModeToggle.vue'
 import TypographyText from './TypographyText.vue'
 

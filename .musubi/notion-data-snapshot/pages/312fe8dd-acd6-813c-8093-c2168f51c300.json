@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-813c-8093-c2168f51c300",
+    "markdown": "I spend a lot of time in git. These aliases save me keystrokes every single day. Add them to your `~/.gitconfig` under `[alias]`:\n## The Aliases\n```plain text\n[alias]\n  co = checkout\n  sw = switch\n  br = branch\n  st = status -sb\n  lg = log --oneline --graph --decorate -20\n  amend = commit --amend --no-edit\n  wip = !git add -A && git commit -m \"wip\"\n  undo = reset HEAD~1 --mixed\n```\n## What They Do\n### `git co` / `git sw`\nShorthand for checkout and switch. I use `sw` for branches and `co` for files:\n```bash\ngit sw feature-branch\ngit co -- src/file.ts\n```\n### `git st`\nShort status with branch info. Compact and readable:\n```bash\n$ git st\n## main...origin/main\n M src/app.ts\n?? src/new-file.ts\n```\n### `git lg`\nA compact, visual log. Shows the last 20 commits with a graph:\n```bash\n$ git lg\n* a1b2c3d (HEAD -> main) fix: resolve login bug\n* d4e5f6a feat: add user dashboard\n* g7h8i9j refactor: extract auth module\n```\n### `git amend`\nAdd staged changes to the last commit without changing the message. Perfect for \"oops, forgot a file\":\n```bash\ngit add forgotten-file.ts\ngit amend\n```\n### `git wip`\nStage everything and commit as \"wip\". Great for saving work before switching branches:\n```bash\ngit wip\ngit sw other-branch\n# ... do work ...\ngit sw -\ngit undo  # unwrap the wip commit\n```\n### `git undo`\nUndo the last commit but keep the changes staged. Pairs perfectly with `git wip`.\n---\nSmall optimizations compound. These six aliases probably save me 15 minutes a day — and more importantly, they reduce friction so I stay in flow.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:30:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-813c-8093-c2168f51c300",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:30:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2026-02-01",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Six git aliases I use every day — shorter commands for common workflows like amending, logging, and work-in-progress commits.",
+            "text": {
+              "content": "Six git aliases I use every day — shorter commands for common workflows like amending, logging, and work-in-progress commits.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "git-aliases",
+            "text": {
+              "content": "git-aliases",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "green",
+            "id": "9c49dfc4-edb8-4c24-95bf-35aa5549e1ed",
+            "name": "Tooling"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Quick Tip: Git Aliases That Save Me Time",
+            "text": {
+              "content": "Quick Tip: Git Aliases That Save Me Time",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Quick-Tip-Git-Aliases-That-Save-Me-Time-312fe8ddacd6813c8093c2168f51c300",
+    "url": "https://app.notion.com/p/Quick-Tip-Git-Aliases-That-Save-Me-Time-312fe8ddacd6813c8093c2168f51c300"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

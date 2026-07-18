@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-81b6-86e9-fd8da785c5e3",
+    "markdown": "Event emitters are everywhere — in Node.js, in the DOM, in frontend frameworks. But most implementations are loosely typed. You can emit an event with the wrong payload and TypeScript won't catch it.\nLet's fix that by building a fully type-safe event emitter from scratch.\n## The Goal\nWe want an event emitter where:\n- Event names are constrained to a known set\n- Each event has a specific payload type\n- Emitting an event with the wrong payload is a compile error\n- Listeners receive correctly typed arguments\n```typescript\n// This is what we're building toward\nconst emitter = new TypedEmitter<{\n  login: { userId: string; timestamp: number };\n  logout: { userId: string };\n  error: { message: string; code: number };\n}>();\n\nemitter.on(\"login\", (data) => {\n  console.log(data.userId);    // typed as string\n  console.log(data.timestamp); // typed as number\n});\n\nemitter.emit(\"login\", { userId: \"abc\" }); // Error: missing timestamp\nemitter.emit(\"unknown\", {});              // Error: unknown event\n```\n## Step 1: Define the Interface\nWe start with a generic interface that maps event names to their payload types:\n```typescript\ntype EventMap = Record<string, any>;\n\ntype EventHandler<T = any> = (payload: T) => void;\n```\n`EventMap` will be the type parameter users provide — an object where keys are event names and values are payload types.\n## Step 2: The Core Class\n```typescript\nclass TypedEmitter<Events extends EventMap> {\n  private handlers = new Map<keyof Events, EventHandler[]>();\n\n  on<K extends keyof Events>(event: K, handler: EventHandler<Events[K]>): void {\n    const existing = this.handlers.get(event) ?? [];\n    existing.push(handler as EventHandler);\n    this.handlers.set(event, existing);\n  }\n\n  off<K extends keyof Events>(event: K, handler: EventHandler<Events[K]>): void {\n    const existing = this.handlers.get(event) ?? [];\n    this.handlers.set(\n      event,\n      existing.filter((h) => h !== handler)\n    );\n  }\n\n  emit<K extends keyof Events>(event: K, payload: Events[K]): void {\n    const existing = this.handlers.get(event) ?? [];\n    for (const handler of existing) {\n      handler(payload);\n    }\n  }\n}\n```\nThe magic is in `K extends keyof Events`. This constrains each method to only accept keys from the event map, and `Events[K]` resolves to the corresponding payload type.\n---\n## Step 3: Adding Once and RemoveAll\nLet's extend with two more useful methods:\n```typescript\nclass TypedEmitter<Events extends EventMap> {\n  private handlers = new Map<keyof Events, EventHandler[]>();\n\n  on<K extends keyof Events>(event: K, handler: EventHandler<Events[K]>): void {\n    const existing = this.handlers.get(event) ?? [];\n    existing.push(handler as EventHandler);\n    this.handlers.set(event, existing);\n  }\n\n  once<K extends keyof Events>(event: K, handler: EventHandler<Events[K]>): void {\n    const wrapper = ((payload: Events[K]) => {\n      handler(payload);\n      this.off(event, wrapper as EventHandler<Events[K]>);\n    }) as EventHandler;\n\n    const existing = this.handlers.get(event) ?? [];\n    existing.push(wrapper);\n    this.handlers.set(event, existing);\n  }\n\n  off<K extends keyof Events>(event: K, handler: EventHandler<Events[K]>): void {\n    const existing = this.handlers.get(event) ?? [];\n    this.handlers.set(\n      event,\n      existing.filter((h) => h !== handler)\n    );\n  }\n\n  removeAll<K extends keyof Events>(event?: K): void {\n    if (event) {\n      this.handlers.delete(event);\n    } else {\n      this.handlers.clear();\n    }\n  }\n\n  emit<K extends keyof Events>(event: K, payload: Events[K]): void {\n    const existing = this.handlers.get(event) ?? [];\n    for (const handler of existing) {\n      handler(payload);\n    }\n  }\n}\n```\n---\n## Step 4: Usage Examples\nDefine your events as an interface for better readability:\n```typescript\ninterface AppEvents {\n  \"user:login\": { userId: string; role: \"admin\" | \"user\" };\n  \"user:logout\": { userId: string };\n  \"notification\": { message: string; type: \"info\" | \"error\" | \"success\" };\n  \"theme:change\": { theme: \"light\" | \"dark\" };\n}\n\nconst bus = new TypedEmitter<AppEvents>();\n\n// Fully typed — IDE autocompletes event names and payload fields\nbus.on(\"user:login\", (data) => {\n  console.log(`${data.userId} logged in as ${data.role}`);\n});\n\nbus.on(\"theme:change\", (data) => {\n  document.documentElement.dataset.theme = data.theme;\n});\n\n// Correct\nbus.emit(\"notification\", {\n  message: \"Welcome!\",\n  type: \"success\",\n});\n\n// Type error: 'warning' is not assignable to 'info' | 'error' | 'success'\nbus.emit(\"notification\", {\n  message: \"Oops\",\n  type: \"warning\",\n});\n```\n---\n## Comparison with Untyped Version\n> An untyped event emitter is like a function that accepts `any` — it works until it doesn't. A typed event emitter catches bugs at compile time, documents your event contracts, and gives you autocomplete for free.\nWith an untyped emitter, these bugs would only surface at runtime:\n```typescript\n// Untyped — no errors, but broken at runtime\nemitter.on(\"logIn\", handler);          // typo in event name\nemitter.emit(\"login\", \"wrong payload\"); // wrong payload shape\nemitter.emit(\"login\");                  // missing payload entirely\n```\nWith our typed emitter, all three are caught by the compiler before the code ever runs.\n---\nThe full implementation is under 50 lines. It's a great example of how TypeScript generics and mapped types can provide strong safety guarantees with minimal code. Fork it, extend it, and never emit a mistyped event again.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:28:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-81b6-86e9-fd8da785c5e3",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:28:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2025-11-05",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Step-by-step implementation of a fully type-safe event system in TypeScript using generics and mapped types.",
+            "text": {
+              "content": "Step-by-step implementation of a fully type-safe event system in TypeScript using generics and mapped types.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "type-safe-event-emitter",
+            "text": {
+              "content": "type-safe-event-emitter",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "blue",
+            "id": "3e0d2a96-7198-4eba-91bd-9f4092539d58",
+            "name": "TypeScript"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Building a Type-Safe Event Emitter",
+            "text": {
+              "content": "Building a Type-Safe Event Emitter",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Building-a-Type-Safe-Event-Emitter-312fe8ddacd681b686e9fd8da785c5e3",
+    "url": "https://app.notion.com/p/Building-a-Type-Safe-Event-Emitter-312fe8ddacd681b686e9fd8da785c5e3"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { GeneratedPage } from '../lib/site/artifact.ts'
-import { formatPublishedDate } from '../lib/site/format.ts'
-import type { SiteConfig } from '../lib/site/types.ts'
+import { formatPublishedDate } from '#shared/site/format'
+import type { Post, SiteConfig } from '#shared/site/types'
 import TypographyText from './TypographyText.vue'
 import ContentRenderer from './content/ContentRenderer.vue'
 
 defineProps<{
-  page: GeneratedPage
+  page: Post
   config: SiteConfig
 }>()
 </script>
@@ -15,12 +14,12 @@ defineProps<{
   <article class="article-page">
     <header class="article-header shell">
       <div class="article-title-block reading-column">
-        <h1><TypographyText :value="page.meta.title" /></h1>
-        <p v-if="page.meta.description" class="article-lede">
-          <TypographyText :value="page.meta.description" />
+        <h1><TypographyText :value="page.title" /></h1>
+        <p v-if="page.description" class="article-lede">
+          <TypographyText :value="page.description" />
         </p>
-        <p v-if="page.meta.date" class="article-meta">
-          <time :datetime="page.meta.date">{{ formatPublishedDate(page.meta.date, config) }}</time>
+        <p class="article-meta">
+          <time :datetime="page.date">{{ formatPublishedDate(page.date, config) }}</time>
         </p>
       </div>
       <div class="page-divider" aria-hidden="true"></div>

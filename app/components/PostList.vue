@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { formatPublishedDate, type PublishedDateStyle } from '../lib/site/format.ts'
-import type { PublicPageMeta, SiteConfig } from '../lib/site/types.ts'
+import { formatPublishedDate, type PublishedDateStyle } from '#shared/site/format'
+import type { PublicPageMeta, SiteConfig } from '#shared/site/types'
 import TypographyText from './TypographyText.vue'
 
 const props = withDefaults(

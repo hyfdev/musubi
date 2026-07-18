@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-81ed-963c-fbfa59d44a67",
+    "markdown": "Every frontend developer has a set of layout patterns they reach for again and again. Here are the ones I use most, using modern CSS Grid and Flexbox — no frameworks needed.\n## 1. The Perfect Centering\nThe classic interview question, now trivially solved:\n```css\n.center {\n  display: grid;\n  place-items: center;\n  min-height: 100vh;\n}\n```\nThat's it. Three lines. Works for any content, any size.\nAlternatively with Flexbox:\n```css\n.center {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  min-height: 100vh;\n}\n```\n## 2. Sidebar Layout\nA layout where the sidebar has a fixed width and the main content takes the rest:\n```css\n.layout {\n  display: grid;\n  grid-template-columns: 250px 1fr;\n  min-height: 100vh;\n}\n```\nWant the sidebar to collapse on small screens?\n```css\n.layout {\n  display: grid;\n  grid-template-columns: 1fr;\n}\n\n@media (min-width: 768px) {\n  .layout {\n    grid-template-columns: 250px 1fr;\n  }\n}\n```\n## 3. Responsive Card Grid\nThis is probably the pattern I use the most. Cards that automatically fill the available space:\n```css\n.card-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.5rem;\n}\n```\nBreaking this down:\n- `auto-fill` — creates as many columns as will fit\n- `minmax(300px, 1fr)` — each column is at least 300px, but grows to fill space\n- `gap` — consistent spacing between cards\nNo media queries needed. The grid handles responsiveness automatically.\n## 4. Holy Grail Layout\nThe classic header, footer, sidebar, and main content layout:\n```css\n.holy-grail {\n  display: grid;\n  grid-template-rows: auto 1fr auto;\n  grid-template-columns: 200px 1fr 200px;\n  grid-template-areas:\n    \"header  header  header\"\n    \"sidebar main   aside\"\n    \"footer  footer  footer\";\n  min-height: 100vh;\n}\n\n.header  { grid-area: header; }\n.sidebar { grid-area: sidebar; }\n.main    { grid-area: main; }\n.aside   { grid-area: aside; }\n.footer  { grid-area: footer; }\n```\nMaking it responsive:\n```css\n@media (max-width: 768px) {\n  .holy-grail {\n    grid-template-columns: 1fr;\n    grid-template-areas:\n      \"header\"\n      \"main\"\n      \"sidebar\"\n      \"aside\"\n      \"footer\";\n  }\n}\n```\n## 5. Auto-fit vs Auto-fill\nThese two are often confused. The difference matters when you have few items:\n```css\n/* auto-fill: creates empty tracks to fill the row */\n.auto-fill {\n  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));\n}\n\n/* auto-fit: collapses empty tracks, items stretch */\n.auto-fit {\n  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n}\n```\n- **auto-fill** — maintains the column width; extra space remains empty\n- **auto-fit** — items stretch to fill the entire row\nWith 3 items in a container that fits 5 columns:\n- `auto-fill` — 3 items at 200px, 2 empty column tracks\n- `auto-fit` — 3 items stretched across the full width\nMost of the time, `auto-fill` is what you want for card grids.\n## 6. Stack Layout\nA simple vertical stack with consistent spacing between children:\n```css\n.stack {\n  display: flex;\n  flex-direction: column;\n  gap: 1rem;\n}\n```\nThis replaced the old \"lobotomized owl\" selector (`* + *`) for adding spacing between elements. The `gap` property works in both Flexbox and Grid.\n## 7. Sticky Footer\nA footer that stays at the bottom even when content is short:\n```css\nbody {\n  display: grid;\n  grid-template-rows: auto 1fr auto;\n  min-height: 100vh;\n}\n\n/* header is auto, main is 1fr (takes remaining space), footer is auto */\n```\nWith Flexbox:\n```css\nbody {\n  display: flex;\n  flex-direction: column;\n  min-height: 100vh;\n}\n\nmain {\n  flex: 1;\n}\n```\n---\nThese patterns cover the vast majority of layout needs. The key takeaway: CSS Grid for 2D layouts and page-level structure, Flexbox for 1D alignment and component-level layouts. Combined with `gap`, `minmax()`, and `auto-fill`, you can build responsive layouts without a single media query.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:28:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-81ed-963c-fbfa59d44a67",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:28:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2026-01-20",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Practical CSS Grid and Flexbox patterns for common layouts — sidebar, holy grail, card grids, and more.",
+            "text": {
+              "content": "Practical CSS Grid and Flexbox patterns for common layouts — sidebar, holy grail, card grids, and more.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "modern-css-layout",
+            "text": {
+              "content": "modern-css-layout",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "purple",
+            "id": "bc29b07d-5582-4af2-9981-a88b705c66e0",
+            "name": "CSS"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Modern CSS Layout Patterns",
+            "text": {
+              "content": "Modern CSS Layout Patterns",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Modern-CSS-Layout-Patterns-312fe8ddacd681ed963cfbfa59d44a67",
+    "url": "https://app.notion.com/p/Modern-CSS-Layout-Patterns-312fe8ddacd681ed963cfbfa59d44a67"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

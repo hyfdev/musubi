@@ -1,0 +1,162 @@
+{
+  "markdown": {
+    "id": "312fe8dd-acd6-8168-9b39-f520ffc91ab3",
+    "markdown": "I used Yarn for years. Yarn 1 was a great improvement over early npm, and Yarn Berry introduced interesting ideas with Plug'n'Play. But after trying pnpm on a few projects, I switched entirely. Here's why.\n## 1. Disk Space\npnpm uses a **content-addressable store**. Instead of copying packages into each project's `node_modules`, it hard-links them from a global store. If ten projects use the same version of React, it's stored once on disk.\nOn my machine, this saved over 20GB across all my projects.\n## 2. Faster Installs\nBecause pnpm only needs to link files rather than copy them, installs are significantly faster — especially on CI where the global store can be cached:\n```bash\n# Typical CI install times (medium project)\nyarn install: ~45s\npnpm install: ~20s\n```\n## 3. Strict Dependencies\npnpm creates a **non-flat ****`node_modules`** structure. Your code can only import packages that are explicitly listed in your `package.json`. This catches phantom dependencies — packages you accidentally rely on because they're hoisted by another dependency.\n```javascript\n// With yarn/npm: this might work even if 'lodash' isn't in your package.json\nimport _ from \"lodash\";\n\n// With pnpm: this correctly fails if 'lodash' isn't a direct dependency\n```\n## 4. Monorepo Support\npnpm has built-in workspace support that just works:\n```yaml\n# pnpm-workspace.yaml\npackages:\n  - \"packages/*\"\n  - \"apps/*\"\n```\nFiltering, running scripts across packages, and managing shared dependencies all work out of the box. No need for additional tools like Lerna.\n---\nThe migration from Yarn was straightforward: delete `yarn.lock` and `node_modules`, run `pnpm import` (to convert the lockfile), then `pnpm install`. Most projects just work.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-02-25T16:29:00.000Z",
+    "icon": null,
+    "id": "312fe8dd-acd6-8168-9b39-f520ffc91ab3",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-02-25T16:29:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Date": {
+        "date": {
+          "end": null,
+          "start": "2025-05-22",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Four reasons pnpm won me over: disk space savings, faster installs, strict dependencies, and first-class monorepo support.",
+            "text": {
+              "content": "Four reasons pnpm won me over: disk space savings, faster installs, strict dependencies, and first-class monorepo support.",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "NavigationOrder": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "ShowInNavigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "yarn-to-pnpm",
+            "text": {
+              "content": "yarn-to-pnpm",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [
+          {
+            "color": "green",
+            "id": "9c49dfc4-edb8-4c24-95bf-35aa5549e1ed",
+            "name": "Tooling"
+          },
+          {
+            "color": "blue",
+            "id": "8ee26c03-c874-4114-a2dd-e10cc9ea46dd",
+            "name": "Frontend"
+          }
+        ],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Why I Switched from Yarn to pnpm",
+            "text": {
+              "content": "Why I Switched from Yarn to pnpm",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Why-I-Switched-from-Yarn-to-pnpm-312fe8ddacd681689b39f520ffc91ab3",
+    "url": "https://app.notion.com/p/Why-I-Switched-from-Yarn-to-pnpm-312fe8ddacd681689b39f520ffc91ab3"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

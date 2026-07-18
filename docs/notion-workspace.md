@@ -1,6 +1,6 @@
 # Notion Workspace Contract
 
-Musubi reads one Content data source and one Config data source during generation. Both sources should live below one Notion root page shared with a dedicated internal integration that has only the `Read content` capability. Routine generation never writes to Notion; the separately documented migration command requires an explicitly supplied write-capable credential.
+Musubi reads one Content data source and one Config data source when `vp run notion:setup` refreshes the local Notion Data snapshot. Both sources should live below one Notion root page shared with a dedicated internal integration that has only the `Read content` capability. Musubi never writes to Notion.
 
 ## Environment
 
@@ -45,32 +45,35 @@ Create these properties with the exact names and Notion types:
 
 Enabled rows may use `Title`, `Description`, `Author`, `Link`, `Lang`, `Timezone`, `Since`, `PostsPerPage`, `GitHub`, and `X(Twitter)`. Each key may occur once. Unknown enabled keys, duplicate keys, and invalid values stop generation. An absent key uses the repository default for that field; an unreadable Config source never falls back to the complete local object.
 
-## Generation
+## Snapshot and generation
 
 From a fresh fork:
 
 ```sh
 vp install
+vp run notion:setup
 vp run ready
 ```
 
-The complete deployable site is `.output/public`. Generation reads the current Notion state once, copies required remote images and Notion file blocks into stable output, renders only Published rows, and fails instead of publishing an incomplete required page.
+`vp run notion:setup` reads the current Notion state and atomically replaces the tracked `.musubi/notion-data-snapshot/` directory. Config schemas and rows live in `config.json`; every Published page lives in its own `pages/<notion-page-id>.json` file with the raw page row, Notion Markdown response, and any unknown blocks needed to interpret that Markdown. Draft rows are excluded. If a page's Notion `last_edited_time` is unchanged, setup reuses its prior page file instead of fetching its body again.
+
+`vp run dev`, `vp run check:build`, and `vp run ready` read only this local snapshot. `vp run build` runs `vp run notion:setup` first and then performs the checked build. The complete deployable site is `.output/public`; it contains neither the snapshot nor Notion credentials.
 
 ## Accepted page body dialect
 
 Musubi accepts a bounded subset of Notion's page-as-Markdown output and normalizes it into project-owned nodes before Vue renders it. This table is the durable source-syntax mapping:
 
-| Notion Markdown source                                                                             | Musubi node or result                                             |
-| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| Paragraph text, emphasis, strong, strikethrough, inline code, safe links, and line breaks          | `paragraph` with allowlisted inline nodes                         |
-| Headings 1–4                                                                                       | `heading` with a generated stable fragment and TOC row            |
-| Ordered, unordered, nested, and GFM task lists                                                     | `list` and `listItem`                                             |
-| Fenced or indented code                                                                            | `code`                                                            |
-| Blockquote and thematic break                                                                      | `quote` and `divider`                                             |
-| Markdown image with nonempty alternative text                                                      | `image`, then a stable generated asset                            |
-| GFM table                                                                                          | `table`                                                           |
-| Allowlisted `<callout>`, `<file>`, `<table>`, `<colgroup>`, `<col>`, `<tr>`, and `<td>` extensions | `callout`, `file`, or `table`                                     |
-| Self-closing `<table_of_contents />`                                                               | `tableOfContents` generated from normalized headings              |
-| A source-resolved X `<unknown>` embed                                                              | `xEmbed` with a build-time static quotation or safe link fallback |
+| Notion Markdown source                                                                             | Musubi node or result                                  |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Paragraph text, emphasis, strong, strikethrough, inline code, safe links, and line breaks          | `paragraph` with allowlisted inline nodes              |
+| Headings 1–4                                                                                       | `heading` with a generated stable fragment and TOC row |
+| Ordered, unordered, nested, and GFM task lists                                                     | `list` and `listItem`                                  |
+| Fenced or indented code                                                                            | `code`                                                 |
+| Blockquote and thematic break                                                                      | `quote` and `divider`                                  |
+| Markdown image with nonempty alternative text                                                      | `image` retaining its remote HTTPS URL                 |
+| GFM table                                                                                          | `table`                                                |
+| Allowlisted `<callout>`, `<file>`, `<table>`, `<colgroup>`, `<col>`, `<tr>`, and `<td>` extensions | `callout`, `file`, or `table`                          |
+| Self-closing `<table_of_contents />`                                                               | `tableOfContents` generated from normalized headings   |
+| A source-resolved X `<unknown>` embed                                                              | `xEmbed` retaining only its source URL for a safe link |
 
-Required remote files use absolute HTTPS source URLs and are downloaded, deduplicated, content-named, and rewritten during generation. X enrichment requests the fixed official Publish oEmbed endpoint without an API token, validates the returned post and author URLs, and converts only text, line breaks, and safe links into Musubi's own AST; returned HTML is never rendered directly. If build-time enrichment fails, the article retains a plain safe link. If browser-side widget enhancement fails after successful enrichment, the complete static quotation remains visible. Raw HTML, executable MDX expressions, custom emoji outside code, unknown tags or attributes, unresolved or unsupported required blocks, unsafe URLs, invalid table shapes, and unexplained truncated Markdown stop generation with source-page and line or block context. The full trust and failure boundary is in [Target Architecture](../.agents/docs/architecture.md).
+Remote images and file blocks must use absolute HTTPS source URLs. Musubi initially keeps those URLs unchanged rather than downloading or rewriting their media. An unchanged page reuses its stored Markdown and URLs, so expiry of a Notion-hosted media URL is an accepted initial limitation rather than something the refresh command promises to repair. X handling is deliberately smaller: the snapshot records the Notion-provided X URL, and rendering produces a safe ordinary link without an oEmbed request or third-party widget script. Raw HTML, executable MDX expressions, custom emoji outside code, unknown tags or attributes, unresolved or unsupported required blocks, unsafe URLs, invalid table shapes, and unexplained truncated Markdown stop generation with source-page and line or block context. The full trust and failure boundary is in [Target Architecture](../.agents/docs/architecture.md).
