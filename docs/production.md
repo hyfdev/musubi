@@ -6,7 +6,7 @@ Musubi's maintained example targets Cloudflare Workers Static Assets at `https:/
 
 Workers Builds installs the pinned pnpm dependencies, runs `pnpm run build`, and `pnpm exec wrangler deploy` publishes only `.output/public`. `vp run build` refreshes `.musubi/notion-data-snapshot/` through `vp run notion:setup`, then runs the same local static build and artifact checks exposed as `vp run check:build`. Production never serves `.output/server`, a Nitro process, a Notion API route, the Notion Data snapshot, or browser-side Notion credentials.
 
-The repository pins Node through `.node-version`, pnpm through `packageManager`, and Wrangler as a development dependency. Configure the Worker build with production branch `v2`, build command `pnpm run build`, deploy command `pnpm exec wrangler deploy`, and `PNPM_VERSION=11.14.0`. `NODE_VERSION=24.18.0` may also be set explicitly as a redundant build-image guard.
+The repository pins Node through `.node-version`, pnpm through `packageManager`, and Wrangler as a development dependency. Configure the Worker build with production branch `main`, build command `pnpm run build`, deploy command `pnpm exec wrangler deploy`, and `PNPM_VERSION=11.14.0`. `NODE_VERSION=24.18.0` may also be set explicitly as a redundant build-image guard.
 
 Configure these values as Workers Builds variables or secrets, not Worker runtime bindings:
 
@@ -34,7 +34,7 @@ Run `vp run notion:setup` when the checked-in snapshot should be refreshed indep
 
 The first Cloudflare deployment is created without attaching `musubi.hyf.me`:
 
-1. Push the prepared commit to `v2`.
+1. Push the prepared commit to `main`.
 2. Let Workers Builds publish the `musubi` Worker to its `workers.dev` URL.
 3. Verify Home, Blog, a Post, slashless canonical routes, the visible 404 response, fonts, themes, and cache headers.
 4. Record the existing Vercel DNS target and deployment ID, then attach `musubi.hyf.me` as the Worker Custom Domain.
@@ -43,7 +43,7 @@ The first Cloudflare deployment is created without attaching `musubi.hyf.me`:
 Notion-only changes use the smallest explicit trigger:
 
 1. Publish the intended rows in Notion.
-2. Retrigger the production build for the current `v2` commit in Workers Builds.
+2. Retrigger the production build for the current `main` commit in Workers Builds.
 3. Verify the changed route and one direct hard refresh at `https://musubi.hyf.me`.
 
 This trigger deliberately remains manual. Automatic Notion webhooks can be added later only when their operational value justifies another credential and failure path.

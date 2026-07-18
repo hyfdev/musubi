@@ -8,7 +8,7 @@ Repository-local production readiness is complete, and the delivery target is be
 
 - Public URL: `https://musubi.hyf.me`
 - Repository: `hyfdev/musubi`
-- Source branch: `v2`
+- Source branch: `main`
 - Hosting target: Cloudflare Worker `musubi`, serving static assets only
 - Migration path: validate the `workers.dev` deployment before attaching `musubi.hyf.me` as a Worker Custom Domain
 - Temporary rollback path: the existing Vercel project remains connected until the Worker is accepted
@@ -52,7 +52,7 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 - Routine Workers Builds use a read-only Notion integration supplied only as build-time configuration.
 - Development, `check:build`, and `ready` consume the tracked per-page Notion Data snapshot without Notion access.
 - The default cloud build uses the open LXGW fallback; private Tsanger setup remains optional.
-- Notion-only publication uses an explicit Workers Build retrigger, while code delivery builds the `v2` production branch.
+- Notion-only publication uses an explicit Workers Build retrigger, while code delivery builds the `main` production branch.
 
 ## Local acceptance evidence
 
