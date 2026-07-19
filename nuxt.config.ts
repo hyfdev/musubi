@@ -5,7 +5,8 @@ const prerenderRoutes = [...(await loadSiteFromSnapshot()).routes, '/__musubi_no
 export default defineNuxtConfig({
   compatibilityDate: '2026-07-12',
   modules: ['@unocss/nuxt'],
-  css: ['./app/assets/css/main.css'],
+  // srcDir is app/; use ~ alias so virtual:nuxt:.nuxt/css.mjs resolves under Vite 8.
+  css: ['~/assets/css/main.css'],
   devtools: { enabled: false },
   ssr: true,
   imports: {

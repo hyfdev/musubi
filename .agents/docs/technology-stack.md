@@ -34,6 +34,7 @@ This record owns Musubi's selected technologies, the few non-default restriction
 - Musubi pins `nuxt` to the current 4.x line (`^4.5.0` after the 4.5 upgrade). Nuxt 4.5 selects upstream Vite 8 through `@nuxt/vite-builder`; keep proving that with `vp why vite` so Vite+ does not replace Nuxt's builder.
 - `unctx@3` (via Nuxt 4.5 / `@nuxt/kit`) requires `oxc-parser >=0.140`. `@unocss/transformer-attributify-jsx` still depends on `oxc-parser@^0.131.0` (0.131.x only), so without a workspace override pnpm cannot satisfy both. `pnpm-workspace.yaml` currently pins `oxc-parser` to `0.140.0` for that reason. Remove or relax the pin only after UnoCSS bumps that dependency.
 - Fresh Nuxt 4.5 packages may land in `minimumReleaseAgeExclude` until they pass the workspace release-age policy; that list is operational packaging state, not a product selection.
+- Root `vite.config.ts` stays as the Vite+ file (`fmt`, `lint`, `staged`, `run.tasks`). Nuxt 4.5 may warn `NUXT_B5004` about an external vite config; that warning is expected with Vite+ and must not drive deleting the file or stuffing Vite+ blocks into `nuxt.config` `vite`. Nuxt builder options still go only under `nuxt.config` `vite`. Details and the related `NUXT_B2005` false positive: [Gotchas](./gotchas.md#nuxt-dev-warnings-with-vite-nuxt_b5004-nuxt_b2005).
 
 ## Responsibility boundaries
 
