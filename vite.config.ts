@@ -76,6 +76,7 @@ export default defineConfig({
       'check:build': {
         command: [
           'vp run brand:check',
+          'vp run font:setup:soft',
           'vp run font:build',
           'vp run nuxt:generate',
           'vp run static:finalize',

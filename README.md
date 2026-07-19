@@ -28,15 +28,24 @@ Production deployment, publication, cache, and rollback procedures are documente
 
 ## Optional Tsanger typography
 
-Musubi works without proprietary font files: an ordinary install and build use the open-licensed `Musubi CJK Fallback`. To opt this checkout into the preferred Tsanger JinKai W04/W05 typography, review the linked font terms and run:
+Musubi works without proprietary font files: the open-licensed `Musubi CJK Fallback` is always available. Preferred Tsanger JinKai W04/W05 sources are optional and never committed: `font:setup` downloads and verifies them into the ignored `.musubi/font/tsanger/` cache (skips download when a verified cache already exists).
 
-```sh
-vp run font:setup
-```
+The default pipeline runs a soft setup so previews and builds pick up Tsanger when sources are obtainable, and keep going with Fallback when they are not:
 
-The command downloads the two pinned files directly from `tsanger.cn`, verifies their size and SHA-256, and stores them only in the ignored `.musubi/font/tsanger/` directory. Later builds discover that private cache automatically and publish only content-derived WOFF2 subsets. It is never run automatically by `vp run build`, `vp run ready`, installation, or the public repository.
+- `postinstall` runs soft `font:setup` after `nuxt prepare` to warm the cache on install
+- `dev` and `check:build` run soft `font:setup` before `font:build`
+- `pnpm run build` is `notion:setup` then `check:build` (latest Notion snapshot, then the same font and generate path)
 
-If you intentionally opt a trusted cloud builder into Tsanger, run `vp run font:setup` before `vp run build`; cache `.musubi/font/` only inside that trusted deployment job if the provider supports private build caches, and never upload the complete sources as public artifacts. `MUSUBI_TSANGER_CACHE_DIR` can point both commands at another private Tsanger cache directory. Existing licensed local files can instead be supplied through the paired `MUSUBI_TSANGER_W04_PATH` and `MUSUBI_TSANGER_W05_PATH` overrides. To download during setup from a builder-supplied mirror instead of the official hosts, set the paired `MUSUBI_TSANGER_W04_URL` and `MUSUBI_TSANGER_W05_URL` HTTPS variables in the builder only (not in the repository); the files must still match the pinned size and SHA-256. Run `vp run font:setup -- --clear` to remove the optional Tsanger checkout cache and return to fallback-only builds.
+`font:build` only reads the on-disk Notion snapshot plus any Tsanger cache or path overrides; it does not call Notion itself. Review the official terms before using Tsanger. Full source files must never become public deployment artifacts.
+
+Builder-only environment (do not commit secrets or private mirror URLs):
+
+- `MUSUBI_TSANGER_W04_URL` / `MUSUBI_TSANGER_W05_URL` — paired HTTPS mirrors; files must match the pinned size and SHA-256
+- `MUSUBI_TSANGER_W04_PATH` / `MUSUBI_TSANGER_W05_PATH` — paired local source files for `font:build`
+- `MUSUBI_TSANGER_CACHE_DIR` — alternate setup cache directory
+- `MUSUBI_TSANGER_SETUP=0` — skip setup entirely
+
+Manual commands: `vp run font:setup` (strict), `vp run font:setup:soft` (pipeline), `vp run font:setup -- --clear` to drop the optional cache.
 
 ## Local visual loop
 
