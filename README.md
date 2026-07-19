@@ -57,7 +57,7 @@ vp run preview -- --port 4173
 
 The static preview mirrors the production cache contract: HTML and stable metadata URLs revalidate with `ETag` and `Last-Modified`, while content-addressed Nuxt assets, generated files, and font subsets use a one-year immutable policy. A deployment host should preserve the same distinction.
 
-`vp run lint` runs Vite+'s code lint and Google's official `designmd lint DESIGN.md` together. `vp run ready` includes that repository lint task alongside formatting, focused unit tests, Nuxt's Vue-aware type check, local snapshot validation, static generation, and artifact checks. User-facing changes additionally require the real-browser workflow in [Visual Frontend Development and Acceptance](./.agents/docs/visual-frontend-development-and-acceptance.md).
+`vp run lint` runs Vite+'s code lint and Google's official `designmd lint .agents/docs/DESIGN.md` together. `vp run ready` includes that repository lint task alongside formatting, focused unit tests, Nuxt's Vue-aware type check, local snapshot validation, static generation, and artifact checks. User-facing changes additionally require the real-browser workflow in [Visual Frontend Development and Acceptance](./.agents/docs/visual-frontend-development-and-acceptance.md).
 
 ## Content behavior
 
@@ -70,4 +70,4 @@ The static preview mirrors the production cache contract: HTML and stable metada
 - Tsanger JinKai W04 and W05 are accepted as optional local build inputs and are subset by body-versus-emphasis usage when supplied. Preferred subsets and the public LXGW WenKai GB Medium fallback use content-addressed WOFF2 URLs; the fallback preserves every mapped source code point across Unicode-range shards that also cover later runtime text.
 - Light and warm dark themes follow the system by default; a persisted three-choice control selects Light, Dark, or System directly.
 
-The durable product boundary is documented in [Project Context Records](./.agents/docs/README.md), and the exact visual direction lives in [DESIGN.md](./DESIGN.md).
+The durable product boundary is documented in [Project Context Records](./.agents/docs/README.md), and the exact visual direction lives in [DESIGN.md](./.agents/docs/DESIGN.md).

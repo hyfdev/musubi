@@ -20,7 +20,7 @@ Use this loop for changes to visible UI, layout, content presentation, themes, r
 
 ### 1. Establish the intended result
 
-- Read the project records that cover the change and the root [DESIGN.md](../../DESIGN.md) for visual identity, exact tokens, responsive rules, and supported theme direction.
+- Read the project records that cover the change and [DESIGN.md](./DESIGN.md) for visual identity, exact tokens, responsive rules, and supported theme direction.
 - State the affected workflow in user terms, including the visible starting state, action, important intermediate states, final state, and relevant failure state.
 - Identify the viewport, theme, content fixture, and browser conditions that can change the result.
 
@@ -33,7 +33,7 @@ Use this loop for changes to visible UI, layout, content presentation, themes, r
 ### 3. Run the programmatic gate
 
 - Use the repository's focused format, lint, type-check, and build scripts during implementation.
-- Run `vp run ready` before final visual acceptance. [Future Migration Plan](./migration-plan.md) owns its replaceable script composition, while [Target Technology Stack](./technology-stack.md) owns the Vite+ entry point and no-cache rule; this workflow consumes that gate rather than defining a second one.
+- Run `vp run ready` before final visual acceptance. Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings; `package.json` owns the leaf scripts those tasks call. [Target Technology Stack](./technology-stack.md) owns the Vite+ entry point and no-cache rule. The completed [Implementation Migration Plan](./migration-plan.md) is historical migration evidence and does not own the live task graph. This workflow consumes that gate rather than defining a second one.
 - Repair deterministic failures before treating browser observations as acceptance evidence.
 
 ### 4. Start the static production surface
@@ -46,7 +46,7 @@ Use this loop for changes to visible UI, layout, content presentation, themes, r
 
 - Start from a known content and browser state.
 - Exercise `/`, `/blog`, one `/blog/:slug` Post, one `/:slug` Page, one missing route, and direct entry plus hard refresh for each affected route family. Confirm that Home contains at most five recent Posts, Blog contains the complete year-grouped archive, no paginated Blog or tag route is exposed, and no broken navigation entry appears.
-- Inspect navigation with visible, hidden, ordered, and missing-order Page rows when those states are affected. For an affected X embed, verify direct entry and client-side navigation, the official widget success state, and Light and Dark recreation. During a theme-only recreation, the current iframe must remain visible, the static quotation must not flash, the component and following prose must not move, a rapid return to the current theme must cancel the staged replacement, and a failed staged replacement must retain the current iframe. Also verify the complete static quotation when initial browser enhancement is blocked and the ordinary safe link when build-time enrichment is unavailable. No X script or request should appear on a route without an enriched X embed.
+- Inspect navigation with visible, hidden, ordered, and missing-order Page rows when those states are affected. For an affected X post reference, verify the safe ordinary X-link representation on direct entry and client-side navigation. Verify that Notion refresh, static generation, and browser rendering make no X metadata, oEmbed, widget-script, iframe, or other X provider request.
 - Perform the actual user actions needed to reach the affected state, including keyboard, pointer, focus, hover, scroll, or responsive interactions when relevant.
 - Inspect page errors, console errors, failed transport requests, HTTP responses with status `400` or higher, and unexpected application warnings.
 - Check loading, success, empty, failure, and recovery states when the change affects them.
@@ -80,7 +80,7 @@ Report the exact revision, programmatic commands, browser and version, applicati
 
 ## Command integration
 
-The migration plan owns replaceable script names and composition, while the target technology-stack record owns the selected Vite+ entry point and cache policy. This workflow uses the resulting complete `ready` gate and any focused visual scripts that provide a meaningfully shorter path to one representative surface or content state; it does not define an alternative command graph.
+Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings; `package.json` owns the leaf scripts those tasks call. The target technology-stack record owns the selected Vite+ entry point and cache policy. The completed migration plan retains historical scaffolding and acceptance evidence only. This workflow uses the resulting complete `ready` gate and any focused visual scripts that provide a meaningfully shorter path to one representative surface or content state; it does not define an alternative command graph.
 
 ## Completion conditions
 

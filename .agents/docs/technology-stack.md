@@ -39,6 +39,7 @@ This record owns Musubi's selected technologies, the few non-default restriction
 
 - [Target Architecture](./architecture.md) owns Notion onboarding and schemas, content and settings data flow, Markdown normalization and rendering behavior, static publication, font-delivery behavior, routes, and failure rules.
 - [Visual Frontend Development and Acceptance](./visual-frontend-development-and-acceptance.md) owns the required verification process.
-- [Implementation Migration Plan](./migration-plan.md) owns scaffolding, migration order, migration-time version selection, commands, completed implementation tasks, and acceptance evidence.
+- [Implementation Migration Plan](./migration-plan.md) owns historical scaffolding, migration order, migration-time versions and commands, completed implementation tasks, and acceptance evidence from the completed repository-local migration. It does not own the live task graph.
+- Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings. `package.json` owns the leaf scripts those tasks call.
 - [Autonomous Decision Research](./decision-research.md) retains experiments, measured versions, detailed alternatives, and supporting evidence.
-- [Root DESIGN.md](../../DESIGN.md) owns visual tokens and presentation rules.
+- [DESIGN.md](./DESIGN.md) owns visual tokens and presentation rules.

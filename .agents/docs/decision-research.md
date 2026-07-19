@@ -2,9 +2,11 @@
 
 ## Status and purpose
 
-Yunfei reviewed the decision packet on 2026-07-12 and selected the product, Notion editing and onboarding, configuration, routing and navigation, static-publication, Markdown, site-settings failure, light/dark theme, and Chinese-font boundaries recorded below. Follow-up research closed the factual `notion-to-md` comparison, verified a Node/WebAssembly implementation path for the selected generated font fallback, and audited the supplied Notion sources plus the working `hyf.me` routes. No product or architecture preference remains open. This record retains evidence and alternatives; the goal, architecture, technology-stack, design, and acceptance records own current direction.
+This is a historical research packet, not the current project direction. It begins at repository revision `e023e79` / the 2026-07-12 research pass and accumulates later evidence identified by its own dates or revisions. Each conclusion represents its explicit point in time; when a later owning record differs, the current owner governs.
 
-The initial research baseline is repository revision `e023e79`. Claims about that revision and its generated artifact are historical observations, not descriptions of the completed implementation.
+Yunfei reviewed the decision packet on 2026-07-12 and selected the product, Notion editing and onboarding, configuration, routing and navigation, static-publication, Markdown, site-settings failure, light/dark theme, and Chinese-font boundaries recorded below. Follow-up research closed the factual `notion-to-md` comparison, verified a Node/WebAssembly implementation path for the selected generated font fallback, and audited the supplied Notion sources plus the working `hyf.me` routes. No product or architecture preference remains open in the packet itself. This file retains experiments, measurements, and alternatives from those passes; [Project intent](./intent.md), architecture, technology-stack, design, and acceptance records own current direction.
+
+Examples of conclusions later changed by owning records or implementation include test practice, Blog pagination, media persistence, X widget behavior, and the Nuxt client runtime. Claims about the research baseline revision and its generated artifact remain historical observations and must not be rewritten here to match later state.
 
 ## Explicit directions to preserve
 
@@ -111,7 +113,7 @@ The technical recommendation is to use the current official Notion SDK, data-sou
 
 ### Record ownership after selection
 
-- `goal.md` owns the selected outcome, surface, audience priority, success condition, qualities, non-goals, and deferred automatic deployment trigger.
+- `intent.md` owns the selected outcome, surface, audience priority, success condition, qualities, non-goals, and deferred automatic deployment trigger.
 - `architecture.md` owns the system boundary, input contracts, generation pipeline, routes, navigation, publication behavior, and failure semantics.
 - `technology-stack.md` owns the selected technologies and non-default integration restrictions. Its selected section retains Yunfei's 2026-07-12 vouch.
 - `DESIGN.md` owns the selected Kami-derived visual direction, light and warm dark tokens, typography, and responsive rules.
@@ -232,7 +234,7 @@ Yunfei selected this warm dark palette alongside the light theme. The design rec
 ## Evidence boundaries and final review
 
 - At the research baseline, `README.md`, `ROADMAP.md`, `website.config.ts`, and the application described the Notion-backed prototype. The migration removed the obsolete prototype files and behavior; the rewritten README now describes the selected static product, while the measurements above remain historical evidence.
-- `goal.md` records the selected project outcome, success condition, required surface, audience, defining qualities, non-goals, and deferred automatic deployment trigger.
+- `intent.md` records the selected project outcome, success condition, required surface, audience, defining qualities, non-goals, and deferred automatic deployment trigger.
 - `architecture.md` records one coherent selected system rather than preserving the superseded option matrix. It has no open architecture choice.
 - `DESIGN.md` contains the selected light and dark tokens, typography values, and generated matching Luo fallback.
 - `technology-stack.md` has a concise vouched `Selected technologies` section covering selected tools, essential integration restrictions, brief reasons, and reconsideration conditions. Its responsibility-boundary note remains unstamped, and architecture, migration, verification, and research details remain in their owning records.
