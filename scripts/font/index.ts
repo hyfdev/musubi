@@ -10,13 +10,13 @@ if (help) {
 
 Downloads and verifies the Tsanger JinKai W04/W05 source fonts into this
 checkout's private .musubi cache. When a verified cache already exists,
-downloads are skipped. Download or verification failure exits non-zero.
+downloads are skipped. Default order is jsDelivr then tsanger.cn. Download
+or verification failure exits non-zero.
 
 Optional environment:
   MUSUBI_TSANGER_W04_URL / MUSUBI_TSANGER_W05_URL
-    Paired HTTPS URLs used instead of the official download hosts. Files must still
-    match the pinned size and SHA-256. Do not commit these values; set them only in
-    the builder environment when mirroring the sources.
+    Paired HTTPS URLs that replace the default download order entirely. Files must
+    still match the pinned size and SHA-256. Do not commit these values.
   MUSUBI_TSANGER_W04_PATH / MUSUBI_TSANGER_W05_PATH
     Paired local files for font:build (skips download when both are set for build).
   MUSUBI_TSANGER_CACHE_DIR

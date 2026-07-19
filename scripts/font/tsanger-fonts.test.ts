@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vite-plus/test'
 import {
   clearTsangerFonts,
   inspectTsangerFontCache,
-  resolveTsangerDownloadSources,
+  resolveTsangerDownloadUrls,
   TSANGER_FONT_SOURCES,
   tsangerFontCacheDirectory,
 } from './tsanger-fonts.ts'
@@ -63,35 +63,38 @@ describe('optional Tsanger font cache', () => {
   })
 })
 
-describe('optional Tsanger download URL overrides', () => {
-  it('defaults to the official download hosts', () => {
+describe('Tsanger download URL order', () => {
+  it('defaults to jsDelivr then the official host', () => {
     delete process.env.MUSUBI_TSANGER_W04_URL
     delete process.env.MUSUBI_TSANGER_W05_URL
 
-    expect(resolveTsangerDownloadSources()).toEqual({
-      w04: { ...TSANGER_FONT_SOURCES.w04 },
-      w05: { ...TSANGER_FONT_SOURCES.w05 },
-    })
+    expect(resolveTsangerDownloadUrls(TSANGER_FONT_SOURCES.w04)).toEqual([
+      'https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W04.ttf',
+      TSANGER_FONT_SOURCES.w04.url,
+    ])
+    expect(resolveTsangerDownloadUrls(TSANGER_FONT_SOURCES.w05)).toEqual([
+      'https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/TsangerJinKai02-W05.ttf',
+      TSANGER_FONT_SOURCES.w05.url,
+    ])
   })
 
-  it('accepts paired HTTPS URL overrides without changing checksum pins', () => {
+  it('uses paired HTTPS URL overrides only when both are set', () => {
     process.env.MUSUBI_TSANGER_W04_URL = 'https://example.invalid/w04.ttf'
     process.env.MUSUBI_TSANGER_W05_URL = 'https://example.invalid/w05.ttf'
 
-    const sources = resolveTsangerDownloadSources()
-    expect(sources.w04.url).toBe('https://example.invalid/w04.ttf')
-    expect(sources.w05.url).toBe('https://example.invalid/w05.ttf')
-    expect(sources.w04.sha256).toBe(TSANGER_FONT_SOURCES.w04.sha256)
-    expect(sources.w05.sha256).toBe(TSANGER_FONT_SOURCES.w05.sha256)
-    expect(sources.w04.bytes).toBe(TSANGER_FONT_SOURCES.w04.bytes)
-    expect(sources.w05.bytes).toBe(TSANGER_FONT_SOURCES.w05.bytes)
+    expect(resolveTsangerDownloadUrls(TSANGER_FONT_SOURCES.w04)).toEqual([
+      'https://example.invalid/w04.ttf',
+    ])
+    expect(resolveTsangerDownloadUrls(TSANGER_FONT_SOURCES.w05)).toEqual([
+      'https://example.invalid/w05.ttf',
+    ])
   })
 
   it('rejects a single URL override', () => {
     process.env.MUSUBI_TSANGER_W04_URL = 'https://example.invalid/w04.ttf'
     delete process.env.MUSUBI_TSANGER_W05_URL
 
-    expect(() => resolveTsangerDownloadSources()).toThrow(
+    expect(() => resolveTsangerDownloadUrls(TSANGER_FONT_SOURCES.w04)).toThrow(
       'MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL must be provided together',
     )
   })
@@ -100,7 +103,9 @@ describe('optional Tsanger download URL overrides', () => {
     process.env.MUSUBI_TSANGER_W04_URL = 'http://example.invalid/w04.ttf'
     process.env.MUSUBI_TSANGER_W05_URL = 'https://example.invalid/w05.ttf'
 
-    expect(() => resolveTsangerDownloadSources()).toThrow('MUSUBI_TSANGER_W04_URL must use https')
+    expect(() => resolveTsangerDownloadUrls(TSANGER_FONT_SOURCES.w04)).toThrow(
+      'MUSUBI_TSANGER_W04_URL must use https',
+    )
   })
 })
 

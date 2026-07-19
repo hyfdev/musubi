@@ -30,7 +30,7 @@ Production deployment, publication, cache, and rollback procedures are documente
 
 ## Optional Tsanger typography
 
-Musubi works without proprietary font files: the open-licensed `Musubi CJK Fallback` is always available. Preferred Tsanger JinKai W04/W05 sources are optional and never committed: `font:setup` downloads and verifies them into the ignored `.musubi/font/tsanger/` cache (skips download when a verified cache already exists).
+Musubi works without proprietary font files: the open-licensed `Musubi CJK Fallback` is always available. Preferred Tsanger JinKai W04/W05 sources are never committed: `font:setup` downloads and verifies them into the ignored `.musubi/font/tsanger/` cache (skips download when a verified cache already exists). Default download order is jsDelivr (`cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/…`), then the official `tsanger.cn` hosts; checksums must match the pinned pair.
 
 The default pipeline runs `vp run font:setup` so install, dev, and site builds require a verified Tsanger cache (download when missing; skip when already valid). Failure prints a clear error and stops the pipeline. Set `MUSUBI_TSANGER_SETUP=0` only when this checkout must stay on Fallback without attempting a download.
 

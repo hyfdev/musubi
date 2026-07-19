@@ -16,6 +16,10 @@ interface TsangerFontSource {
   sha256: string
 }
 
+/** Public CDN copies of the pinned files (same bytes/SHA-256 as the official downloads). */
+const JSDELIVR_TSANGER_FONT_BASE =
+  'https://cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts' as const
+
 export const TSANGER_FONT_SOURCES = {
   w04: {
     weight: 'W04',
@@ -84,30 +88,30 @@ export function tsangerFontCacheDirectory(): string {
 }
 
 /**
- * Resolve the download URLs used by font:setup.
- * Optional `MUSUBI_TSANGER_W04_URL` / `MUSUBI_TSANGER_W05_URL` override the official hosts (e.g. a private mirror).
- * Both must be set together. Checksums and sizes stay pinned so the files must match the known W04/W05 pair.
+ * Resolve download URL candidates for font:setup (tried in order until checksum matches).
+ *
+ * 1. Paired `MUSUBI_TSANGER_W04_URL` / `MUSUBI_TSANGER_W05_URL` when both are set (builder mirrors only).
+ * 2. Otherwise: jsDelivr copy of the pinned files, then the official tsanger.cn downloads.
+ *
+ * Checksums and sizes stay pinned to the known W04/W05 pair.
  */
-export function resolveTsangerDownloadSources(): Record<'w04' | 'w05', TsangerFontSource> {
+export function resolveTsangerDownloadUrls(source: TsangerFontSource): string[] {
   const w04Url = process.env.MUSUBI_TSANGER_W04_URL?.trim()
   const w05Url = process.env.MUSUBI_TSANGER_W05_URL?.trim()
-  if (!w04Url && !w05Url) {
-    return {
-      w04: { ...TSANGER_FONT_SOURCES.w04 },
-      w05: { ...TSANGER_FONT_SOURCES.w05 },
+  if (w04Url || w05Url) {
+    if (!w04Url || !w05Url) {
+      throw new Error(
+        'MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL must be provided together when overriding Tsanger download URLs.',
+      )
     }
-  }
-  if (!w04Url || !w05Url) {
-    throw new Error(
-      'MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL must be provided together when overriding Tsanger download URLs.',
+    const override = source.weight === 'W04' ? w04Url : w05Url
+    assertHttpsDownloadUrl(
+      override,
+      source.weight === 'W04' ? 'MUSUBI_TSANGER_W04_URL' : 'MUSUBI_TSANGER_W05_URL',
     )
+    return [override]
   }
-  assertHttpsDownloadUrl(w04Url, 'MUSUBI_TSANGER_W04_URL')
-  assertHttpsDownloadUrl(w05Url, 'MUSUBI_TSANGER_W05_URL')
-  return {
-    w04: { ...TSANGER_FONT_SOURCES.w04, url: w04Url },
-    w05: { ...TSANGER_FONT_SOURCES.w05, url: w05Url },
-  }
+  return [`${JSDELIVR_TSANGER_FONT_BASE}/${source.fileName}`, source.url]
 }
 
 export function tsangerDownloadUrlsAreOverridden(): boolean {
@@ -149,7 +153,10 @@ export async function setupTsangerFonts(
   report: SetupReporter = () => undefined,
 ): Promise<InstalledTsangerFonts> {
   const directory = tsangerFontCacheDirectory()
-  const sources = resolveTsangerDownloadSources()
+  const sources = {
+    w04: { ...TSANGER_FONT_SOURCES.w04 },
+    w05: { ...TSANGER_FONT_SOURCES.w05 },
+  }
   await mkdir(directory, { recursive: true, mode: 0o700 })
   await chmod(directory, 0o700)
   const [cachedW04, cachedW05] = await Promise.all([
@@ -168,6 +175,8 @@ export async function setupTsangerFonts(
 
   if (tsangerDownloadUrlsAreOverridden()) {
     report('Using MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL for Tsanger source downloads.')
+  } else {
+    report('Trying jsDelivr first, then the official tsanger.cn downloads.')
   }
 
   const staged = new Map<TsangerFontSource, string>()
@@ -175,11 +184,6 @@ export async function setupTsangerFonts(
     const installed = source.weight === 'W04' ? cachedW04 : cachedW05
     if (installed) continue
     const partPath = partialPath(directory, source)
-    report(
-      tsangerDownloadUrlsAreOverridden()
-        ? `Downloading Tsanger JinKai ${source.weight} from the configured download URL...`
-        : `Downloading Tsanger JinKai ${source.weight} from tsanger.cn...`,
-    )
     await downloadVerifiedFont(source, partPath, report)
     staged.set(source, partPath)
   }
@@ -239,57 +243,61 @@ async function downloadVerifiedFont(
   partPath: string,
   report: SetupReporter,
 ): Promise<void> {
-  for (let attempt = 1; attempt <= DOWNLOAD_ATTEMPTS; attempt += 1) {
-    try {
-      const existingSize = await fileSize(partPath)
-      if (existingSize === source.bytes) {
-        const complete = await readFile(partPath)
-        if (sha256(complete) === source.sha256) {
-          await chmod(partPath, 0o600)
-          report(`Verified Tsanger JinKai ${source.weight} (${formatBytes(source.bytes)}).`)
-          return
-        }
-        await rm(partPath, { force: true })
-      } else if (existingSize > source.bytes) {
-        await rm(partPath, { force: true })
-      }
+  const urls = resolveTsangerDownloadUrls(source)
+  const failures: string[] = []
 
-      await downloadAttempt(source, partPath, report)
-      const downloaded = await readFile(partPath)
-      const actualChecksum = sha256(downloaded)
-      if (downloaded.length !== source.bytes || actualChecksum !== source.sha256) {
-        await rm(partPath, { force: true })
-        throw new Error(
-          `download verification failed: expected ${source.bytes} bytes and ${source.sha256}, received ${downloaded.length} bytes and ${actualChecksum}`,
+  for (const url of urls) {
+    report(`Downloading Tsanger JinKai ${source.weight} from ${describeDownloadHost(url)}...`)
+    for (let attempt = 1; attempt <= DOWNLOAD_ATTEMPTS; attempt += 1) {
+      try {
+        const existingSize = await fileSize(partPath)
+        if (existingSize === source.bytes) {
+          const complete = await readFile(partPath)
+          if (sha256(complete) === source.sha256) {
+            await chmod(partPath, 0o600)
+            report(`Verified Tsanger JinKai ${source.weight} (${formatBytes(source.bytes)}).`)
+            return
+          }
+          await rm(partPath, { force: true })
+        } else if (existingSize > source.bytes) {
+          await rm(partPath, { force: true })
+        }
+
+        await downloadAttempt(url, source.bytes, partPath)
+        const downloaded = await readFile(partPath)
+        const actualChecksum = sha256(downloaded)
+        if (downloaded.length !== source.bytes || actualChecksum !== source.sha256) {
+          await rm(partPath, { force: true })
+          throw new Error(
+            `download verification failed: expected ${source.bytes} bytes and ${source.sha256}, received ${downloaded.length} bytes and ${actualChecksum}`,
+          )
+        }
+        await chmod(partPath, 0o600)
+        report(`Verified Tsanger JinKai ${source.weight} (${formatBytes(source.bytes)}).`)
+        return
+      } catch (error) {
+        if (attempt === DOWNLOAD_ATTEMPTS) {
+          failures.push(`${describeDownloadHost(url)}: ${errorMessage(error)}`)
+          await rm(partPath, { force: true })
+          break
+        }
+        report(
+          `Tsanger JinKai ${source.weight} download was interrupted; retrying from the saved partial file (${attempt}/${DOWNLOAD_ATTEMPTS}).`,
         )
+        await delay(attempt * 1000)
       }
-      await chmod(partPath, 0o600)
-      report(`Verified Tsanger JinKai ${source.weight} (${formatBytes(source.bytes)}).`)
-      return
-    } catch (error) {
-      if (attempt === DOWNLOAD_ATTEMPTS) {
-        throw new Error(
-          `Unable to install Tsanger JinKai ${source.weight} after ${DOWNLOAD_ATTEMPTS} attempts: ${errorMessage(error)}`,
-          { cause: error },
-        )
-      }
-      report(
-        `Tsanger JinKai ${source.weight} download was interrupted; retrying from the saved partial file (${attempt}/${DOWNLOAD_ATTEMPTS}).`,
-      )
-      await delay(attempt * 1000)
     }
   }
+
+  throw new Error(
+    `Unable to install Tsanger JinKai ${source.weight} from any download source: ${failures.join('; ')}`,
+  )
 }
 
-async function downloadAttempt(
-  source: TsangerFontSource,
-  partPath: string,
-  _report: SetupReporter,
-): Promise<void> {
-  // Official hosts are direct HTTPS files. Builder-supplied mirrors (e.g. object storage) may redirect once or twice.
-  const officialUrl =
-    source.weight === 'W04' ? TSANGER_FONT_SOURCES.w04.url : TSANGER_FONT_SOURCES.w05.url
-  const maxRedirs = source.url === officialUrl ? '0' : '5'
+async function downloadAttempt(url: string, maxBytes: number, partPath: string): Promise<void> {
+  // Official tsanger.cn files are direct. jsDelivr and builder mirrors may redirect.
+  const officialUrl = url === TSANGER_FONT_SOURCES.w04.url || url === TSANGER_FONT_SOURCES.w05.url
+  const maxRedirs = officialUrl ? '0' : '5'
   const code = await runCurl([
     '--fail',
     '--show-error',
@@ -307,18 +315,26 @@ async function downloadAttempt(
     '--speed-time',
     '60',
     '--max-filesize',
-    String(source.bytes),
+    String(maxBytes),
     '--continue-at',
     '-',
     '--output',
     partPath,
-    source.url,
+    url,
   ])
   if (code !== 0) {
     if (code === 33 || code === 36) {
       await rm(partPath, { force: true })
     }
     throw new Error(`curl exited with status ${code}`)
+  }
+}
+
+function describeDownloadHost(url: string): string {
+  try {
+    return new URL(url).host
+  } catch {
+    return 'download URL'
   }
 }
 
