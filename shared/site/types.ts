@@ -30,8 +30,6 @@ export interface SiteConfig {
   link: string
   lang: string
   timezone: string
-  since: number
-  postsPerPage: number
   github: string
   x: string
 }

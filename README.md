@@ -62,7 +62,7 @@ The static preview mirrors the production cache contract: HTML and stable metada
 ## Content behavior
 
 - Published Posts become `/blog/:slug`; Published Pages become `/:slug`.
-- A Published Page enters primary navigation only when its Notion row explicitly enables `ShowInNavigation`; a hidden Page remains directly routable.
+- A Published Page enters primary navigation only when its Notion row explicitly enables `Show in Navigation`; a hidden Page remains directly routable.
 - `/` shows the five newest Posts; `/blog` shows every published Post in one archive grouped by year.
 - Drafts, tag routes, paginated Blog routes, and a public content API are not generated.
 - Notion Markdown is parsed into Musubi's allowlisted AST and rendered by Vue templates. Raw HTML and executable MDX are rejected.

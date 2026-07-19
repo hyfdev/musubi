@@ -7,26 +7,31 @@ export const defaultSiteConfig: SiteConfig = {
   link: 'https://example.com/',
   lang: 'en-SG',
   timezone: 'Asia/Singapore',
-  since: 2026,
-  postsPerPage: 10,
-  github: 'https://github.com/hyfdev/musubi',
-  x: 'https://x.com/',
+  github: '',
+  x: '',
 }
 
 const configKeys = {
-  Title: 'title',
-  Description: 'description',
+  'Site Title': 'title',
+  'Site Description': 'description',
   Author: 'author',
   Link: 'link',
   Lang: 'lang',
   Timezone: 'timezone',
-  Since: 'since',
-  PostsPerPage: 'postsPerPage',
   GitHub: 'github',
   'X(Twitter)': 'x',
 } as const
 
+const configKeyAliases = {
+  Title: 'Site Title',
+  Description: 'Site Description',
+} as const
+
 type ConfigKey = keyof typeof configKeys
+type ConfigKeyAlias = keyof typeof configKeyAliases
+type LegacyConfigKey = 'Since' | 'PostsPerPage'
+
+const legacyConfigKeys = new Set<LegacyConfigKey>(['Since', 'PostsPerPage'])
 
 function parseNonempty(value: string, row: SourceConfigRow): string {
   const normalized = value.trim()
@@ -92,8 +97,8 @@ function parseConfigValue(
   row: SourceConfigRow,
 ): SiteConfig[(typeof configKeys)[ConfigKey]] {
   switch (key) {
-    case 'Title':
-    case 'Description':
+    case 'Site Title':
+    case 'Site Description':
     case 'Author':
       return parseNonempty(row.value, row)
     case 'Link':
@@ -104,10 +109,6 @@ function parseConfigValue(
       return parseLanguage(row.value, row)
     case 'Timezone':
       return parseTimezone(row.value, row)
-    case 'Since':
-      return parseInteger(row.value, row, 'year')
-    case 'PostsPerPage':
-      return parseInteger(row.value, row, 'positive')
   }
 }
 
@@ -115,26 +116,48 @@ function isConfigKey(key: string): key is ConfigKey {
   return Object.hasOwn(configKeys, key)
 }
 
+function isConfigKeyAlias(key: string): key is ConfigKeyAlias {
+  return Object.hasOwn(configKeyAliases, key)
+}
+
+function isLegacyConfigKey(key: string): key is LegacyConfigKey {
+  return legacyConfigKeys.has(key as LegacyConfigKey)
+}
+
 export function resolveSiteConfig(rows: SourceConfigRow[]): SiteConfig {
   const resolved: SiteConfig = { ...defaultSiteConfig }
-  const seen = new Map<ConfigKey, SourceConfigRow>()
+  const seen = new Map<ConfigKey | LegacyConfigKey, SourceConfigRow>()
 
   for (const row of rows) {
     if (!row.enabled) {
       continue
     }
-    if (!isConfigKey(row.key)) {
+    if (!isConfigKey(row.key) && !isConfigKeyAlias(row.key) && !isLegacyConfigKey(row.key)) {
       throw new Error(`${row.sourceLabel}: unknown enabled Config key ${JSON.stringify(row.key)}`)
     }
-    const previous = seen.get(row.key)
+    const key = isConfigKeyAlias(row.key) ? configKeyAliases[row.key] : row.key
+    const previous = seen.get(key)
     if (previous) {
       throw new Error(
-        `${row.sourceLabel} conflicts with ${previous.sourceLabel}: duplicate enabled Config key ${row.key}`,
+        `${row.sourceLabel} conflicts with ${previous.sourceLabel}: duplicate enabled Config key ${key}`,
       )
     }
-    seen.set(row.key, row)
-    const field = configKeys[row.key]
-    const value = parseConfigValue(row.key, row)
+    seen.set(key, row)
+
+    // Existing snapshots may still contain these removed settings. Validate their old value so
+    // malformed data does not become silently acceptable, then ignore them because neither has
+    // current site behavior.
+    if (key === 'Since') {
+      parseInteger(row.value, row, 'year')
+      continue
+    }
+    if (key === 'PostsPerPage') {
+      parseInteger(row.value, row, 'positive')
+      continue
+    }
+
+    const field = configKeys[key]
+    const value = parseConfigValue(key, row)
     Object.assign(resolved, { [field]: value })
   }
 

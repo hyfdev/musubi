@@ -20,32 +20,36 @@ Each page must contain exactly one Notion data source. Musubi resolves that inte
 
 Create these properties with the exact names and Notion types:
 
-| Property           | Notion type  | Allowed values or default                                    |
-| ------------------ | ------------ | ------------------------------------------------------------ |
-| `Title`            | Title        | Required for Published rows                                  |
-| `Slug`             | Text         | Explicit one-segment route slug; required for Published rows |
-| `Date`             | Date         | Required for Published Posts                                 |
-| `Status`           | Select       | `Draft` or `Published`                                       |
-| `Type`             | Select       | `Post` or `Page`                                             |
-| `Description`      | Text         | Optional                                                     |
-| `Tags`             | Multi-select | Optional metadata                                            |
-| `ShowInNavigation` | Checkbox     | Disabled by default; enable it to add the Page to navigation |
-| `NavigationOrder`  | Number       | Optional                                                     |
+| Property             | Notion type  | Allowed values or default                                    |
+| -------------------- | ------------ | ------------------------------------------------------------ |
+| `Title`              | Title        | Required for Published rows                                  |
+| `Slug`               | Text         | Explicit one-segment route slug; required for Published rows |
+| `Publish Date`       | Date         | Required for Published Posts                                 |
+| `Status`             | Select       | `Draft` or `Published`                                       |
+| `Type`               | Select       | `Post` or `Page`                                             |
+| `Description`        | Text         | Optional supporting text                                     |
+| `Tags`               | Multi-select | Optional Notion organization metadata                        |
+| `Show in Navigation` | Checkbox     | Disabled by default; enable it to add the Page to navigation |
+| `Navigation Order`   | Number       | Optional                                                     |
 
-Legacy `Type = Content` rows remain accepted and are normalized to Page while an existing source is migrated. New sources use only `Post` and `Page`. `ShowInNavigation` and `NavigationOrder` may be absent in a compatible source; Musubi then keeps Pages out of navigation and treats them as unordered. The direct Page route remains public. Other missing required columns stop generation. Tags never create routes.
+Legacy `Type = Content` rows remain accepted and are normalized to Page while an existing source is migrated. New sources use only `Post` and `Page`. The former `Date`, `ShowInNavigation`, and `NavigationOrder` property names remain compatible during migration. `Tags`, `Show in Navigation`, and `Navigation Order` may be absent in a compatible source; Musubi then uses no tags, keeps Pages out of navigation, and treats them as unordered. The direct Page route remains public. Other missing required columns stop generation. Tags never create routes.
 
 ## Config page
 
 Create these properties with the exact names and Notion types:
 
-| Property      | Notion type | Purpose                          |
-| ------------- | ----------- | -------------------------------- |
-| `Description` | Title       | Human explanation of the setting |
-| `Key`         | Select      | One allowlisted key below        |
-| `Value`       | Text        | Setting value                    |
-| `Enable`      | Checkbox    | Whether the row participates     |
+| Property | Notion type | Purpose                          |
+| -------- | ----------- | -------------------------------- |
+| `Help`   | Title       | Human explanation of the setting |
+| `Key`    | Select      | One allowlisted key below        |
+| `Value`  | Text        | Setting value                    |
+| `Enable` | Checkbox    | Whether the row participates     |
 
-Enabled rows may use `Title`, `Description`, `Author`, `Link`, `Lang`, `Timezone`, `Since`, `PostsPerPage`, `GitHub`, and `X(Twitter)`. Each key may occur once. Unknown enabled keys, duplicate keys, and invalid values stop generation. An absent key uses the repository default for that field; an unreadable Config source never falls back to the complete local object.
+Enabled rows may use `Site Title`, `Site Description`, `Author`, `Link`, `Lang`, `Timezone`, `GitHub`, and `X(Twitter)`. Each key may occur once. Unknown enabled keys, duplicate keys, and invalid values stop generation. An absent key uses the repository default for that field; optional social links are hidden when their rows are disabled or absent. The former Config keys `Title` and `Description` and the former title-property name `Description` remain compatible during migration. Legacy `Since` or `PostsPerPage` rows are validated but have no current behavior. An unreadable Config source never falls back to the complete local object.
+
+## Dashboard
+
+The default Dashboard keeps the full Config and Content database pages inside a collapsed `System` section. Its daily workspace uses one linked Content database with two saved views: `Posts` and `Pages`. The Posts view shows `Title`, `Status`, and `Publish Date`; the Pages view shows `Title`, `Status`, `Show in Navigation`, and `Navigation Order`. Type filters distinguish the two views, and advanced fields such as Slug, Description, and Tags remain available on each database page or in the full Content database without widening the Dashboard. The Content and Config databases are locked against accidental property or view changes while still allowing page creation and property-value editing.
 
 ## Snapshot and generation
 

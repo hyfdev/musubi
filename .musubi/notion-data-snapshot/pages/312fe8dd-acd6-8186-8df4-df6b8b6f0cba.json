@@ -33,15 +33,6 @@
       "type": "data_source_id"
     },
     "properties": {
-      "Date": {
-        "date": {
-          "end": null,
-          "start": "2025-06-15",
-          "time_zone": null
-        },
-        "id": "dp_o",
-        "type": "date"
-      },
       "Description": {
         "id": "10243cf2-965e-450d-99ee-dc6076017363",
         "rich_text": [
@@ -65,12 +56,21 @@
         ],
         "type": "rich_text"
       },
-      "NavigationOrder": {
+      "Navigation Order": {
         "id": "~%3EIP",
         "number": null,
         "type": "number"
       },
-      "ShowInNavigation": {
+      "Publish Date": {
+        "date": {
+          "end": null,
+          "start": "2025-06-15",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Show in Navigation": {
         "checkbox": false,
         "id": "eCNL",
         "type": "checkbox"

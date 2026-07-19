@@ -21,77 +21,9 @@
           "underline": false
         },
         "href": null,
-        "plain_text": "- If ",
+        "plain_text": "- Disable a row to use the Musubi default. Optional links are hidden by default.",
         "text": {
-          "content": "- If ",
-          "link": null
-        },
-        "type": "text"
-      },
-      {
-        "annotations": {
-          "bold": false,
-          "code": true,
-          "color": "default",
-          "italic": false,
-          "strikethrough": false,
-          "underline": false
-        },
-        "href": null,
-        "plain_text": "Type",
-        "text": {
-          "content": "Type",
-          "link": null
-        },
-        "type": "text"
-      },
-      {
-        "annotations": {
-          "bold": false,
-          "code": false,
-          "color": "default",
-          "italic": false,
-          "strikethrough": false,
-          "underline": false
-        },
-        "href": null,
-        "plain_text": " is not specified, Knot will parse the field as a ",
-        "text": {
-          "content": " is not specified, Knot will parse the field as a ",
-          "link": null
-        },
-        "type": "text"
-      },
-      {
-        "annotations": {
-          "bold": false,
-          "code": true,
-          "color": "default",
-          "italic": false,
-          "strikethrough": false,
-          "underline": false
-        },
-        "href": null,
-        "plain_text": "String",
-        "text": {
-          "content": "String",
-          "link": null
-        },
-        "type": "text"
-      },
-      {
-        "annotations": {
-          "bold": false,
-          "code": false,
-          "color": "default",
-          "italic": false,
-          "strikethrough": false,
-          "underline": false
-        },
-        "href": null,
-        "plain_text": " by default",
-        "text": {
-          "content": " by default",
+          "content": "- Disable a row to use the Musubi default. Optional links are hidden by default.",
           "link": null
         },
         "type": "text"
@@ -108,26 +40,26 @@
       "id": "39bfe8dd-acd6-81c8-9b7c-002761709f06",
       "object": "user"
     },
-    "last_edited_time": "2026-07-16T14:21:00.000Z",
+    "last_edited_time": "2026-07-19T05:28:00.000Z",
     "object": "data_source",
     "parent": {
       "database_id": "2d3fe8dd-acd6-808c-806e-fac661639e17",
       "type": "database_id"
     },
     "properties": {
-      "Description": {
-        "description": null,
-        "id": "title",
-        "name": "Description",
-        "title": {},
-        "type": "title"
-      },
       "Enable": {
         "checkbox": {},
         "description": null,
         "id": "%3Aace",
         "name": "Enable",
         "type": "checkbox"
+      },
+      "Help": {
+        "description": null,
+        "id": "title",
+        "name": "Help",
+        "title": {},
+        "type": "title"
       },
       "Key": {
         "description": null,
@@ -136,16 +68,16 @@
         "select": {
           "options": [
             {
-              "color": "default",
+              "color": "gray",
               "description": null,
-              "id": "dec89414-aba1-44c0-918e-4e72a53939f7",
-              "name": "Title"
+              "id": "f3dc5b9c-0bbf-4983-8f59-4cb21640c874",
+              "name": "Site Title"
             },
             {
-              "color": "default",
+              "color": "gray",
               "description": null,
-              "id": "febb309d-43c9-4635-8839-455cb5a4e047",
-              "name": "Description"
+              "id": "d2f60c5a-eba3-40ee-83a5-938946a1c254",
+              "name": "Site Description"
             },
             {
               "color": "default",
@@ -166,16 +98,10 @@
               "name": "Lang"
             },
             {
-              "color": "default",
+              "color": "gray",
               "description": null,
-              "id": "38e33edd-5812-4e4a-9bfc-1945fec6bf5b",
-              "name": "Since"
-            },
-            {
-              "color": "default",
-              "description": null,
-              "id": "3167e27e-8645-4cb3-8911-566fb9bc13aa",
-              "name": "PostsPerPage"
+              "id": "ed97b501-6040-495b-9aa9-8de5800088fe",
+              "name": "Timezone"
             },
             {
               "color": "default",
@@ -188,12 +114,6 @@
               "description": null,
               "id": "a3163a67-3a7e-488e-8460-dd24541c8d4b",
               "name": "X(Twitter)"
-            },
-            {
-              "color": "gray",
-              "description": null,
-              "id": "ed97b501-6040-495b-9aa9-8de5800088fe",
-              "name": "Timezone"
             }
           ]
         },
@@ -243,10 +163,10 @@
       "is_archived": false,
       "is_locked": false,
       "last_edited_by": {
-        "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+        "id": "39bfe8dd-acd6-81c8-9b7c-002761709f06",
         "object": "user"
       },
-      "last_edited_time": "2026-02-28T12:16:00.000Z",
+      "last_edited_time": "2026-07-19T05:25:00.000Z",
       "object": "page",
       "parent": {
         "data_source_id": "2d3fe8dd-acd6-804e-83ea-000bc910780c",
@@ -254,7 +174,12 @@
         "type": "data_source_id"
       },
       "properties": {
-        "Description": {
+        "Enable": {
+          "checkbox": true,
+          "id": "%3Aace",
+          "type": "checkbox"
+        },
+        "Help": {
           "id": "title",
           "title": [
             {
@@ -277,17 +202,12 @@
           ],
           "type": "title"
         },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
-        },
         "Key": {
           "id": "voaz",
           "select": {
-            "color": "default",
-            "id": "dec89414-aba1-44c0-918e-4e72a53939f7",
-            "name": "Title"
+            "color": "gray",
+            "id": "f3dc5b9c-0bbf-4983-8f59-4cb21640c874",
+            "name": "Site Title"
           },
           "type": "select"
         },
@@ -331,10 +251,10 @@
       "is_archived": false,
       "is_locked": false,
       "last_edited_by": {
-        "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+        "id": "39bfe8dd-acd6-81c8-9b7c-002761709f06",
         "object": "user"
       },
-      "last_edited_time": "2026-03-01T06:38:00.000Z",
+      "last_edited_time": "2026-07-19T05:25:00.000Z",
       "object": "page",
       "parent": {
         "data_source_id": "2d3fe8dd-acd6-804e-83ea-000bc910780c",
@@ -342,7 +262,12 @@
         "type": "data_source_id"
       },
       "properties": {
-        "Description": {
+        "Enable": {
+          "checkbox": true,
+          "id": "%3Aace",
+          "type": "checkbox"
+        },
+        "Help": {
           "id": "title",
           "title": [
             {
@@ -365,17 +290,12 @@
           ],
           "type": "title"
         },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
-        },
         "Key": {
           "id": "voaz",
           "select": {
-            "color": "default",
-            "id": "febb309d-43c9-4635-8839-455cb5a4e047",
-            "name": "Description"
+            "color": "gray",
+            "id": "d2f60c5a-eba3-40ee-83a5-938946a1c254",
+            "name": "Site Description"
           },
           "type": "select"
         },
@@ -430,7 +350,12 @@
         "type": "data_source_id"
       },
       "properties": {
-        "Description": {
+        "Enable": {
+          "checkbox": true,
+          "id": "%3Aace",
+          "type": "checkbox"
+        },
+        "Help": {
           "id": "title",
           "title": [
             {
@@ -452,11 +377,6 @@
             }
           ],
           "type": "title"
-        },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
         },
         "Key": {
           "id": "voaz",
@@ -518,7 +438,12 @@
         "type": "data_source_id"
       },
       "properties": {
-        "Description": {
+        "Enable": {
+          "checkbox": true,
+          "id": "%3Aace",
+          "type": "checkbox"
+        },
+        "Help": {
           "id": "title",
           "title": [
             {
@@ -540,11 +465,6 @@
             }
           ],
           "type": "title"
-        },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
         },
         "Key": {
           "id": "voaz",
@@ -608,7 +528,12 @@
         "type": "data_source_id"
       },
       "properties": {
-        "Description": {
+        "Enable": {
+          "checkbox": true,
+          "id": "%3Aace",
+          "type": "checkbox"
+        },
+        "Help": {
           "id": "title",
           "title": [
             {
@@ -630,11 +555,6 @@
             }
           ],
           "type": "title"
-        },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
         },
         "Key": {
           "id": "voaz",
@@ -698,7 +618,12 @@
         "type": "data_source_id"
       },
       "properties": {
-        "Description": {
+        "Enable": {
+          "checkbox": true,
+          "id": "%3Aace",
+          "type": "checkbox"
+        },
+        "Help": {
           "id": "title",
           "title": [
             {
@@ -720,11 +645,6 @@
             }
           ],
           "type": "title"
-        },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
         },
         "Key": {
           "id": "voaz",
@@ -770,182 +690,6 @@
       },
       "created_time": "2026-02-28T07:02:00.000Z",
       "icon": null,
-      "id": "315fe8dd-acd6-81ad-81a5-c57c128e480f",
-      "in_trash": false,
-      "is_archived": false,
-      "is_locked": false,
-      "last_edited_by": {
-        "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
-        "object": "user"
-      },
-      "last_edited_time": "2026-02-28T07:02:00.000Z",
-      "object": "page",
-      "parent": {
-        "data_source_id": "2d3fe8dd-acd6-804e-83ea-000bc910780c",
-        "database_id": "2d3fe8dd-acd6-808c-806e-fac661639e17",
-        "type": "data_source_id"
-      },
-      "properties": {
-        "Description": {
-          "id": "title",
-          "title": [
-            {
-              "annotations": {
-                "bold": false,
-                "code": false,
-                "color": "default",
-                "italic": false,
-                "strikethrough": false,
-                "underline": false
-              },
-              "href": null,
-              "plain_text": "Number of blog posts shown per page",
-              "text": {
-                "content": "Number of blog posts shown per page",
-                "link": null
-              },
-              "type": "text"
-            }
-          ],
-          "type": "title"
-        },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
-        },
-        "Key": {
-          "id": "voaz",
-          "select": {
-            "color": "default",
-            "id": "3167e27e-8645-4cb3-8911-566fb9bc13aa",
-            "name": "PostsPerPage"
-          },
-          "type": "select"
-        },
-        "Value": {
-          "id": "%3EMJR",
-          "rich_text": [
-            {
-              "annotations": {
-                "bold": false,
-                "code": false,
-                "color": "default",
-                "italic": false,
-                "strikethrough": false,
-                "underline": false
-              },
-              "href": null,
-              "plain_text": "10",
-              "text": {
-                "content": "10",
-                "link": null
-              },
-              "type": "text"
-            }
-          ],
-          "type": "rich_text"
-        }
-      },
-      "public_url": "https://hyf0.notion.site/Number-of-blog-posts-shown-per-page-315fe8ddacd681ad81a5c57c128e480f",
-      "url": "https://app.notion.com/p/Number-of-blog-posts-shown-per-page-315fe8ddacd681ad81a5c57c128e480f"
-    },
-    {
-      "cover": null,
-      "created_by": {
-        "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
-        "object": "user"
-      },
-      "created_time": "2026-02-28T07:02:00.000Z",
-      "icon": null,
-      "id": "315fe8dd-acd6-81c8-b0f9-e33594e05f0e",
-      "in_trash": false,
-      "is_archived": false,
-      "is_locked": false,
-      "last_edited_by": {
-        "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
-        "object": "user"
-      },
-      "last_edited_time": "2026-02-28T07:02:00.000Z",
-      "object": "page",
-      "parent": {
-        "data_source_id": "2d3fe8dd-acd6-804e-83ea-000bc910780c",
-        "database_id": "2d3fe8dd-acd6-808c-806e-fac661639e17",
-        "type": "data_source_id"
-      },
-      "properties": {
-        "Description": {
-          "id": "title",
-          "title": [
-            {
-              "annotations": {
-                "bold": false,
-                "code": false,
-                "color": "default",
-                "italic": false,
-                "strikethrough": false,
-                "underline": false
-              },
-              "href": null,
-              "plain_text": "Year the site started, shown as © 2026–present",
-              "text": {
-                "content": "Year the site started, shown as © 2026–present",
-                "link": null
-              },
-              "type": "text"
-            }
-          ],
-          "type": "title"
-        },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
-        },
-        "Key": {
-          "id": "voaz",
-          "select": {
-            "color": "default",
-            "id": "38e33edd-5812-4e4a-9bfc-1945fec6bf5b",
-            "name": "Since"
-          },
-          "type": "select"
-        },
-        "Value": {
-          "id": "%3EMJR",
-          "rich_text": [
-            {
-              "annotations": {
-                "bold": false,
-                "code": false,
-                "color": "default",
-                "italic": false,
-                "strikethrough": false,
-                "underline": false
-              },
-              "href": null,
-              "plain_text": "2026",
-              "text": {
-                "content": "2026",
-                "link": null
-              },
-              "type": "text"
-            }
-          ],
-          "type": "rich_text"
-        }
-      },
-      "public_url": "https://hyf0.notion.site/Year-the-site-started-shown-as-2026-present-315fe8ddacd681c8b0f9e33594e05f0e",
-      "url": "https://app.notion.com/p/Year-the-site-started-shown-as-2026-present-315fe8ddacd681c8b0f9e33594e05f0e"
-    },
-    {
-      "cover": null,
-      "created_by": {
-        "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
-        "object": "user"
-      },
-      "created_time": "2026-02-28T07:02:00.000Z",
-      "icon": null,
       "id": "315fe8dd-acd6-81f4-a044-dc4ffaece33d",
       "in_trash": false,
       "is_archived": false,
@@ -962,7 +706,12 @@
         "type": "data_source_id"
       },
       "properties": {
-        "Description": {
+        "Enable": {
+          "checkbox": true,
+          "id": "%3Aace",
+          "type": "checkbox"
+        },
+        "Help": {
           "id": "title",
           "title": [
             {
@@ -984,11 +733,6 @@
             }
           ],
           "type": "title"
-        },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
         },
         "Key": {
           "id": "voaz",
@@ -1052,7 +796,12 @@
         "type": "data_source_id"
       },
       "properties": {
-        "Description": {
+        "Enable": {
+          "checkbox": true,
+          "id": "%3Aace",
+          "type": "checkbox"
+        },
+        "Help": {
           "id": "title",
           "title": [
             {
@@ -1074,11 +823,6 @@
             }
           ],
           "type": "title"
-        },
-        "Enable": {
-          "checkbox": true,
-          "id": "%3Aace",
-          "type": "checkbox"
         },
         "Key": {
           "id": "voaz",
@@ -1140,20 +884,13 @@
       "id": "39bfe8dd-acd6-81c8-9b7c-002761709f06",
       "object": "user"
     },
-    "last_edited_time": "2026-07-16T14:21:00.000Z",
+    "last_edited_time": "2026-07-19T05:28:00.000Z",
     "object": "data_source",
     "parent": {
       "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
       "type": "database_id"
     },
     "properties": {
-      "Date": {
-        "date": {},
-        "description": null,
-        "id": "dp_o",
-        "name": "Date",
-        "type": "date"
-      },
       "Description": {
         "description": null,
         "id": "10243cf2-965e-450d-99ee-dc6076017363",
@@ -1161,20 +898,27 @@
         "rich_text": {},
         "type": "rich_text"
       },
-      "NavigationOrder": {
+      "Navigation Order": {
         "description": null,
         "id": "~%3EIP",
-        "name": "NavigationOrder",
+        "name": "Navigation Order",
         "number": {
           "format": "number"
         },
         "type": "number"
       },
-      "ShowInNavigation": {
+      "Publish Date": {
+        "date": {},
+        "description": null,
+        "id": "dp_o",
+        "name": "Publish Date",
+        "type": "date"
+      },
+      "Show in Navigation": {
         "checkbox": {},
         "description": null,
         "id": "eCNL",
-        "name": "ShowInNavigation",
+        "name": "Show in Navigation",
         "type": "checkbox"
       },
       "Slug": {
@@ -1201,12 +945,6 @@
               "description": null,
               "id": "7abc61d4-b405-480d-b699-12588755fa65",
               "name": "Published"
-            },
-            {
-              "color": "brown",
-              "description": null,
-              "id": "ad61a276-bad9-4eb5-a3d8-848485970415",
-              "name": "Archived"
             }
           ]
         },
@@ -1334,12 +1072,6 @@
             {
               "color": "yellow",
               "description": null,
-              "id": "374d2bc6-a144-4832-8ca4-474aaae0ea1f",
-              "name": "Content"
-            },
-            {
-              "color": "yellow",
-              "description": null,
               "id": "c0e1e381-c684-4949-a9ff-1ccc49c33945",
               "name": "Page"
             }
@@ -1360,9 +1092,9 @@
           "underline": false
         },
         "href": null,
-        "plain_text": "Database",
+        "plain_text": "Content",
         "text": {
-          "content": "Database",
+          "content": "Content",
           "link": null
         },
         "type": "text"

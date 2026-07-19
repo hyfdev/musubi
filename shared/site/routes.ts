@@ -58,12 +58,12 @@ export function normalizeSlug(rawSlug: string, sourceLabel: string): string {
 function validateDate(date: string | undefined, row: SourceContentRow): string | undefined {
   if (!date) {
     if (row.type === 'Post') {
-      throw new Error(`${row.sourceLabel}: Published Post requires a Date`)
+      throw new Error(`${row.sourceLabel}: Published Post requires a Publish Date`)
     }
     return undefined
   }
   if (!Number.isFinite(Date.parse(date))) {
-    throw new Error(`${row.sourceLabel}: Date must be a valid ISO date or date-time`)
+    throw new Error(`${row.sourceLabel}: Publish Date must be a valid ISO date or date-time`)
   }
   return date
 }

@@ -41,11 +41,28 @@ function isCurrent(target: string): boolean {
               <TypographyText :value="item.title" />
             </a>
           </nav>
-          <span class="navigation-divider" aria-hidden="true"></span>
-          <span id="social-navigation-label" class="visually-hidden" lang="en">Social links</span>
-          <nav class="social-navigation" aria-labelledby="social-navigation-label" lang="en">
-            <a :href="config.github" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a :href="config.x" target="_blank" rel="noopener noreferrer">X</a>
+          <span
+            v-if="config.github || config.x"
+            class="navigation-divider"
+            aria-hidden="true"
+          ></span>
+          <span
+            v-if="config.github || config.x"
+            id="social-navigation-label"
+            class="visually-hidden"
+            lang="en"
+            >Social links</span
+          >
+          <nav
+            v-if="config.github || config.x"
+            class="social-navigation"
+            aria-labelledby="social-navigation-label"
+            lang="en"
+          >
+            <a v-if="config.github" :href="config.github" target="_blank" rel="noopener noreferrer"
+              >GitHub</a
+            >
+            <a v-if="config.x" :href="config.x" target="_blank" rel="noopener noreferrer">X</a>
           </nav>
         </div>
       </div>

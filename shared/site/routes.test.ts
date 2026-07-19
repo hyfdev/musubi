@@ -17,6 +17,14 @@ describe('Page navigation defaults', () => {
   })
 })
 
+describe('Post publishing metadata', () => {
+  it('names the missing required date with the canonical Publish Date term', () => {
+    expect(() => buildRouteManifest([post()])).toThrow(
+      'Content row 1 ("Post"): Published Post requires a Publish Date',
+    )
+  })
+})
+
 function page(overrides: Partial<SourceContentRow> = {}): SourceContentRow {
   return {
     sourceLabel: 'Content row 1 ("About")',
@@ -24,6 +32,19 @@ function page(overrides: Partial<SourceContentRow> = {}): SourceContentRow {
     slug: 'about',
     status: 'Published',
     type: 'Page',
+    description: '',
+    tags: [],
+    ...overrides,
+  }
+}
+
+function post(overrides: Partial<SourceContentRow> = {}): SourceContentRow {
+  return {
+    sourceLabel: 'Content row 1 ("Post")',
+    title: 'Post',
+    slug: 'post',
+    status: 'Published',
+    type: 'Post',
     description: '',
     tags: [],
     ...overrides,

@@ -9,8 +9,6 @@ const config: SiteConfig = {
   link: 'https://example.com',
   lang: 'en',
   timezone: 'Asia/Singapore',
-  since: 2026,
-  postsPerPage: 5,
   github: '',
   x: '',
 }

@@ -4,6 +4,15 @@ Judgments the human actually expressed about architecture — selections, accept
 
 ## Decided
 
+### Notion schema terminology
+
+[VOUCHED @hyf0 2026-07-19]
+
+- **Ruling:** The default Notion Content schema must use natural English Title Case: `Title`, `Slug`, `Publish Date`, `Status`, `Type`, `Description`, `Tags`, `Show in Navigation`, and `Navigation Order`. Config must likewise use `Site Title` and `Site Description` for the two site-level values. Established publishing terms such as Post, Page, Slug, Status, Tags, and Publish Date take precedence over invented labels.
+- **Limits:** `Description` remains broader than WordPress's Excerpt because Musubi permits any optional supporting text below a content title, not only a summary. `Site Description` is the separate site-wide metadata value. Spaces and capitalization are part of the canonical visible schema but are not themselves technical risks. Legacy `Date`, `ShowInNavigation`, `NavigationOrder`, and Config `Title` or `Description` names may remain accepted during migration. This decision does not make arbitrary user-created properties part of Musubi's contract.
+- **Why:** Yunfei prefers `Publish Date` visually, wants the schema to borrow familiar terminology from established publishing systems such as WordPress, and does not want technical camel-case names or prefixes to make the workspace feel like an implementation detail. The system boundary should instead be communicated through the Dashboard's `System` area, database locking, exact type validation, and restrained daily views.
+- **Source:** Yunfei He (@hyf0), 2026-07-19, explicit terminology and casing decision during the Notion workspace redesign.
+
 ### User-facing Notion page inputs
 
 - **Ruling:** Musubi's public environment contract must accept `NOTION_DB_PAGE_ID` and `NOTION_CONFIG_PAGE_ID` for the two visible Notion database pages; `scripts/notion/` must resolve the sole data source inside each page before querying it.

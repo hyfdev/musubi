@@ -42,6 +42,18 @@ The private rollback snapshot is stored at `.musubi/notion-migrations/2026-07-16
 
 After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, and one Draft Page. The production route manifest has 21 routes: Home, Blog, and 19 Posts. There is no published About route.
 
+### Notion workspace redesign
+
+The maintained example workspace was standardized on 2026-07-19 without changing content bodies or public sharing:
+
+- Content now uses the canonical `Publish Date`, `Show in Navigation`, and `Navigation Order` property names, with exactly `Post` and `Page` Type options and `Draft` and `Published` Status options.
+- Config now uses `Help` as its title property and the canonical `Site Title` and `Site Description` keys. The unused `Since` and `PostsPerPage` options were removed.
+- The underlying database is named `Content`; both Content and Config are locked against accidental schema changes while row values remain editable.
+- The Dashboard retains its collapsed `System` section and now presents one linked Content database with filtered `Posts` and `Pages` views. The old duplicate tables, headings, table of contents, and extra divider were removed.
+- The current source has 24 rows: 23 Posts and one Page; 16 rows are Published. It also has eight Config rows. Counts were verified before and after migration.
+
+Two private pre-write snapshots are stored under `.musubi/notion-migrations/` with mode `0600` and are ignored by Git. The second apply verified that the migration is safe to rerun and fixed the visible view-column order to put `Title` first.
+
 ## Repository delivery contract
 
 - The maintained example uses `pnpm exec vp run check:build` to build the tracked Notion Data without source credentials; a connected site can use `pnpm run build` to refresh Notion Data first.
@@ -57,7 +69,7 @@ After migration, the source has 27 rows: 19 Published Posts, seven Draft Posts, 
 ## Local acceptance evidence
 
 - The latest `vp run notion:setup` refresh wrote one Config file and 16 Published Page Data files, reused all 16 unchanged page bodies, and removed the three pages no longer Published from the tracked snapshot.
-- With all three Notion environment variables removed, `vp run ready` passed formatting, lint, Google's official `designmd lint DESIGN.md`, Nuxt type checking, 59 focused tests, brand verification, local static generation, and artifact verification. The font-bundle test decodes all eight WOFF2 files and proves that their actual cmaps equal the manifest's non-overlapping 46,490-code-point coverage.
+- With all three Notion environment variables removed, `vp run ready` passed formatting, lint, Google's official `designmd lint DESIGN.md`, Nuxt type checking, 70 focused tests, brand verification, local static generation, and artifact verification. The font-bundle test decodes all eight WOFF2 files and proves that their actual cmaps equal the manifest's non-overlapping 46,490-code-point coverage.
 - Before the fallback bundle was checked in, a fresh local clone spent approximately 105 seconds of a 114-second `check:build` generating the same fallback fonts; Cloudflare spent approximately 193 seconds on that step. The new fallback-only cold font path completed in 1.7 seconds without a source download, and the complete forced-Cloudflare `check:build` completed in 10.5 seconds including Vite+ package verification and Nuxt generation.
 - With `WORKERS_CI=1` and `NITRO_PRESET=cloudflare_module` forced, Nuxt still reported `Nitro preset: static`, created neither `.wrangler/deploy/config.json` nor `.output/server/index.mjs`, and passed the static artifact gate. `pnpm exec wrangler deploy --dry-run` then read the repository assets-only configuration, found no bindings, and completed successfully.
 - A fallback-only build under forced Cloudflare CI inputs generated 21 prerender inputs and emitted 34 verified public files totaling 10,410,165 bytes. The corresponding Wrangler dry run read 55 deployable asset and control files.

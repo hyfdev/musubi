@@ -70,38 +70,36 @@ flowchart TB
 
 The Content data source uses the following project-owned schema:
 
-| Property           | Notion type    | Contract                                                                   |
-| ------------------ | -------------- | -------------------------------------------------------------------------- |
-| `Title`            | `title`        | Required and nonempty for every Published row                              |
-| `Slug`             | `rich_text`    | Required and valid under the route contract for every Published row        |
-| `Date`             | `date`         | Required for every Published Post                                          |
-| `Status`           | `select`       | Exactly `Draft` or `Published`                                             |
-| `Type`             | `select`       | `Post` or `Page`; legacy `Content` is accepted and normalized to `Page`    |
-| `Description`      | `rich_text`    | Optional summary                                                           |
-| `Tags`             | `multi_select` | Optional metadata; never creates routes                                    |
-| `ShowInNavigation` | `checkbox`     | Optional column; a missing column keeps every Page out of navigation       |
-| `NavigationOrder`  | `number`       | Optional column and value; a missing column or empty value means unordered |
+| Property             | Notion type    | Contract                                                                   |
+| -------------------- | -------------- | -------------------------------------------------------------------------- |
+| `Title`              | `title`        | Required and nonempty for every Published row                              |
+| `Slug`               | `rich_text`    | Required and valid under the route contract for every Published row        |
+| `Publish Date`       | `date`         | Required for every Published Post                                          |
+| `Status`             | `select`       | Exactly `Draft` or `Published`                                             |
+| `Type`               | `select`       | `Post` or `Page`; legacy `Content` is accepted and normalized to `Page`    |
+| `Description`        | `rich_text`    | Optional supporting text and meta-description fallback                     |
+| `Tags`               | `multi_select` | Optional Notion organization metadata; never creates routes                |
+| `Show in Navigation` | `checkbox`     | Optional column; a missing column keeps every Page out of navigation       |
+| `Navigation Order`   | `number`       | Optional column and value; a missing column or empty value means unordered |
 
-The documented default Page template leaves `ShowInNavigation` disabled. A site owner explicitly enables it for a Page that belongs in primary navigation. During migration, legacy `Content` values remain compatible and become canonical Page values before route construction. Draft rows are never public. Invalid enum values, missing required Published fields, duplicate identities, and route conflicts fail generation.
+The documented default Page template leaves `Show in Navigation` disabled. A site owner explicitly enables it for a Page that belongs in primary navigation. During migration, legacy `Content` values and the former `Date`, `ShowInNavigation`, and `NavigationOrder` property names remain compatible. Draft rows are never public. Invalid enum values, missing required Published fields, duplicate identities, and route conflicts fail generation. The underlying Content database is kept in the Dashboard's `System` area and locked against accidental view or property edits while remaining editable at the row-value level.
 
 ### Site settings
 
-The Config data source uses `Description` (`title`), `Key` (`select`), `Value` (`rich_text`), and `Enable` (`checkbox`). Only enabled rows participate. `SiteConfig` is an ordinary internal object, not a user-facing configuration system.
+The Config data source uses `Help` (`title`), `Key` (`select`), `Value` (`rich_text`), and `Enable` (`checkbox`). Only enabled rows participate. The former title-property name `Description` remains compatible during migration. `SiteConfig` is an ordinary internal object, not a user-facing configuration system.
 
-| Notion key     | `SiteConfig` field | Accepted value                                              |
-| -------------- | ------------------ | ----------------------------------------------------------- |
-| `Title`        | `title`            | Trimmed nonempty string                                     |
-| `Description`  | `description`      | Trimmed nonempty string                                     |
-| `Author`       | `author`           | Trimmed nonempty string                                     |
-| `Link`         | `link`             | Absolute `http:` or `https:` URL                            |
-| `Lang`         | `lang`             | Structurally valid BCP 47 language tag                      |
-| `Timezone`     | `timezone`         | Valid IANA time-zone identifier                             |
-| `Since`        | `since`            | Base-10 integer year from 1 through 9999                    |
-| `PostsPerPage` | `postsPerPage`     | Accepted legacy positive integer; no current route behavior |
-| `GitHub`       | `github`           | Absolute `http:` or `https:` URL                            |
-| `X(Twitter)`   | `x`                | Absolute `http:` or `https:` URL                            |
+| Notion key         | `SiteConfig` field | Accepted value                         |
+| ------------------ | ------------------ | -------------------------------------- |
+| `Site Title`       | `title`            | Trimmed nonempty string                |
+| `Site Description` | `description`      | Trimmed nonempty string                |
+| `Author`           | `author`           | Trimmed nonempty string                |
+| `Link`             | `link`             | Absolute `http:` or `https:` URL       |
+| `Lang`             | `lang`             | Structurally valid BCP 47 language tag |
+| `Timezone`         | `timezone`         | Valid IANA time-zone identifier        |
+| `GitHub`           | `github`           | Absolute `http:` or `https:` URL       |
+| `X(Twitter)`       | `x`                | Absolute `http:` or `https:` URL       |
 
-A repository-owned `defaultSiteConfig: SiteConfig` supplies field-level fallbacks only when optional keys are absent. Duplicate keys, unknown enabled keys, invalid values, and failure to load the authoritative Config source fail generation; Musubi never silently publishes an entirely local fallback site after a Notion failure.
+A repository-owned `defaultSiteConfig: SiteConfig` supplies field-level fallbacks only when keys are absent. Optional social-link defaults are empty, so disabling their rows removes them from navigation. Legacy Config keys `Title` and `Description` remain compatible aliases for `Site Title` and `Site Description`; `Since` and `PostsPerPage` rows are validated but ignored because they have no current site behavior. Duplicate canonical or aliased keys, unknown enabled keys, invalid values, and failure to load the authoritative Config source fail generation; Musubi never silently publishes an entirely local fallback site after a Notion failure.
 
 ## Generation pipeline
 
@@ -169,7 +167,7 @@ Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a p
 
 ## Navigation and public behavior
 
-- Published Pages with `ShowInNavigation: true` form the site navigation. Rows with a numeric `NavigationOrder` sort first by that number; ties and unordered rows sort by title. A missing or false value keeps a Page out of navigation without unpublishing its direct route.
+- Published Pages with `Show in Navigation: true` form the site navigation. Rows with a numeric `Navigation Order` sort first by that number; ties and unordered rows sort by title. A missing or false value keeps a Page out of navigation without unpublishing its direct route.
 - Social destinations come from `SiteConfig`, not Page rows. Tags remain optional Post metadata without navigation or route behavior.
 - The site provides explicit light and warm dark themes, follows the system preference by default, and offers a reader-controlled choice. Exact tokens, layout, typography, responsive behavior, and the Kami-derived direction live in [DESIGN.md](../../DESIGN.md).
 - Locale-sensitive presentation resolves from `SiteConfig`; the repository defaults are `en-SG` and `Asia/Singapore`.
