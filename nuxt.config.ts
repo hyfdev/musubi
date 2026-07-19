@@ -21,7 +21,9 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
-    typeCheck: true,
+    // 'build' only: dev + Vite 8 breaks vite-plugin-checker runtime under Nuxt base `/_nuxt/`.
+    // Use `vp run typecheck` for day-to-day type checking.
+    typeCheck: 'build',
     tsConfig: {
       compilerOptions: {
         allowImportingTsExtensions: true,
