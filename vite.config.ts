@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite-plus'
 
 const fontSetup = 'node --env-file-if-exists=.env.local scripts/font/index.ts'
-const fontEnsure = `${fontSetup} --soft`
 const notionSetup = 'node --env-file-if-exists=.env.local scripts/notion/index.ts'
 
 export default defineConfig({
@@ -81,14 +80,8 @@ export default defineConfig({
         command: notionSetup,
         cache: false,
       },
-      // Strict manual setup (fails the process on download errors).
       'font:setup': {
         command: fontSetup,
-        cache: false,
-      },
-      // Pipeline setup: skip download when cache is valid; on failure continue with Fallback.
-      'font:ensure': {
-        command: fontEnsure,
         cache: false,
       },
       'font:build': {
@@ -123,7 +116,7 @@ export default defineConfig({
       'site:build': {
         command: [
           'vp run brand:check',
-          'vp run font:ensure',
+          'vp run font:setup',
           'vp run font:build',
           'vp run nuxt:generate',
           'vp run static:finalize',

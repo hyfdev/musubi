@@ -1,18 +1,16 @@
 import { clearTsangerFonts, setupTsangerFonts, TSANGER_FONT_SOURCES } from './tsanger-fonts.ts'
 
 const args = process.argv.slice(2).filter((arg) => arg !== '--')
-const soft = args.includes('--soft')
 const clear = args.includes('--clear')
 const help = args.includes('--help')
-const unknown = args.filter((arg) => arg !== '--soft' && arg !== '--clear' && arg !== '--help')
+const unknown = args.filter((arg) => arg !== '--clear' && arg !== '--help')
 
 if (help) {
-  console.log(`Usage: vp run font:setup [-- --clear] [-- --soft]
+  console.log(`Usage: vp run font:setup [-- --clear]
 
-Downloads and verifies the optional Tsanger JinKai W04/W05 source fonts into
-this checkout's private .musubi cache. When a verified cache already exists,
-downloads are skipped. Pipeline entry points invoke vp run font:ensure (this
-command with --soft) so a download failure keeps Musubi CJK Fallback builds working.
+Downloads and verifies the Tsanger JinKai W04/W05 source fonts into this
+checkout's private .musubi cache. When a verified cache already exists,
+downloads are skipped. Download or verification failure exits non-zero.
 
 Optional environment:
   MUSUBI_TSANGER_W04_URL / MUSUBI_TSANGER_W05_URL
@@ -24,11 +22,11 @@ Optional environment:
   MUSUBI_TSANGER_CACHE_DIR
     Alternate cache directory for setup output.
   MUSUBI_TSANGER_SETUP=0
-    Skip setup entirely (exit successfully). Useful for offline or fallback-only CI.
+    Skip setup entirely (exit successfully). Use only when this checkout must stay
+    on Musubi CJK Fallback without attempting a Tsanger download.
 
 Options:
   --clear  Remove the cached Tsanger sources and return this checkout to fallback-only builds.
-  --soft   On failure, print a warning and exit 0 so the rest of the pipeline can continue.
   --help   Show this help.`)
 } else if (unknown.length > 0) {
   throw new Error(`Unknown font:setup argument: ${unknown.join(' ')}`)
@@ -40,7 +38,7 @@ Options:
   console.log('Skipping font:setup because MUSUBI_TSANGER_SETUP=0.')
 } else {
   console.log(
-    'Tsanger JinKai is optional. The official terms allow personal non-commercial use; commercial use requires separate authorization.',
+    'Tsanger JinKai: personal non-commercial use only; commercial use needs authorization from tsanger.cn.',
   )
   console.log('The font remains separately licensed from Musubi.')
   console.log(
@@ -48,16 +46,14 @@ Options:
   )
   try {
     const installed = await setupTsangerFonts((message) => console.log(message))
-    console.log(`Optional Tsanger JinKai sources are ready in ${installed.directory}.`)
-    console.log('Future builds in this checkout will create W04/W05 subsets automatically.')
+    console.log(`Tsanger JinKai sources are ready in ${installed.directory}.`)
+    console.log('font:build will create W04/W05 subsets from this cache when present.')
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    if (soft) {
-      console.warn(`font:setup failed; continuing with Musubi CJK Fallback only: ${message}`)
-      process.exitCode = 0
-    } else {
-      console.error(message)
-      process.exitCode = 1
-    }
+    console.error(`font:setup failed: ${message}`)
+    console.error(
+      'Fix network/mirror access, or set MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL to reachable HTTPS copies of the pinned files. To skip Tsanger and use Fallback only, set MUSUBI_TSANGER_SETUP=0.',
+    )
+    process.exitCode = 1
   }
 }

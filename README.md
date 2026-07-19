@@ -22,7 +22,7 @@ vp run ready
 
 `vp run notion:setup` is the only content command that contacts Notion. It writes the tracked snapshot as `.musubi/notion-data-snapshot/config.json` plus one `.musubi/notion-data-snapshot/pages/<notion-page-id>.json` file per Published page. Unchanged pages are reused on later refreshes. `pnpm run dev`, `vp run site:build`, and `vp run ready` consume those files locally and do not contact Notion. `pnpm run build` is `notion:setup` then `site:build`: refresh content first, then the offline static site pipeline.
 
-`package.json` keeps only lifecycle hooks and entry scripts (`dev`, `build`, `preview`). Composable steps live as Vite+ tasks under `vp run` (`site:build`, `notion:setup`, `font:ensure`, `font:setup`, `font:build`, `ready`, and the rest).
+`package.json` keeps only lifecycle hooks and entry scripts (`dev`, `build`, `preview`). Composable steps live as Vite+ tasks under `vp run` (`site:build`, `notion:setup`, `font:setup`, `font:build`, `ready`, and the rest).
 
 The deployable artifact is `.output/public`. It does not need `.output/server`, a running Nitro process, Notion credentials, or a public content API.
 
@@ -32,10 +32,10 @@ Production deployment, publication, cache, and rollback procedures are documente
 
 Musubi works without proprietary font files: the open-licensed `Musubi CJK Fallback` is always available. Preferred Tsanger JinKai W04/W05 sources are optional and never committed: `font:setup` downloads and verifies them into the ignored `.musubi/font/tsanger/` cache (skips download when a verified cache already exists).
 
-The default pipeline runs `vp run font:ensure` (soft `font:setup`) so previews and builds pick up Tsanger when sources are obtainable, and keep going with Fallback when they are not:
+The default pipeline runs `vp run font:setup` so install, dev, and site builds require a verified Tsanger cache (download when missing; skip when already valid). Failure prints a clear error and stops the pipeline. Set `MUSUBI_TSANGER_SETUP=0` only when this checkout must stay on Fallback without attempting a download.
 
-- `postinstall` — warm cache after install
-- `pnpm run dev` / `vp run site:build` — ensure before `font:build`
+- `postinstall` — `font:setup` after `nuxt prepare`
+- `pnpm run dev` / `vp run site:build` — `font:setup` before `font:build`
 - `pnpm run build` — `notion:setup` then `site:build`
 
 `font:build` only reads the on-disk Notion snapshot plus any Tsanger cache or path overrides; it does not call Notion itself. Review the official terms before using Tsanger. Full source files must never become public deployment artifacts.
@@ -45,9 +45,9 @@ Builder-only environment (do not commit secrets or private mirror URLs):
 - `MUSUBI_TSANGER_W04_URL` / `MUSUBI_TSANGER_W05_URL` — paired HTTPS mirrors; files must match the pinned size and SHA-256
 - `MUSUBI_TSANGER_W04_PATH` / `MUSUBI_TSANGER_W05_PATH` — paired local source files for `font:build`
 - `MUSUBI_TSANGER_CACHE_DIR` — alternate setup cache directory
-- `MUSUBI_TSANGER_SETUP=0` — skip setup entirely
+- `MUSUBI_TSANGER_SETUP=0` — skip setup (Fallback only)
 
-Manual: `vp run font:setup` (strict), `vp run font:ensure` (soft), `vp run font:setup -- --clear`.
+Manual: `vp run font:setup`, `vp run font:setup -- --clear`.
 
 ## Local visual loop
 

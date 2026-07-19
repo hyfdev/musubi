@@ -4,9 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "vp run notion:setup && vp run site:build",
-    "dev": "vp run brand:check && vp run font:ensure && vp run font:build && vp run nuxt:dev",
+    "dev": "vp run brand:check && vp run font:setup && vp run font:build && vp run nuxt:dev",
     "preview": "vp run static:serve",
-    "postinstall": "nuxt prepare && vp run font:ensure",
+    "postinstall": "nuxt prepare && vp run font:setup",
     "prepare": "vp config"
   },
   "dependencies": {
