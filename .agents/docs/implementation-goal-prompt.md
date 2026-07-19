@@ -1,4 +1,4 @@
-# Current Session `/goal` Prompt
+# Completed historical implementation `/goal` prompt
 
 ## Status
 

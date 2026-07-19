@@ -47,7 +47,7 @@ export default defineConfig({
         cache: false,
       },
       lint: {
-        command: ['vp lint', 'designmd lint DESIGN.md'],
+        command: ['vp lint', 'designmd lint .agents/docs/DESIGN.md'],
         cache: false,
       },
       typecheck: {
