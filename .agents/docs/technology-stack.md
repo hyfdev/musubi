@@ -4,7 +4,7 @@ This record owns Musubi's selected technologies, the few non-default restriction
 
 ## Selected technologies
 
-[VOUCHED @hyf0 2026-07-12]
+[VOUCHED @hyfdev 2026-07-12]
 
 | Selection                                                                                                                        | Why Musubi uses it                                                                                                                                                                                                         | Reconsider when                                                                                                                                 |
 | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -22,7 +22,7 @@ This record owns Musubi's selected technologies, the few non-default restriction
 
 ## Additional selected technology
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 | Selection                                                                                                | Why Musubi uses it                                                                                                                                                                 | Reconsider when                                                                                                                                                          |
 | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -39,7 +39,6 @@ This record owns Musubi's selected technologies, the few non-default restriction
 
 - [Target Architecture](./architecture.md) owns Notion onboarding and schemas, content and settings data flow, Markdown normalization and rendering behavior, static publication, font-delivery behavior, routes, and failure rules.
 - [Visual Frontend Development and Acceptance](./visual-frontend-development-and-acceptance.md) owns the required verification process.
-- [Implementation Migration Plan](./migration-plan.md) owns historical scaffolding, migration order, migration-time versions and commands, completed implementation tasks, and acceptance evidence from the completed repository-local migration. It does not own the live task graph.
 - Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings. `package.json` owns the leaf scripts those tasks call.
-- [Autonomous Decision Research](./decision-research.md) retains experiments, measured versions, detailed alternatives, and supporting evidence.
 - [DESIGN.md](./DESIGN.md) owns visual tokens and presentation rules.
+- Production operations for the maintained example live in [Production Operations](../../docs/production.md).

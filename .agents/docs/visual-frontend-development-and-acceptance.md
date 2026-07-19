@@ -33,7 +33,7 @@ Use this loop for changes to visible UI, layout, content presentation, themes, r
 ### 3. Run the programmatic gate
 
 - Use the repository's focused format, lint, type-check, and build scripts during implementation.
-- Run `vp run ready` before final visual acceptance. Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings; `package.json` owns the leaf scripts those tasks call. [Target Technology Stack](./technology-stack.md) owns the Vite+ entry point and no-cache rule. The completed [Implementation Migration Plan](./migration-plan.md) is historical migration evidence and does not own the live task graph. This workflow consumes that gate rather than defining a second one.
+- Run `vp run ready` before final visual acceptance. Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings; `package.json` owns the leaf scripts those tasks call. [Target Technology Stack](./technology-stack.md) owns the Vite+ entry point and no-cache rule. This workflow consumes that gate rather than defining a second one.
 - Repair deterministic failures before treating browser observations as acceptance evidence.
 
 ### 4. Start the static production surface
@@ -80,7 +80,7 @@ Report the exact revision, programmatic commands, browser and version, applicati
 
 ## Command integration
 
-Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings; `package.json` owns the leaf scripts those tasks call. The target technology-stack record owns the selected Vite+ entry point and cache policy. The completed migration plan retains historical scaffolding and acceptance evidence only. This workflow uses the resulting complete `ready` gate and any focused visual scripts that provide a meaningfully shorter path to one representative surface or content state; it does not define an alternative command graph.
+Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings; `package.json` owns the leaf scripts those tasks call. The target technology-stack record owns the selected Vite+ entry point and cache policy. This workflow uses the resulting complete `ready` gate and any focused visual scripts that provide a meaningfully shorter path to one representative surface or content state; it does not define an alternative command graph.
 
 ## Completion conditions
 

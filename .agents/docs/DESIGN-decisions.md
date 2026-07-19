@@ -20,7 +20,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Overall visual direction
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** 2026-07-16.
 - **Status:** Required.
@@ -30,7 +30,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Page structure
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** Selected 2026-07-14; publication handling updated 2026-07-16.
 - **Status:** Required.
@@ -48,7 +48,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Route-to-route horizontal stability
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** 2026-07-16.
 - **Status:** Required.
@@ -58,7 +58,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Narrow-screen navigation overflow
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** 2026-07-16.
 - **Status:** Required.
@@ -70,7 +70,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Default example identity, route roles, and sticky header behavior
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -85,7 +85,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Initial built-in interface language
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** 2026-07-16.
 - **Status:** Required for the initial version.
@@ -99,7 +99,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Shared content-led page opener
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -112,7 +112,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Home recent-Post count
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -123,7 +123,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Page composition
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -136,7 +136,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Blog archive presentation
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** Selected 2026-07-15; date and separator treatment revised 2026-07-16.
 - **Status:** Required.
@@ -149,7 +149,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Missing-route and empty-Blog states
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -161,7 +161,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Article metadata content
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -172,7 +172,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Small-text typography hierarchy
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -186,7 +186,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Prose links and current navigation state
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -198,7 +198,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Article heading-permalink, code-copy, exit, and external-link behavior
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** Selected 2026-07-15; heading-permalink positioning revised 2026-07-16.
 - **Status:** Required.
@@ -211,7 +211,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Appearance-mode default and persistence
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -224,7 +224,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Appearance-mode control
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** Initial direction explored 2026-07-15; replacement selected 2026-07-16.
 - **Status:** Required.
@@ -237,7 +237,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Motion system
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** 2026-07-16.
 - **Status:** Required.
@@ -249,7 +249,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Footer attribution
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -262,7 +262,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Shared header and footer height
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -272,7 +272,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Outer page frame width
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -282,7 +282,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Non-prose content width hierarchy
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -297,7 +297,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Light-theme page background
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -307,7 +307,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Light-theme standard container surface
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -318,7 +318,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Dark-theme page background
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -328,7 +328,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Dark-theme standard container surface
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -339,7 +339,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Light-theme warm-neutral text hierarchy
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -349,7 +349,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Dark-theme warm-neutral text hierarchy
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -360,7 +360,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Dark-theme standard-container text hierarchy
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -371,7 +371,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Brand accent color and standard usage
 
-[VOUCHED @hyf0 2026-07-19]
+[VOUCHED @hyfdev 2026-07-19]
 
 - **Date:** 2026-07-19.
 - **Status:** Required.
@@ -385,7 +385,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Dark-theme brand-accent derivation
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -397,7 +397,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Light-theme border and divider hierarchy
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -408,7 +408,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Dark-theme border and divider hierarchy
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -419,7 +419,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Chinese typography
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -432,7 +432,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Chinese font delivery and runtime fallback
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -451,7 +451,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### English typography
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -461,7 +461,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Strong emphasis in article prose
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -473,7 +473,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Article body reading system
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -484,7 +484,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Long-form article heading scale
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -494,7 +494,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Supporting headings and emphasis
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** 2026-07-16.
 - **Status:** Required.
@@ -505,7 +505,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Article header content width
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -516,7 +516,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Long-form article vertical rhythm
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -528,7 +528,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Long-form article component treatment
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** Selected 2026-07-15; table-of-contents treatment revised and accepted 2026-07-16.
 - **Status:** Required.
@@ -543,7 +543,7 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### X post embeds
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 This decision was superseded for the initial implementation by **X post URL-only rendering** on 2026-07-18. It remains as historical design exploration rather than current behavior.
 
@@ -560,7 +560,7 @@ This decision was superseded for the initial implementation by **X post URL-only
 
 ### X post URL-only rendering
 
-[VOUCHED @hyf0 2026-07-18]
+[VOUCHED @hyfdev 2026-07-18]
 
 - **Date:** 2026-07-18.
 - **Status:** Required for the initial implementation; supersedes **X post embeds** above.
@@ -571,7 +571,7 @@ This decision was superseded for the initial implementation by **X post URL-only
 
 ### Semantic Callout types and declaration syntax
 
-[VOUCHED @hyf0 2026-07-15]
+[VOUCHED @hyfdev 2026-07-15]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
@@ -587,7 +587,7 @@ This decision was superseded for the initial implementation by **X post URL-only
 
 ### Semantic Callout presentation
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** 2026-07-16.
 - **Status:** Required.
@@ -603,7 +603,7 @@ This decision was superseded for the initial implementation by **X post URL-only
 
 ### Code typography and inline code
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -614,7 +614,7 @@ This decision was superseded for the initial implementation by **X post URL-only
 
 ### Fenced code-block reading treatment
 
-[VOUCHED @hyf0 2026-07-14]
+[VOUCHED @hyfdev 2026-07-14]
 
 - **Date:** 2026-07-14.
 - **Status:** Required.
@@ -636,7 +636,7 @@ This decision was superseded for the initial implementation by **X post URL-only
 
 ### Print presentation
 
-[VOUCHED @hyf0 2026-07-16]
+[VOUCHED @hyfdev 2026-07-16]
 
 - **Date:** 2026-07-16.
 - **Status:** Rejected for the current product scope.
