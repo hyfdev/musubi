@@ -8,8 +8,8 @@ import { siteLinkKey } from './lib/site/link.ts'
 const { data, error } = await useFetch('/api/build/shell', { key: 'musubi-site-shell' })
 if (error.value || !data.value) {
   throw createError({
-    statusCode: 500,
-    statusMessage: 'The prepared site shell could not be loaded',
+    status: 500,
+    statusText: 'The prepared site shell could not be loaded',
     cause: error.value,
   })
 }

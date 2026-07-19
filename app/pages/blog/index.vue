@@ -8,8 +8,8 @@ import type { PublicPageMeta } from '#shared/site/types'
 const { data, error } = await useFetch('/api/build/blog', { key: 'musubi-blog' })
 if (error.value || !data.value) {
   throw createError({
-    statusCode: 500,
-    statusMessage: 'The Blog page could not be loaded',
+    status: 500,
+    statusText: 'The Blog page could not be loaded',
     cause: error.value,
   })
 }

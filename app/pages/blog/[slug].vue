@@ -5,7 +5,7 @@ import PostPage from '../../components/PostPage.vue'
 const route = useRoute()
 const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug
 if (!slug) {
-  throw createError({ statusCode: 404, statusMessage: 'Article not found' })
+  throw createError({ status: 404, statusText: 'Article not found' })
 }
 const pageRoute = `/blog/${slug}`
 const { data, error } = await useFetch('/api/build/page', {
@@ -13,12 +13,12 @@ const { data, error } = await useFetch('/api/build/page', {
   query: { route: pageRoute },
 })
 if (error.value || !data.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Article not found', cause: error.value })
+  throw createError({ status: 404, statusText: 'Article not found', cause: error.value })
 }
 const response = data.value
 const page = response.page
 if (page.type !== 'Post') {
-  throw createError({ statusCode: 404, statusMessage: 'Article not found' })
+  throw createError({ status: 404, statusText: 'Article not found' })
 }
 const canonical = new URL(page.route, response.config.link).toString()
 

@@ -5,7 +5,7 @@ import PagePage from '../components/PagePage.vue'
 const route = useRoute()
 const slug = Array.isArray(route.params.slug) ? route.params.slug[0] : route.params.slug
 if (!slug) {
-  throw createError({ statusCode: 404, statusMessage: 'Page not found' })
+  throw createError({ status: 404, statusText: 'Page not found' })
 }
 const pageRoute = `/${slug}`
 const { data, error } = await useFetch('/api/build/page', {
@@ -13,12 +13,12 @@ const { data, error } = await useFetch('/api/build/page', {
   query: { route: pageRoute },
 })
 if (error.value || !data.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Page not found', cause: error.value })
+  throw createError({ status: 404, statusText: 'Page not found', cause: error.value })
 }
 const response = data.value
 const page = response.page
 if (page.type !== 'Page') {
-  throw createError({ statusCode: 404, statusMessage: 'Page not found' })
+  throw createError({ status: 404, statusText: 'Page not found' })
 }
 const canonical = new URL(page.route, response.config.link).toString()
 

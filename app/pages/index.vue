@@ -5,8 +5,8 @@ import PostList from '../components/PostList.vue'
 const { data, error } = await useFetch('/api/build/home', { key: 'musubi-home' })
 if (error.value || !data.value) {
   throw createError({
-    statusCode: 500,
-    statusMessage: 'The Home page could not be loaded',
+    status: 500,
+    statusText: 'The Home page could not be loaded',
     cause: error.value,
   })
 }

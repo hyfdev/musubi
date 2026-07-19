@@ -29,6 +29,12 @@ This record owns Musubi's selected technologies, the few non-default restriction
 | Shiki 4, initially pinned at `4.3.1`, with the complete built-in `github-light` and `github-dark` themes | Build-time highlighting produces static readable code without shipping a browser highlighter, and the familiar GitHub pair prioritizes code comprehension over palette uniformity. | Shiki 4 cannot process required languages or creates a demonstrated generation or output problem; a future upgrade must preserve the accepted GitHub rendering contract. |
 | Google's official `@google/design.md` linter, initially `0.3.0`                                          | The repository lint task validates the root visual specification with the format's official parser instead of relying on prose review alone.                                       | The official package changes its command or schema; update the pinned integration while keeping design validation inside `vp run lint`.                                  |
 
+## Packaging constraints (Nuxt 4.5+)
+
+- Musubi pins `nuxt` to the current 4.x line (`^4.5.0` after the 4.5 upgrade). Nuxt 4.5 selects upstream Vite 8 through `@nuxt/vite-builder`; keep proving that with `vp why vite` so Vite+ does not replace Nuxt's builder.
+- `unctx@3` (via Nuxt 4.5 / `@nuxt/kit`) requires `oxc-parser >=0.140`. `@unocss/transformer-attributify-jsx` still depends on `oxc-parser@^0.131.0` (0.131.x only), so without a workspace override pnpm cannot satisfy both. `pnpm-workspace.yaml` currently pins `oxc-parser` to `0.140.0` for that reason. Remove or relax the pin only after UnoCSS bumps that dependency.
+- Fresh Nuxt 4.5 packages may land in `minimumReleaseAgeExclude` until they pass the workspace release-age policy; that list is operational packaging state, not a product selection.
+
 ## Responsibility boundaries
 
 - [Target Architecture](./architecture.md) owns Notion onboarding and schemas, content and settings data flow, Markdown normalization and rendering behavior, static publication, font-delivery behavior, routes, and failure rules.
