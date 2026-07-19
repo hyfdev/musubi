@@ -9,6 +9,16 @@ Downloads and verifies the optional Tsanger JinKai W04/W05 source fonts into
 this checkout's private .musubi cache. Normal builds never run this command
 automatically and use Musubi's open-source fallback when the cache is absent.
 
+Optional environment:
+  MUSUBI_TSANGER_W04_URL / MUSUBI_TSANGER_W05_URL
+    Paired HTTPS URLs used instead of the official download hosts. Files must still
+    match the pinned size and SHA-256. Do not commit these values; set them only in
+    the builder environment when mirroring the sources.
+  MUSUBI_TSANGER_W04_PATH / MUSUBI_TSANGER_W05_PATH
+    Paired local files for font:build (skips download when both are set for build).
+  MUSUBI_TSANGER_CACHE_DIR
+    Alternate cache directory for setup output.
+
 Options:
   --clear  Remove the cached Tsanger sources and return this checkout to fallback-only builds.
   --help   Show this help.`)

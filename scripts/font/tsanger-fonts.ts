@@ -83,6 +83,51 @@ export function tsangerFontCacheDirectory(): string {
   return override ? resolve(override) : resolve('.musubi', 'font', 'tsanger')
 }
 
+/**
+ * Resolve the download URLs used by font:setup.
+ * Optional `MUSUBI_TSANGER_W04_URL` / `MUSUBI_TSANGER_W05_URL` override the official hosts (e.g. a private mirror).
+ * Both must be set together. Checksums and sizes stay pinned so the files must match the known W04/W05 pair.
+ */
+export function resolveTsangerDownloadSources(): Record<'w04' | 'w05', TsangerFontSource> {
+  const w04Url = process.env.MUSUBI_TSANGER_W04_URL?.trim()
+  const w05Url = process.env.MUSUBI_TSANGER_W05_URL?.trim()
+  if (!w04Url && !w05Url) {
+    return {
+      w04: { ...TSANGER_FONT_SOURCES.w04 },
+      w05: { ...TSANGER_FONT_SOURCES.w05 },
+    }
+  }
+  if (!w04Url || !w05Url) {
+    throw new Error(
+      'MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL must be provided together when overriding Tsanger download URLs.',
+    )
+  }
+  assertHttpsDownloadUrl(w04Url, 'MUSUBI_TSANGER_W04_URL')
+  assertHttpsDownloadUrl(w05Url, 'MUSUBI_TSANGER_W05_URL')
+  return {
+    w04: { ...TSANGER_FONT_SOURCES.w04, url: w04Url },
+    w05: { ...TSANGER_FONT_SOURCES.w05, url: w05Url },
+  }
+}
+
+export function tsangerDownloadUrlsAreOverridden(): boolean {
+  return Boolean(
+    process.env.MUSUBI_TSANGER_W04_URL?.trim() || process.env.MUSUBI_TSANGER_W05_URL?.trim(),
+  )
+}
+
+function assertHttpsDownloadUrl(url: string, name: string): void {
+  let parsed: URL
+  try {
+    parsed = new URL(url)
+  } catch (error) {
+    throw new Error(`${name} is not a valid URL.`, { cause: error })
+  }
+  if (parsed.protocol !== 'https:') {
+    throw new Error(`${name} must use https.`)
+  }
+}
+
 export async function inspectTsangerFontCache(): Promise<TsangerFontCacheInspection> {
   const directory = tsangerFontCacheDirectory()
   const marker = await readPairMarker(directory)
@@ -104,11 +149,12 @@ export async function setupTsangerFonts(
   report: SetupReporter = () => undefined,
 ): Promise<InstalledTsangerFonts> {
   const directory = tsangerFontCacheDirectory()
+  const sources = resolveTsangerDownloadSources()
   await mkdir(directory, { recursive: true, mode: 0o700 })
   await chmod(directory, 0o700)
   const [cachedW04, cachedW05] = await Promise.all([
-    readVerifiedCachedFont(directory, TSANGER_FONT_SOURCES.w04),
-    readVerifiedCachedFont(directory, TSANGER_FONT_SOURCES.w05),
+    readVerifiedCachedFont(directory, sources.w04),
+    readVerifiedCachedFont(directory, sources.w05),
   ])
   if (cachedW04 && cachedW05) {
     await writePairMarker(directory)
@@ -120,12 +166,20 @@ export async function setupTsangerFonts(
     }
   }
 
+  if (tsangerDownloadUrlsAreOverridden()) {
+    report('Using MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL for Tsanger source downloads.')
+  }
+
   const staged = new Map<TsangerFontSource, string>()
-  for (const source of Object.values(TSANGER_FONT_SOURCES)) {
+  for (const source of Object.values(sources)) {
     const installed = source.weight === 'W04' ? cachedW04 : cachedW05
     if (installed) continue
     const partPath = partialPath(directory, source)
-    report(`Downloading Tsanger JinKai ${source.weight} from tsanger.cn...`)
+    report(
+      tsangerDownloadUrlsAreOverridden()
+        ? `Downloading Tsanger JinKai ${source.weight} from the configured download URL...`
+        : `Downloading Tsanger JinKai ${source.weight} from tsanger.cn...`,
+    )
     await downloadVerifiedFont(source, partPath, report)
     staged.set(source, partPath)
   }
@@ -232,12 +286,16 @@ async function downloadAttempt(
   partPath: string,
   _report: SetupReporter,
 ): Promise<void> {
+  // Official hosts are direct HTTPS files. Builder-supplied mirrors (e.g. object storage) may redirect once or twice.
+  const officialUrl =
+    source.weight === 'W04' ? TSANGER_FONT_SOURCES.w04.url : TSANGER_FONT_SOURCES.w05.url
+  const maxRedirs = source.url === officialUrl ? '0' : '5'
   const code = await runCurl([
     '--fail',
     '--show-error',
     '--location',
     '--max-redirs',
-    '0',
+    maxRedirs,
     '--proto',
     '=https',
     '--proto-redir',
