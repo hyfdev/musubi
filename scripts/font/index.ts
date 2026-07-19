@@ -1,6 +1,6 @@
 import { clearTsangerFonts, setupTsangerFonts, TSANGER_FONT_SOURCES } from './tsanger-fonts.ts'
 
-const args = process.argv.slice(2)
+const args = process.argv.slice(2).filter((arg) => arg !== '--')
 const soft = args.includes('--soft')
 const clear = args.includes('--clear')
 const help = args.includes('--help')
@@ -11,8 +11,8 @@ if (help) {
 
 Downloads and verifies the optional Tsanger JinKai W04/W05 source fonts into
 this checkout's private .musubi cache. When a verified cache already exists,
-downloads are skipped. Pipeline entry points (postinstall, check:build, dev)
-invoke this with --soft so a download failure keeps Musubi CJK Fallback builds working.
+downloads are skipped. Pipeline entry points invoke vp run font:ensure (this
+command with --soft) so a download failure keeps Musubi CJK Fallback builds working.
 
 Optional environment:
   MUSUBI_TSANGER_W04_URL / MUSUBI_TSANGER_W05_URL

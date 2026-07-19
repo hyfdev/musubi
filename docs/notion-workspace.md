@@ -63,7 +63,7 @@ vp run ready
 
 `vp run notion:setup` reads the current Notion state and atomically replaces the tracked `.musubi/notion-data-snapshot/` directory. Config schemas and rows live in `config.json`; every Published page lives in its own `pages/<notion-page-id>.json` file with the raw page row, Notion Markdown response, and any unknown blocks needed to interpret that Markdown. Draft rows are excluded. If a page's Notion `last_edited_time` is unchanged, setup reuses its prior page file instead of fetching its body again.
 
-`vp run dev`, `vp run check:build`, and `vp run ready` read only this local snapshot. `vp run build` runs `vp run notion:setup` first and then performs the checked build. The complete deployable site is `.output/public`; it contains neither the snapshot nor Notion credentials.
+`pnpm run dev`, `vp run site:build`, and `vp run ready` read only this local snapshot. `pnpm run build` runs `notion:setup` first and then `site:build`. The complete deployable site is `.output/public`; it contains neither the snapshot nor Notion credentials.
 
 ## Accepted page body dialect
 

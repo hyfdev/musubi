@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite-plus'
 
+const fontSetup = 'node --env-file-if-exists=.env.local scripts/font/index.ts'
+const fontEnsure = `${fontSetup} --soft`
+const notionSetup = 'node --env-file-if-exists=.env.local scripts/notion/index.ts'
+
 export default defineConfig({
   fmt: {
     tabWidth: 2,
@@ -73,19 +77,58 @@ export default defineConfig({
         command: ['vp run brand:verify', 'node scripts/update-brand-color.ts --write'],
         cache: false,
       },
-      'check:build': {
+      'notion:setup': {
+        command: notionSetup,
+        cache: false,
+      },
+      // Strict manual setup (fails the process on download errors).
+      'font:setup': {
+        command: fontSetup,
+        cache: false,
+      },
+      // Pipeline setup: skip download when cache is valid; on failure continue with Fallback.
+      'font:ensure': {
+        command: fontEnsure,
+        cache: false,
+      },
+      'font:build': {
+        command: 'node scripts/font/build.ts',
+        cache: false,
+      },
+      'nuxt:dev': {
+        command: 'nuxt dev',
+        cache: false,
+      },
+      'nuxt:typecheck': {
+        command: 'nuxt typecheck',
+        cache: false,
+      },
+      'nuxt:generate': {
+        command: 'nuxt generate --preset static',
+        cache: false,
+      },
+      'static:finalize': {
+        command: 'node scripts/finalize-static-artifact.mjs',
+        cache: false,
+      },
+      'static:serve': {
+        command: 'node scripts/serve-static.mjs',
+        cache: false,
+      },
+      artifact: {
+        command: 'node scripts/verify-static-artifact.mjs',
+        cache: false,
+      },
+      // Offline static site from the on-disk Notion snapshot (no Notion network).
+      'site:build': {
         command: [
           'vp run brand:check',
-          'vp run font:setup:soft',
+          'vp run font:ensure',
           'vp run font:build',
           'vp run nuxt:generate',
           'vp run static:finalize',
           'vp run artifact',
         ],
-        cache: false,
-      },
-      artifact: {
-        command: 'node scripts/verify-static-artifact.mjs',
         cache: false,
       },
       ready: {
@@ -95,7 +138,7 @@ export default defineConfig({
           'vp run typecheck',
           'vp run test',
           'vp run brand:verify',
-          'vp run check:build',
+          'vp run site:build',
         ],
         cache: false,
       },

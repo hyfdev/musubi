@@ -85,12 +85,10 @@ Judgments the human actually expressed about architecture — selections, accept
 
 ### User-facing task and network boundary
 
-[VOUCHED @hyfdev 2026-07-18]
-
-- **Ruling:** Musubi must expose `vp run notion:setup` to create or refresh Notion Data, optional `vp run font:setup` for the preferred local font inputs, `vp run dev` for local development from existing Notion Data, `vp run build` for a production static build that first refreshes Notion Data, `vp run check:build` for the same local build path without refreshing Notion, and `vp run ready` for the complete local quality gate including `check:build`.
-- **Limits:** `vp dev` is the Vite+ built-in development command and is not Musubi's application task. `generate` and `production` must not be user-facing Musubi task names; an internal Nuxt generation command may remain an implementation detail. `dev`, `check:build`, and `ready` must not access Notion. `font:setup` remains explicit and optional; ordinary builds use the preferred font only when already available and otherwise use the approved open fallback.
-- **Why:** Yunfei corrected the task names to match Vite+ semantics and selected conventional `build` and `check:build` names; no additional rationale was given.
-- **Source:** Yunfei He (@hyfdev), 2026-07-18, explicit corrections and vouch during the Musubi architecture discussion.
+- **Ruling:** Musubi must expose `notion:setup` to create or refresh Notion Data, `font:setup` / `font:build` for Tsanger sources and generated web fonts, `site:build` for the offline static site pipeline from the on-disk snapshot (brand check, font setup, font build, Nuxt generate, finalize, artifact), package entry `build` as `notion:setup` then `site:build`, package entry `dev` for local development from existing Notion Data, and `ready` for the complete local quality gate including `site:build`.
+- **Limits:** `package.json` scripts are only lifecycle hooks (`postinstall`, `prepare`) and thin entries (`dev`, `build`, `preview`). All composable steps are Vite+ tasks under `vp run`. `vp dev` is the Vite+ built-in development command and is not Musubi's application entry. `generate` and `production` must not be user-facing Musubi task names; Nuxt generate remains an implementation detail inside `site:build`. `dev`, `site:build`, and `ready` must not access Notion. `font:setup` runs from postinstall, dev, and site:build; a missing verified cache must download successfully or fail with a clear error (no silent Fallback-only continue). `MUSUBI_TSANGER_SETUP=0` may skip the download attempt; it does not clear an existing cache—use `font:setup -- --clear` when sources must not be used. Full Tsanger sources stay out of Git and public artifacts.
+- **Why:** Yunfei rejected mixing `build` with a misnamed `check:build`, selected `site:build` for the offline pipeline and `build` as content refresh plus that pipeline, required package scripts to stay minimal so orchestration lives in Vite+ tasks, and required font setup to fail loudly on download errors rather than soft-continue.
+- **Source:** Yunfei He (@hyfdev), 2026-07-18 original task-boundary corrections; 2026-07-20 session refined task names (`site:build`), package/task split, and fail-hard `font:setup`. Prior vouch stamp removed after those wording changes pending re-vouch.
 
 ### Static deployment target
 

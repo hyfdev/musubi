@@ -20,7 +20,9 @@ vp run notion:setup
 vp run ready
 ```
 
-`vp run notion:setup` is the only content command that contacts Notion. It writes the tracked snapshot as `.musubi/notion-data-snapshot/config.json` plus one `.musubi/notion-data-snapshot/pages/<notion-page-id>.json` file per Published page. Unchanged pages are reused on later refreshes. `vp run dev`, `vp run check:build`, and `vp run ready` consume those files locally and do not contact Notion. `vp run build` refreshes the snapshot first and then performs the same checked static build used by `vp run check:build`.
+`vp run notion:setup` is the only content command that contacts Notion. It writes the tracked snapshot as `.musubi/notion-data-snapshot/config.json` plus one `.musubi/notion-data-snapshot/pages/<notion-page-id>.json` file per Published page. Unchanged pages are reused on later refreshes. `pnpm run dev`, `vp run site:build`, and `vp run ready` consume those files locally and do not contact Notion. `pnpm run build` is `notion:setup` then `site:build`: refresh content first, then the offline static site pipeline.
+
+`package.json` keeps only lifecycle hooks and entry scripts (`dev`, `build`, `preview`). Composable steps live as Vite+ tasks under `vp run` (`site:build`, `notion:setup`, `font:ensure`, `font:setup`, `font:build`, `ready`, and the rest).
 
 The deployable artifact is `.output/public`. It does not need `.output/server`, a running Nitro process, Notion credentials, or a public content API.
 
@@ -30,11 +32,11 @@ Production deployment, publication, cache, and rollback procedures are documente
 
 Musubi works without proprietary font files: the open-licensed `Musubi CJK Fallback` is always available. Preferred Tsanger JinKai W04/W05 sources are optional and never committed: `font:setup` downloads and verifies them into the ignored `.musubi/font/tsanger/` cache (skips download when a verified cache already exists).
 
-The default pipeline runs a soft setup so previews and builds pick up Tsanger when sources are obtainable, and keep going with Fallback when they are not:
+The default pipeline runs `vp run font:ensure` (soft `font:setup`) so previews and builds pick up Tsanger when sources are obtainable, and keep going with Fallback when they are not:
 
-- `postinstall` runs soft `font:setup` after `nuxt prepare` to warm the cache on install
-- `dev` and `check:build` run soft `font:setup` before `font:build`
-- `pnpm run build` is `notion:setup` then `check:build` (latest Notion snapshot, then the same font and generate path)
+- `postinstall` — warm cache after install
+- `pnpm run dev` / `vp run site:build` — ensure before `font:build`
+- `pnpm run build` — `notion:setup` then `site:build`
 
 `font:build` only reads the on-disk Notion snapshot plus any Tsanger cache or path overrides; it does not call Notion itself. Review the official terms before using Tsanger. Full source files must never become public deployment artifacts.
 
@@ -45,14 +47,14 @@ Builder-only environment (do not commit secrets or private mirror URLs):
 - `MUSUBI_TSANGER_CACHE_DIR` — alternate setup cache directory
 - `MUSUBI_TSANGER_SETUP=0` — skip setup entirely
 
-Manual commands: `vp run font:setup` (strict), `vp run font:setup:soft` (pipeline), `vp run font:setup -- --clear` to drop the optional cache.
+Manual: `vp run font:setup` (strict), `vp run font:ensure` (soft), `vp run font:setup -- --clear`.
 
 ## Local visual loop
 
 Start Nuxt against the tracked local Notion Data snapshot:
 
 ```sh
-vp run dev
+pnpm run dev
 ```
 
 Development reads only the tracked Notion Data snapshot. It also prepares the generated font files from local inputs; a private `.musubi/font/build-state.json` fingerprint makes unchanged starts reuse the existing output instead of rebuilding fonts.
@@ -60,8 +62,8 @@ Development reads only the tracked Notion Data snapshot. It also prepares the ge
 Build from the same local snapshot and serve only the static artifact:
 
 ```sh
-vp run check:build
-vp run preview -- --port 4173
+vp run site:build
+pnpm run preview -- --port 4173
 ```
 
 The static preview mirrors the production cache contract: HTML and stable metadata URLs revalidate with `ETag` and `Last-Modified`, while content-addressed Nuxt assets, generated files, and font subsets use a one-year immutable policy. A deployment host should preserve the same distinction.
