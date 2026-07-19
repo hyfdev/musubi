@@ -32,7 +32,7 @@ Production deployment, publication, cache, and rollback procedures are documente
 
 Musubi works without proprietary font files: the open-licensed `Musubi CJK Fallback` is always available. Preferred Tsanger JinKai W04/W05 sources are never committed: `font:setup` downloads and verifies them into the ignored `.musubi/font/tsanger/` cache (skips download when a verified cache already exists). Default download order is jsDelivr (`cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/…`), then the official `tsanger.cn` hosts; checksums must match the pinned pair.
 
-The default pipeline runs `vp run font:setup` so install, dev, and site builds require a verified Tsanger cache (download when missing; skip when already valid). Failure prints a clear error and stops the pipeline. Set `MUSUBI_TSANGER_SETUP=0` only when this checkout must stay on Fallback without attempting a download.
+The default pipeline runs `vp run font:setup` so install, dev, and site builds download a missing verified Tsanger cache (or reuse an existing one). Failure prints a clear error and stops the pipeline. `MUSUBI_TSANGER_SETUP=0` skips the download attempt only; an existing cache or paired `MUSUBI_TSANGER_*_PATH` files still feed `font:build`. To force Fallback-only, clear the cache (`vp run font:setup -- --clear`) and keep setup skipped or leave no local sources.
 
 - `postinstall` — `font:setup` after `nuxt prepare`
 - `pnpm run dev` / `vp run site:build` — `font:setup` before `font:build`
@@ -45,7 +45,7 @@ Builder-only environment (do not commit secrets or private mirror URLs):
 - `MUSUBI_TSANGER_W04_URL` / `MUSUBI_TSANGER_W05_URL` — paired HTTPS mirrors; files must match the pinned size and SHA-256
 - `MUSUBI_TSANGER_W04_PATH` / `MUSUBI_TSANGER_W05_PATH` — paired local source files for `font:build`
 - `MUSUBI_TSANGER_CACHE_DIR` — alternate setup cache directory
-- `MUSUBI_TSANGER_SETUP=0` — skip setup (Fallback only)
+- `MUSUBI_TSANGER_SETUP=0` — skip setup download (does not clear an existing cache)
 
 Manual: `vp run font:setup`, `vp run font:setup -- --clear`.
 

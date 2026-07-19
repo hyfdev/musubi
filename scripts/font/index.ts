@@ -22,8 +22,8 @@ Optional environment:
   MUSUBI_TSANGER_CACHE_DIR
     Alternate cache directory for setup output.
   MUSUBI_TSANGER_SETUP=0
-    Skip setup entirely (exit successfully). Use only when this checkout must stay
-    on Musubi CJK Fallback without attempting a Tsanger download.
+    Skip the setup download attempt (exit successfully). Does not clear an existing
+    verified cache; pair with --clear when this checkout must not use Tsanger sources.
 
 Options:
   --clear  Remove the cached Tsanger sources and return this checkout to fallback-only builds.
@@ -52,7 +52,7 @@ Options:
     const message = error instanceof Error ? error.message : String(error)
     console.error(`font:setup failed: ${message}`)
     console.error(
-      'Fix network/mirror access, or set MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL to reachable HTTPS copies of the pinned files. To skip Tsanger and use Fallback only, set MUSUBI_TSANGER_SETUP=0.',
+      'Fix network/mirror access, or set MUSUBI_TSANGER_W04_URL and MUSUBI_TSANGER_W05_URL to reachable HTTPS copies of the pinned files. To skip the download attempt, set MUSUBI_TSANGER_SETUP=0 (clear the cache with "vp run font:setup -- --clear" if an existing pair must not be used). Local MUSUBI_TSANGER_W04_PATH/W05_PATH files are for font:build only and do not replace font:setup.',
     )
     process.exitCode = 1
   }

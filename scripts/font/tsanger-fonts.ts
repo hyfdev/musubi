@@ -389,7 +389,7 @@ async function runCurl(args: string[]): Promise<number | null> {
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
         rejectPromise(
           new Error(
-            'The optional font setup requires curl with HTTPS support; install curl or provide paired MUSUBI_TSANGER_W04_PATH/MUSUBI_TSANGER_W05_PATH files.',
+            'font:setup requires curl with HTTPS support. Install curl, set paired MUSUBI_TSANGER_W04_URL/MUSUBI_TSANGER_W05_URL mirrors, or set MUSUBI_TSANGER_SETUP=0 to skip download (then use font:build PATH overrides or Fallback).',
             { cause: error },
           ),
         )
