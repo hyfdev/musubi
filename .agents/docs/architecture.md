@@ -171,7 +171,7 @@ Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a p
 - Social destinations come from `SiteConfig`, not Page rows. Tags remain optional Post metadata without navigation or route behavior.
 - The site provides explicit light and warm dark themes, follows the system preference by default, and offers a reader-controlled choice. Exact tokens, layout, typography, responsive behavior, and the Kami-derived direction live in [DESIGN.md](../../DESIGN.md).
 - Locale-sensitive presentation resolves from `SiteConfig`; the repository defaults are `en-SG` and `Asia/Singapore`.
-- The browser receives one static representation of each body and no unnecessary application runtime. Output size and transferred resources are measured from the generated artifact rather than governed by invented targets.
+- The browser receives one static representation of each body. Nuxt ships its normal client runtime and extracted page payloads so full-static sites keep client navigation, hydration, and payload reuse; it does not ship a public content API, a Nitro server, or a second body runtime. Output size and transferred resources are measured from the generated artifact rather than governed by invented targets.
 
 ## Publication and failure behavior
 

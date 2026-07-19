@@ -32,6 +32,36 @@ describe('static font artifact boundary', () => {
     })
   })
 
+  it('accepts Nuxt client chunks and extracted payloads', async () => {
+    const root = await validArtifact()
+    await mkdir(join(root, '_nuxt'), { recursive: true })
+    await writeFile(join(root, '_nuxt/entry.js'), 'export {}')
+    await writeFile(join(root, '_payload.json'), '{"data":[]}')
+
+    await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).resolves.toMatchObject({
+      root,
+    })
+  })
+
+  it('rejects JavaScript outside _nuxt', async () => {
+    const root = await validArtifact()
+    await writeFile(join(root, 'surprise.js'), 'alert(1)')
+
+    await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).rejects.toThrow(
+      'Static artifact contains unexpected browser JavaScript: surprise.js',
+    )
+  })
+
+  it('rejects a public API tree', async () => {
+    const root = await validArtifact()
+    await mkdir(join(root, 'api/build'), { recursive: true })
+    await writeFile(join(root, 'api/build/shell'), '{}')
+
+    await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).rejects.toThrow(
+      /Static artifact contains a forbidden public data path: api/,
+    )
+  })
+
   it.each(['ttf', 'otf', 'ttc', 'otc'])(
     'rejects an upstream .%s font source',
     async (extension) => {

@@ -116,13 +116,18 @@ export async function verifyStaticArtifact(
       const entryStat = await lstat(entryPath)
       const relativePath = relative(root, entryPath)
 
-      if (relativePath.endsWith('.js') || relativePath.endsWith('.mjs')) {
-        throw new Error(`Static artifact contains browser JavaScript: ${relativePath}`)
+      // Nuxt full-static may emit client chunks under `_nuxt/` and per-route `_payload.json`.
+      // Reject JS outside that builder namespace, and reject any public `/api` tree (build-only data must stay out of the artifact).
+      if (
+        (relativePath.endsWith('.js') || relativePath.endsWith('.mjs')) &&
+        !relativePath.startsWith(`_nuxt${sep}`)
+      ) {
+        throw new Error(`Static artifact contains unexpected browser JavaScript: ${relativePath}`)
       }
       if (/\.(?:otc|otf|ttc|ttf)$/i.test(relativePath)) {
         throw new Error(`Static artifact contains an upstream font source: ${relativePath}`)
       }
-      if (relativePath.includes('_payload') || relativePath.startsWith(`api${sep}`)) {
+      if (relativePath.startsWith(`api${sep}`)) {
         throw new Error(`Static artifact contains a forbidden public data path: ${relativePath}`)
       }
       fileCount += 1

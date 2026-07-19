@@ -14,12 +14,10 @@ export default defineNuxtConfig({
   components: {
     dirs: [],
   },
-  features: {
-    noScripts: 'production',
-  },
   experimental: {
-    appManifest: false,
-    payloadExtraction: false,
+    // Inline payload in the first HTML response; emit `_payload.json` for client navigation.
+    // This is Nuxt's recommended full-static shape and becomes the default with compatibilityVersion 5.
+    payloadExtraction: 'client',
   },
   typescript: {
     strict: true,
