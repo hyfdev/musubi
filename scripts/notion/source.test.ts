@@ -19,8 +19,8 @@ describe('Notion page inputs', () => {
 
   it("selects the page's only data source internally", () => {
     expect(
-      onlyDataSourceId('Content page', [
-        { id: '248104cd477e80fdb757e945d38000bd', name: 'Content' },
+      onlyDataSourceId('Database page', [
+        { id: '248104cd477e80fdb757e945d38000bd', name: 'Database' },
       ]),
     ).toBe('248104cd-477e-80fd-b757-e945d38000bd')
   })
@@ -34,8 +34,8 @@ describe('Notion page inputs', () => {
       ],
     },
   ])('rejects a page with zero or multiple data sources', ({ dataSources }) => {
-    expect(() => onlyDataSourceId('Content page', dataSources)).toThrow(
-      `Content page must contain exactly one data source; found ${dataSources.length}.`,
+    expect(() => onlyDataSourceId('Database page', dataSources)).toThrow(
+      `Database page must contain exactly one data source; found ${dataSources.length}.`,
     )
   })
 })

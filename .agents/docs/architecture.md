@@ -9,7 +9,7 @@ This record is the selected architecture for the current implementation. The pri
 ```mermaid
 flowchart TB
   subgraph notion["Notion — canonical editing source"]
-    content["Content data source"]
+    content["Database data source"]
     config["Config data source"]
   end
 
@@ -66,9 +66,9 @@ flowchart TB
 
 ## Notion input contracts
 
-### Content
+### Database
 
-The Content data source uses the following project-owned schema:
+The visible Notion page and its sole data source are both named `Database`. The internal implementation may still use `content` for the domain containing Posts and Pages; that internal term is not part of setup. The Database data source uses the following project-owned schema:
 
 | Property             | Notion type    | Contract                                                                   |
 | -------------------- | -------------- | -------------------------------------------------------------------------- |
@@ -82,7 +82,7 @@ The Content data source uses the following project-owned schema:
 | `Show in Navigation` | `checkbox`     | Optional column; a missing column keeps every Page out of navigation       |
 | `Navigation Order`   | `number`       | Optional column and value; a missing column or empty value means unordered |
 
-The documented default Page template leaves `Show in Navigation` disabled. A site owner explicitly enables it for a Page that belongs in primary navigation. During migration, legacy `Content` values and the former `Date`, `ShowInNavigation`, and `NavigationOrder` property names remain compatible. Draft rows are never public. Invalid enum values, missing required Published fields, duplicate identities, and route conflicts fail generation. The underlying Content database is kept in the Dashboard's `System` area and locked against accidental view or property edits while remaining editable at the row-value level.
+The documented default Page template leaves `Show in Navigation` disabled. A site owner explicitly enables it for a Page that belongs in primary navigation. During migration, legacy `Content` values and the former `Date`, `ShowInNavigation`, and `NavigationOrder` property names remain compatible. Draft rows are never public. Invalid enum values, missing required Published fields, duplicate identities, and route conflicts fail generation. The underlying Database page is kept in the Dashboard's `System` area and locked against accidental view or property edits while remaining editable at the row-value level.
 
 ### Site settings
 

@@ -884,7 +884,7 @@
       "id": "39bfe8dd-acd6-81c8-9b7c-002761709f06",
       "object": "user"
     },
-    "last_edited_time": "2026-07-19T05:28:00.000Z",
+    "last_edited_time": "2026-07-19T07:38:00.000Z",
     "object": "data_source",
     "parent": {
       "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
@@ -1092,9 +1092,9 @@
           "underline": false
         },
         "href": null,
-        "plain_text": "Content",
+        "plain_text": "Database",
         "text": {
-          "content": "Content",
+          "content": "Database",
           "link": null
         },
         "type": "text"

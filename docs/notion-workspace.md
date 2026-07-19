@@ -1,6 +1,6 @@
 # Notion Workspace Contract
 
-Musubi reads two visible Notion database pages when `vp run notion:setup` refreshes the local Notion Data snapshot: one page for Content and one page for Config. Both pages should live below one Notion root page shared with a dedicated internal integration that has only the `Read content` capability. Musubi never writes to Notion.
+Musubi reads two visible Notion database pages when `vp run notion:setup` refreshes the local Notion Data snapshot: `Database` stores Posts and Pages, while `Config` stores site-wide settings. Both pages should live below one Notion root page shared with a dedicated internal integration that has only the `Read content` capability. Musubi never writes to Notion.
 
 ## Environment
 
@@ -9,14 +9,14 @@ Copy `.env.example` to `.env.local` and fill exactly these values:
 | Variable                | Value                                                  |
 | ----------------------- | ------------------------------------------------------ |
 | `NOTION_TOKEN`          | Secret from the dedicated read-only Notion integration |
-| `NOTION_DB_PAGE_ID`     | Page ID copied from the Content database page URL      |
+| `NOTION_DB_PAGE_ID`     | Page ID copied from the Database page URL              |
 | `NOTION_CONFIG_PAGE_ID` | Page ID copied from the Config database page URL       |
 
 The values are build secrets. They must not use a public prefix, appear in client code, or be copied into generated output.
 
 Each page must contain exactly one Notion data source. Musubi resolves that internal data source when it refreshes the snapshot; users do not need to find or configure data-source IDs. A page with zero or multiple data sources stops the refresh with a direct error.
 
-## Content page
+## Database page
 
 Create these properties with the exact names and Notion types:
 
@@ -49,7 +49,7 @@ Enabled rows may use `Site Title`, `Site Description`, `Author`, `Link`, `Lang`,
 
 ## Dashboard
 
-The default Dashboard keeps the full Config and Content database pages inside a collapsed `System` section. Its daily workspace uses one linked Content database with two saved views: `Posts` and `Pages`. The Posts view shows `Title`, `Status`, and `Publish Date`; the Pages view shows `Title`, `Status`, `Show in Navigation`, and `Navigation Order`. Type filters distinguish the two views, and advanced fields such as Slug, Description, and Tags remain available on each database page or in the full Content database without widening the Dashboard. The Content and Config databases are locked against accidental property or view changes while still allowing page creation and property-value editing.
+The default Dashboard keeps the full `Database` and `Config` pages inside a collapsed `System` section. Its daily workspace uses one linked `Database` with two saved views: `Posts` and `Pages`. The Posts view shows `Title`, `Status`, and `Publish Date`; the Pages view shows `Title`, `Status`, `Show in Navigation`, and `Navigation Order`. Type filters distinguish the two views, and advanced fields such as Slug, Description, and Tags remain available in the full `Database` page without widening the Dashboard. The `Database` and `Config` pages are locked against accidental property or view changes while still allowing page creation and property-value editing.
 
 ## Snapshot and generation
 

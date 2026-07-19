@@ -133,7 +133,7 @@ async function notionRequest<T>(
 }
 
 function publishedStatus(page: PageObjectResponse, index: number): 'Draft' | 'Published' {
-  const sourceLabel = `Content row ${index + 1}`
+  const sourceLabel = `Database row ${index + 1}`
   const property = page.properties.Status
   if (!property || property.type !== 'select') {
     throw new Error(`${sourceLabel}.Status must be a select property`)
@@ -207,26 +207,26 @@ export async function fetchNotionData(
 ): Promise<FetchedNotionData> {
   const notion = createNotionClient(environment.token)
   const [contentPage, configPage] = await Promise.all([
-    notionRequest(environment, 'Content page', 'retrieval', () =>
+    notionRequest(environment, 'Database page', 'retrieval', () =>
       notion.databases.retrieve({ database_id: environment.dbPageId }),
     ),
     notionRequest(environment, 'Config page', 'retrieval', () =>
       notion.databases.retrieve({ database_id: environment.configPageId }),
     ),
   ])
-  if (!isFullDatabase(contentPage)) throw new Error('Content page retrieval returned partial data')
+  if (!isFullDatabase(contentPage)) throw new Error('Database page retrieval returned partial data')
   if (!isFullDatabase(configPage)) throw new Error('Config page retrieval returned partial data')
-  const contentDataSourceId = onlyDataSourceId('Content page', contentPage.data_sources)
+  const contentDataSourceId = onlyDataSourceId('Database page', contentPage.data_sources)
   const configDataSourceId = onlyDataSourceId('Config page', configPage.data_sources)
 
   const [contentDataSource, configDataSource, contentResults, configResults] = await Promise.all([
-    notionRequest(environment, 'Content data source', 'schema retrieval', () =>
+    notionRequest(environment, 'Database data source', 'schema retrieval', () =>
       notion.dataSources.retrieve({ data_source_id: contentDataSourceId }),
     ),
     notionRequest(environment, 'Config data source', 'schema retrieval', () =>
       notion.dataSources.retrieve({ data_source_id: configDataSourceId }),
     ),
-    notionRequest(environment, 'Content data source', 'paginated query', () =>
+    notionRequest(environment, 'Database data source', 'paginated query', () =>
       collectAllDataSourceRows(notion, {
         data_source_id: contentDataSourceId,
       }),
@@ -239,7 +239,7 @@ export async function fetchNotionData(
   const published = contentResults
     .map((result, index) => {
       if (!isFullPage(result))
-        throw new Error(`Content query result ${index + 1} is not a complete page row`)
+        throw new Error(`Database query result ${index + 1} is not a complete page row`)
       return { page: result, status: publishedStatus(result, index) }
     })
     .filter(({ status }) => status === 'Published')

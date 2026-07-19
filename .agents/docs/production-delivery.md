@@ -48,8 +48,8 @@ The maintained example workspace was standardized on 2026-07-19 without changing
 
 - Content now uses the canonical `Publish Date`, `Show in Navigation`, and `Navigation Order` property names, with exactly `Post` and `Page` Type options and `Draft` and `Published` Status options.
 - Config now uses `Help` as its title property and the canonical `Site Title` and `Site Description` keys. The unused `Since` and `PostsPerPage` options were removed.
-- The underlying database is named `Content`; both Content and Config are locked against accidental schema changes while row values remain editable.
-- The Dashboard retains its collapsed `System` section and now presents one linked Content database with filtered `Posts` and `Pages` views. The old duplicate tables, headings, table of contents, and extra divider were removed.
+- The underlying content page and its data source are named `Database`; both Database and Config are locked against accidental schema changes while row values remain editable.
+- The Dashboard retains its collapsed `System` section and now presents one linked Database with filtered `Posts` and `Pages` views. The old duplicate tables, headings, table of contents, and extra divider were removed.
 - The current source has 24 rows: 23 Posts and one Page; 16 rows are Published. It also has eight Config rows. Counts were verified before and after migration.
 
 Two private pre-write snapshots are stored under `.musubi/notion-migrations/` with mode `0600` and are ignored by Git. The second apply verified that the migration is safe to rerun and fixed the visible view-column order to put `Title` first.
