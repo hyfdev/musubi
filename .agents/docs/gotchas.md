@@ -13,3 +13,10 @@ Traps already paid for in this repository. Each entry states what not to do, why
 
 - **Do not** list app CSS as `./app/assets/...` in `nuxt.config` `css`.
 - With default Nuxt 4 layout, `srcDir` is `app/`, and `~/` / `@/` alias to that directory. Prefer `~/assets/css/main.css`. Relative `./app/...` paths are written into `virtual:nuxt:.nuxt/css.mjs` and fail to resolve under Vite 8 (`Failed to resolve import "./app/assets/css/main.css"`), so HTML can still SSR while main site styles 404.
+
+## Cloudflare Workers Build command vs Vite+ task rename
+
+- Renaming the offline pipeline from `check:build` to `site:build` only updates the repository. The Workers Build **dashboard** build command is outside Git (`pnpm exec vp run check:build` was still configured when the rename shipped).
+- Symptom: install/`font:setup` succeed, then `Task "check:build" not found` and the deploy fails.
+- Mitigation in-repo: Vite+ task `check:build` is a thin alias of `site:build` so an outdated dashboard command still builds. Canonical docs and new setup use `pnpm exec vp run site:build` only.
+- When changing task names that appear in Cloudflare (or any external CI), update that external command in the same change or keep a temporary alias until the dashboard is updated.

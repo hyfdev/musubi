@@ -124,6 +124,12 @@ export default defineConfig({
         ],
         cache: false,
       },
+      // Compatibility alias: Cloudflare Workers Build still runs this name until the dashboard
+      // build command is changed to `pnpm exec vp run site:build`. Not a second pipeline.
+      'check:build': {
+        command: 'vp run site:build',
+        cache: false,
+      },
       ready: {
         command: [
           'vp run format',
