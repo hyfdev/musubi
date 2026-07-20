@@ -1,0 +1,133 @@
+{
+  "markdown": {
+    "id": "3a3fe8dd-acd6-803e-a954-fc4da91aec55",
+    "markdown": "<table_of_contents color=\"gray\"/>\n# Text\nAn English paragraph set in Charter. Latin text keeps zero letter spacing, so this reads as an ordinary serif column, and the line is long enough to wrap inside the 720px reading column so the leading and the ragged right edge can both be judged.\n一段纯中文正文，用来观察正文的字号、行高和中文字距。仓耳今楷的字面偏大，标点占位是全角，段落里出现「引号」、《书名号》和省略号……都会改变节奏。这一段同样写得够长，好看清折行之后的行距。\nMixed run: 中文与 English 混排时，只有汉字、中文标点和全角符号带 0.015em 字距，Latin 与数字 2026 保持零字距。破折号——和连接号也在这一行里。\n# Heading 1 一级标题\n## Heading 2 二级标题\n### Heading 3 三级标题\n#### Heading 4 四级标题\n# Bulleted list\n- foo\n\t- bar\n\t\t- baz\n\t\t\t- qux\n\t\t\t\t- quux\n\t\t\t\t- corge\n\t\t\t\t- 折行样本：这一条故意写得足够长，用来检查换行之后第二行的文字是和第一行对齐，还是掉回到项目符号的位置。\n\t- grault\n- garply\n# Numbered list\n1. foo\n\t1. bar\n\t\t1. baz\n\t\t2. qux\n\t2. quux\n2. corge\n# To-do list\n- [x] foo\n- [ ] bar\n\t- [ ] baz\n# Callout\n<callout icon=\"💡\">\n\tDefault callout with no role marker. Musubi treats it as a note.\n</callout>\n<callout icon=\"💡\">\n\t\\{note\\}<br>An explicit note marker on its own line. The line break after the closing brace is required — without it a stray leading space survives into the body.\n</callout>\n<callout icon=\"💡\">\n\t\\{warning\\}<br>Warning role. 警告样式，中英混排看一下标签和正文的关系。\n</callout>\n<callout icon=\"💡\">\n\t\\{error\\}<br>Error role. 错误样式。\n</callout>\n# Quote\n> A quote block, 中文与 English 混排, long enough to wrap so the left rule, the indent and the text colour can be judged against ordinary body prose.\n# Table\n<table header-row=\"true\" header-column=\"true\">\n<tr>\n<td>Block</td>\n<td>中文示例</td>\n<td>English sample</td>\n</tr>\n<tr>\n<td>Heading</td>\n<td>一级到四级标题</td>\n<td>Four levels</td>\n</tr>\n<tr>\n<td>List</td>\n<td>列表与嵌套</td>\n<td>Nested items</td>\n</tr>\n<tr>\n<td>Callout</td>\n<td>四种提示框</td>\n<td>Four roles</td>\n</tr>\n</table>\n# Divider\n---\nThe divider above sits directly under its heading. Keep it there: Notion's Markdown export has no blank line between blocks, so a paragraph immediately above `---` is parsed as a setext H2 and the divider disappears. A divider after a list, code block, callout, quote or table is fine.\n# Image\n![Metal movable type. Captions use the 13px/20px metadata tier — 图注也走这一档，顺带看图与正文之间的垂直节奏。](https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Metal_movable_type.jpg/960px-Metal_movable_type.jpg)\n# Code\n```typescript\nexport function greet(name: string): string {\n  return `你好，${name}`\n}\n```\n```shell\nvp install\nvp run notion:setup\npnpm run dev\n```\n```python\n# 中文注释：等宽字体与中文的混排\nprint(\"代码块里的中文用 W04\")\n```\n# Inline styles\nBold: **加粗的中文 and bold English**<br>Italic: *斜体的中文 and italic English*<br>Strikethrough: ~~删除线 and struck-through English~~<br>Inline code: `const answer = 42`<br>Link: [Musubi on GitHub](https://github.com/hyfdev/musubi)<br>Every line above is separated by a soft line break (Shift+Enter), not a new paragraph. Underline is deliberately absent — Notion exports it as a span tag and musubi rejects raw inline HTML.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-07-20T15:07:00.000Z",
+    "icon": null,
+    "id": "3a3fe8dd-acd6-803e-a954-fc4da91aec55",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-07-20T16:10:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [],
+        "type": "rich_text"
+      },
+      "Navigation Order": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "Publish Date": {
+        "date": {
+          "end": null,
+          "start": "2026-07-21",
+          "time_zone": null
+        },
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Show in Navigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "example-typography",
+            "text": {
+              "content": "example-typography",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Example - Typography",
+            "text": {
+              "content": "Example - Typography",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "blue",
+          "id": "5aff2f95-fd1e-489b-8840-bf10bc9519cb",
+          "name": "Post"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Example-Typography-3a3fe8ddacd6803ea954fc4da91aec55",
+    "url": "https://app.notion.com/p/Example-Typography-3a3fe8ddacd6803ea954fc4da91aec55"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

@@ -13,3 +13,16 @@ Traps already paid for in this repository. Each entry states what not to do, why
 
 - **Do not** list app CSS as `./app/assets/...` in `nuxt.config` `css`.
 - With default Nuxt 4 layout, `srcDir` is `app/`, and `~/` / `@/` alias to that directory. Prefer `~/assets/css/main.css`. Relative `./app/...` paths are written into `virtual:nuxt:.nuxt/css.mjs` and fail to resolve under Vite 8 (`Failed to resolve import "./app/assets/css/main.css"`), so HTML can still SSR while main site styles 404.
+
+## UnoCSS preflight removes link underlines
+
+- **Do not** style reading links with only `text-decoration-color` / thickness / offset and assume a browser default underline remains.
+- UnoCSS (Tailwind-style) base layer sets `a { color: inherit; text-decoration: inherit }`, so links inherit “no underline” from ordinary text. Prose links then look like brand-colored `strong` (color only).
+- **Ruling:** Explicitly set `text-decoration-line: underline` (plus the approved 1px / 3px / 42% brand resting underline) on reading links; keep chrome links (`site-brand`, nav, heading anchors, TOC, files) on `text-decoration: none`.
+
+## Notion Markdown block boundaries vs CommonMark
+
+- **Do not** assume Notion Page-as-Markdown already has CommonMark block separation. Notion joins adjacent blocks with a single `\n`; soft breaks inside one block are exported as `<br>`, not bare newlines.
+- Without preprocess blank lines, CommonMark merges adjacent paragraphs (soft break), turns `paragraph\n---` into a setext H2 (divider disappears), absorbs following prose into the previous list item, and lazy-continues a following paragraph into a blockquote.
+- **Ruling:** `preprocessNotionMarkdown` runs `separateNotionBlockBoundaries` after empty-block and void-tag rewrites. It inserts a blank line between non-empty lines except inside fenced code, tight lists (including nested items and indented continuations), multi-line blockquotes, and table row sequences.
+- **Residual:** Two adjacent _separate_ Notion quote blocks still look like one multi-line quote in the export (`>\n>`), so they remain one quote after preprocess. Fixing that needs block-structure data the Page-as-Markdown string does not provide.

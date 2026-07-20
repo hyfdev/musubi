@@ -601,6 +601,15 @@ This decision was superseded for the initial implementation by **X post URL-only
 - **Reference:** The mapping follows the current [Primer functional color roles](https://primer.style/product/primitives/color/) and [Primer guidance that meaning must not rely on color alone](https://primer.style/product/components/label/accessibility/). Musubi's targets follow WCAG 2.2's separate requirements for [ordinary-text contrast](https://www.w3.org/TR/WCAG22/#contrast-minimum) and [non-text contrast](https://www.w3.org/TR/WCAG22/#non-text-contrast).
 - **Reason or reference:** Yunfei accepted the focused article specimen in desktop and narrow-screen light and dark themes after comparing direct Primer semantic rules with neutral labels against the established Musubi typography, whitespace, page backgrounds, and line-led component grammar. Keeping the color on the rule preserves Primer's familiar blue, amber, and red roles without turning the Callout into a GitHub-style filled alert or weakening the neutral paper-like reading surface.
 
+### Callout source icon and color are model-only
+
+[VOUCHED @hyfdev 2026-07-21]
+
+- **Ruling:** Parse and retain a Notion Callout's source `icon` and `color` on the Musubi Callout AST node, and never render either field in the public site.
+- **Limits:** This does not change the accepted Note / Warning / Error role rules, the English role label, or the Primer left-rule presentation. Other Notion presentation attributes (table fit/alignment/colors, table-of-contents color, image title) are outside this entry unless a separate decision covers them.
+- **Why:** Yunfei confirmed the existing direction: Callout meaning comes only from the Musubi semantic role, not from Notion's icon or color chrome; keeping the fields on the AST must not be mistaken for a missing renderer.
+- **Source:** Yunfei, 2026-07-21, local audit of parsed-but-unrendered Callout fields; inherits [Semantic Callout presentation](#semantic-callout-presentation) and [Long-form article component treatment](#long-form-article-component-treatment).
+
 ### Code typography and inline code
 
 [VOUCHED @hyfdev 2026-07-14]

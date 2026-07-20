@@ -133,10 +133,19 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* UnoCSS/Tailwind preflight sets `a { text-decoration: inherit }`, which removes
+ * the browser underline. Reading links must opt back in so brand-colored strong
+ * and links stay distinguishable (DESIGN-decisions: prose links). */
 a {
   color: var(--accent);
-  text-underline-offset: 0.18em;
+  text-decoration-line: underline;
   text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 42%, transparent);
+}
+
+a:hover {
+  text-decoration-color: currentColor;
 }
 
 :focus-visible {
@@ -287,10 +296,12 @@ a {
   color: var(--accent);
 }
 
+/* Underline stays inside the link box: site-center-viewport uses overflow-x:auto,
+ * which also clips overflow-y, so a bottom:-Npx marker would be cut off. */
 .site-navigation a[aria-current='page']::after {
   position: absolute;
   right: 0;
-  bottom: -2px;
+  bottom: 0;
   left: 0;
   height: 2px;
   background: currentColor;
@@ -431,16 +442,20 @@ a {
 
 .post-title-row a {
   color: inherit;
+  /* Base `a` opts into underline for prose; list titles stay plain until hover. */
+  text-decoration-line: none;
   text-decoration-color: transparent;
   text-underline-offset: 0.2em;
   transition:
     color 120ms ease,
-    text-decoration-color 120ms ease;
+    text-decoration-color 120ms ease,
+    text-decoration-line 120ms ease;
 }
 
 .post-title-row a:hover,
 .post-title-row a:focus-visible {
   color: var(--accent);
+  text-decoration-line: underline;
   text-decoration-color: currentColor;
 }
 
@@ -601,6 +616,9 @@ figcaption {
 
 .prose-content a:not(.heading-anchor, .content-file) {
   color: var(--accent);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   text-decoration-color: color-mix(in srgb, var(--accent) 42%, transparent);
 }
 
@@ -608,11 +626,13 @@ figcaption {
   text-decoration-color: currentColor;
 }
 
+/* Strong is brand-colored without underline so it does not read as a link. */
 .prose-content strong {
   --font-cjk-current: var(--font-cjk-heading);
   color: var(--accent);
   font-family: var(--font-heading);
   font-weight: 500;
+  text-decoration: none;
 }
 
 .prose-content em {
@@ -654,22 +674,39 @@ figcaption {
 
 .prose-content :is(.task-list, .content-toc-list) {
   list-style: none;
+  /* No marker: drop the bullet gutter so checkbox/grid owns horizontal start. */
+  padding-left: 0;
 }
 
 .prose-content li::marker {
   color: var(--accent);
 }
 
+/* List-item prose: base `.prose-content p` uses 16px bottom (paragraph rhythm).
+ * That is too much between tight list rows and stacks with nested-list margins. */
 .prose-content li > .list-item-body > p {
   margin-top: 0;
-  margin-bottom: 8px;
+  margin-bottom: 0;
+}
+
+.prose-content li > .list-item-body > p + p {
+  margin-top: 8px;
+}
+
+/* Nested list under a parent item: one small step, no second block margin. */
+.prose-content li > .list-item-body > :is(ul, ol) {
+  margin-top: 4px;
+  margin-bottom: 0;
+  /* Already in the text column (beside the checkbox); modest depth indent only. */
+  padding-left: 1.25em;
 }
 
 .task-list > .task-item {
   display: grid;
   grid-template-columns: 20px minmax(0, 1fr);
   align-items: start;
-  gap: 8px;
+  column-gap: 8px;
+  row-gap: 0;
 }
 
 .list-item-body {
@@ -677,7 +714,10 @@ figcaption {
 }
 
 .task-list input {
-  margin-top: 7px;
+  /* Align with the first text line; keep 0 vertical margin so rows stay even. */
+  width: 14px;
+  height: 14px;
+  margin: 0.35em 0 0;
   accent-color: var(--accent);
   pointer-events: none;
 }

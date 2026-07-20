@@ -30,7 +30,12 @@ export function preprocessNotionMarkdown(markdown: string, pageLabel: string): s
   rejectKnownUnsupportedSyntax(markdown, pageLabel, protectedRanges)
   const masked = maskCalloutTextBraces(markdown, protectedRanges)
   const withoutEmptyBlocks = rewriteNotionEmptyBlocks(masked, protectedRanges)
-  return rewriteNotionVoidTags(withoutEmptyBlocks, protectedRanges)
+  const withVoidTags = rewriteNotionVoidTags(withoutEmptyBlocks, protectedRanges)
+  // Notion joins blocks with a single \n. Soft breaks inside a block use <br>, so
+  // single newlines between non-empty lines are block boundaries and need a blank
+  // line for CommonMark (paragraph separation, thematic breaks vs setext headings,
+  // list/quote termination). Skip interiors of fences, tight lists, quotes, tables.
+  return separateNotionBlockBoundaries(withVoidTags)
 }
 
 export function restoreCalloutTextBraces(value: string): string {
@@ -154,6 +159,84 @@ function rewriteNotionEmptyBlocks(
     }
     return ' '.repeat(match.length)
   })
+}
+
+/**
+ * Insert blank lines between Notion block boundaries that CommonMark would otherwise
+ * glue together. Soft line breaks in Notion exports are `<br>`, not bare `\n`.
+ */
+export function separateNotionBlockBoundaries(markdown: string): string {
+  const lines = markdown.split('\n')
+  if (lines.length <= 1) return markdown
+
+  const output: string[] = []
+  let inFence = false
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index]!
+    const fenceLine = isFenceDelimiterLine(line)
+
+    if (index > 0) {
+      const previous = lines[index - 1]!
+      if (
+        previous !== '' &&
+        line !== '' &&
+        output[output.length - 1] !== '' &&
+        !inFence &&
+        !keepAdjacentNotionLines(previous, line)
+      ) {
+        output.push('')
+      }
+    }
+
+    output.push(line)
+    if (fenceLine) inFence = !inFence
+  }
+
+  return output.join('\n')
+}
+
+function keepAdjacentNotionLines(previous: string, next: string): boolean {
+  // Tight lists and one level of indented continuation under a list item. Do not
+  // keep *all* indented lines adjacent: Notion callout/table bodies also use tabs,
+  // and those need blank lines so CommonMark yields separate paragraphs.
+  if (isListItemLine(previous) && isListItemLine(next)) return true
+  if (isListItemLine(previous) && isIndentedListContinuation(next)) return true
+  if (isIndentedListContinuation(previous) && isListItemLine(next)) return true
+
+  // Multi-line quote blocks keep `>` lines adjacent. Adjacent *separate* quote
+  // blocks look the same in Notion's export and therefore still merge.
+  if (isBlockquoteLine(previous) && isBlockquoteLine(next)) return true
+
+  if (isPipeTableLine(previous) && isPipeTableLine(next)) return true
+  if (isHtmlTableLine(previous) && isHtmlTableLine(next)) return true
+
+  return false
+}
+
+function isFenceDelimiterLine(line: string): boolean {
+  return /^ {0,3}(?:`{3,}|~{3,})/u.test(line)
+}
+
+function isListItemLine(line: string): boolean {
+  return /^(?: {0,3}|\t+)(?:[-*+]|\d{1,9}[.)])(?:\s|$)/u.test(line)
+}
+
+function isIndentedListContinuation(line: string): boolean {
+  if (isListItemLine(line)) return false
+  return /^(?: {2,}|\t+)\S/u.test(line)
+}
+
+function isBlockquoteLine(line: string): boolean {
+  return /^ {0,3}>/u.test(line)
+}
+
+function isPipeTableLine(line: string): boolean {
+  return /^\s*\|/u.test(line)
+}
+
+function isHtmlTableLine(line: string): boolean {
+  return /^\s*<\/?(?:table|thead|tbody|tfoot|tr|th|td|colgroup|col)\b/iu.test(line)
 }
 
 function maskCalloutTextBraces(markdown: string, protectedRanges: readonly OffsetRange[]): string {
