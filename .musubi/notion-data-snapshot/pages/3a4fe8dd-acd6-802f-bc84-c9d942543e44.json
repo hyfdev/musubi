@@ -1,0 +1,111 @@
+{
+  "markdown": {
+    "id": "3a4fe8dd-acd6-802f-bc84-c9d942543e44",
+    "markdown": "Musubi is a personal website framework that uses Notion as a CMS, powered by Nuxt.\nPosts, pages, and site settings like the title, nav links and timezone are all in Notion. There's no admin panel and no config file to edit.\nEach build reads Notion and outputs static HTML, so the published site doesn't call Notion at all.",
+    "object": "page_markdown",
+    "truncated": false,
+    "unknown_block_ids": []
+  },
+  "notionApiVersion": "2026-03-11",
+  "page": {
+    "cover": null,
+    "created_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "created_time": "2026-07-21T15:29:00.000Z",
+    "icon": null,
+    "id": "3a4fe8dd-acd6-802f-bc84-c9d942543e44",
+    "in_trash": false,
+    "is_archived": false,
+    "is_locked": false,
+    "last_edited_by": {
+      "id": "ff55607a-3044-4bbb-9667-bc8493a06e9b",
+      "object": "user"
+    },
+    "last_edited_time": "2026-07-21T15:50:00.000Z",
+    "object": "page",
+    "parent": {
+      "data_source_id": "2d0fe8dd-acd6-81fb-8702-000b039af795",
+      "database_id": "2d0fe8dd-acd6-81ff-bfc5-f9bbd873cc36",
+      "type": "data_source_id"
+    },
+    "properties": {
+      "Description": {
+        "id": "10243cf2-965e-450d-99ee-dc6076017363",
+        "rich_text": [],
+        "type": "rich_text"
+      },
+      "Navigation Order": {
+        "id": "~%3EIP",
+        "number": null,
+        "type": "number"
+      },
+      "Publish Date": {
+        "date": null,
+        "id": "dp_o",
+        "type": "date"
+      },
+      "Show in Navigation": {
+        "checkbox": false,
+        "id": "eCNL",
+        "type": "checkbox"
+      },
+      "Slug": {
+        "id": "A%3Cgx",
+        "rich_text": [],
+        "type": "rich_text"
+      },
+      "Status": {
+        "id": "ece115aa-d10f-4ea0-83b3-ea2a43e6e71e",
+        "select": {
+          "color": "green",
+          "id": "7abc61d4-b405-480d-b699-12588755fa65",
+          "name": "Published"
+        },
+        "type": "select"
+      },
+      "Tags": {
+        "id": "0d131b96-a11a-4078-85a2-06eef84c7be6",
+        "multi_select": [],
+        "type": "multi_select"
+      },
+      "Title": {
+        "id": "title",
+        "title": [
+          {
+            "annotations": {
+              "bold": false,
+              "code": false,
+              "color": "default",
+              "italic": false,
+              "strikethrough": false,
+              "underline": false
+            },
+            "href": null,
+            "plain_text": "Home",
+            "text": {
+              "content": "Home",
+              "link": null
+            },
+            "type": "text"
+          }
+        ],
+        "type": "title"
+      },
+      "Type": {
+        "id": "c832da20-339d-4a80-9a7b-62f98d5a8996",
+        "select": {
+          "color": "red",
+          "id": "c935e5f9-bfd2-4041-9d08-1c22a191297b",
+          "name": "Home"
+        },
+        "type": "select"
+      }
+    },
+    "public_url": "https://hyf0.notion.site/Home-3a4fe8ddacd6802fbc84c9d942543e44",
+    "url": "https://app.notion.com/p/Home-3a4fe8ddacd6802fbc84c9d942543e44"
+  },
+  "schemaVersion": 1,
+  "unknownBlocks": []
+}

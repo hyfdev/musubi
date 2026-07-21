@@ -73,6 +73,25 @@ function normalizePublishedRow(row: SourceContentRow): PublishedPageMeta {
   if (!title) {
     throw new Error(`${row.sourceLabel}: Published content requires a nonempty Title`)
   }
+  // Home owns `/` outright, so it carries no path segment and never reads Slug.
+  if (row.type === 'Home') {
+    if (row.slug.trim()) {
+      throw new Error(`${row.sourceLabel}: Home occupies \`/\` and must leave Slug empty`)
+    }
+    return {
+      sourceLabel: row.sourceLabel,
+      title,
+      slug: '',
+      route: '/',
+      // Home has no publication date. Passing the row's value through would be the one path that
+      // reaches a PublishedPageMeta unvalidated, so it is empty rather than unread.
+      date: undefined,
+      type: 'Home',
+      description: row.description.trim(),
+      tags: [...new Set(row.tags.map((tag) => tag.trim()).filter(Boolean))].sort(compareText),
+      showInNavigation: false,
+    }
+  }
   const slug = normalizeSlug(row.slug, row.sourceLabel)
   const reserved = row.type === 'Page' ? topLevelReservedSlugs : new Set<string>()
   if (reserved.has(comparisonKey(slug))) {
@@ -163,6 +182,16 @@ export function buildRouteManifest(
       (left, right) => compareText(left.title, right.title) || compareText(left.slug, right.slug),
     )
 
+  const homeRows = published.filter((page) => page.type === 'Home')
+  if (homeRows.length > 1) {
+    throw new Error(
+      `Only one Published Home may exist, found ${homeRows.length}: ${homeRows
+        .map((page) => page.sourceLabel)
+        .join(', ')}`,
+    )
+  }
+  const home = homeRows[0]
+
   const navigation = standalonePages
     .filter((page) => page.showInNavigation)
     .sort((left, right) => {
@@ -183,7 +212,7 @@ export function buildRouteManifest(
 
   const entries: RouteManifestEntry[] = []
   const seen = new Map<string, RouteManifestEntry>()
-  addRoute(entries, seen, '/', 'home', 'generated recent-Post Home')
+  addRoute(entries, seen, '/', 'home', home?.sourceLabel ?? 'generated recent-Post Home')
   addRoute(entries, seen, '/blog', 'blog', 'generated complete Blog archive')
   for (const post of posts) {
     addRoute(entries, seen, post.route, 'post', post.sourceLabel)
@@ -199,6 +228,7 @@ export function buildRouteManifest(
     routes: entries.map(({ route }) => route),
     posts,
     standalonePages,
+    home,
     navigation,
     homePosts,
     blogPosts,

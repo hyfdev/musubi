@@ -10,10 +10,12 @@ import type {
 } from '../../scripts/notion/types.ts'
 import { NOTION_SNAPSHOT_SCHEMA_VERSION } from '../../scripts/notion/types.ts'
 import type {
+  Home,
   Page,
   Post,
   PublishedPageMeta,
   Site,
+  SiteContent,
   SourceConfigRow,
   SourceContentRow,
 } from './types.ts'
@@ -203,9 +205,11 @@ export function normalizeNotionContentType(
   value: string | undefined,
   sourceLabel: string,
 ): SourceContentRow['type'] {
-  if (value === 'Post' || value === 'Page') return value
+  if (value === 'Post' || value === 'Page' || value === 'Home') return value
   if (value === 'Content') return 'Page'
-  throw new Error(`${sourceLabel}.Type must be Post or Page (legacy Content remains compatible)`)
+  throw new Error(
+    `${sourceLabel}.Type must be Post, Page, or Home (legacy Content remains compatible)`,
+  )
 }
 
 function selectName(value: Record<string, unknown>, label: string): string | undefined {
@@ -366,7 +370,7 @@ function embedUrls(page: LoadedNotionPageSnapshot, pageId: string): Map<string, 
   return result
 }
 
-function createContent(meta: PublishedPageMeta, document: MusubiDocument): Post | Page {
+function createContent(meta: PublishedPageMeta, document: MusubiDocument): SiteContent {
   const common = {
     sourceLabel: meta.sourceLabel,
     title: meta.title,
@@ -378,6 +382,9 @@ function createContent(meta: PublishedPageMeta, document: MusubiDocument): Post 
   }
   if (meta.type === 'Post') {
     return { ...common, type: 'Post', date: meta.date! }
+  }
+  if (meta.type === 'Home') {
+    return { ...common, type: 'Home' }
   }
   return {
     ...common,
@@ -449,10 +456,11 @@ export async function createSite(
     publicFiles,
   )
   const metadataBySource = new Map(
-    [...routeManifest.posts, ...routeManifest.standalonePages].map((meta) => [
-      meta.sourceLabel,
-      meta,
-    ]),
+    [
+      ...routeManifest.posts,
+      ...routeManifest.standalonePages,
+      ...(routeManifest.home ? [routeManifest.home] : []),
+    ].map((meta) => [meta.sourceLabel, meta]),
   )
   const parsedDocuments = snapshot.pages.map((page, index) => {
     const parsed = parsedPages[index]!
@@ -473,11 +481,13 @@ export async function createSite(
   const byRoute = new Map(contents.map((content) => [content.route, content]))
   const posts = routeManifest.posts.map((meta) => byRoute.get(meta.route) as Post)
   const pages = routeManifest.standalonePages.map((meta) => byRoute.get(meta.route) as Page)
+  const home = routeManifest.home ? (byRoute.get(routeManifest.home.route) as Home) : undefined
 
   return {
     config: resolveSiteConfig(configRows),
     posts,
     pages,
+    home,
     navigation: routeManifest.navigation,
     byRoute,
     routes: routeManifest.routes,

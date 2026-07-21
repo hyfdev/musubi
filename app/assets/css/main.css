@@ -135,8 +135,14 @@ a {
 
 /* UnoCSS/Tailwind preflight sets `a { text-decoration: inherit }`, which removes
  * the browser underline. Reading links must opt back in so brand-colored strong
- * and links stay distinguishable (DESIGN-decisions: prose links). */
-a {
+ * and links stay distinguishable (DESIGN-decisions: prose links).
+ *
+ * Qualified with `html` on purpose: preflight loads after this file, so a bare `a`
+ * selector ties on specificity and loses on order, leaving every link outside
+ * `.prose-content` as plain body text. `html a` clears preflight while still losing
+ * to the class selectors that deliberately drop the underline — navigation, list
+ * titles, and the heading permalink. */
+html a {
   color: var(--accent);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
@@ -144,7 +150,7 @@ a {
   text-decoration-color: color-mix(in srgb, var(--accent) 42%, transparent);
 }
 
-a:hover {
+html a:hover {
   text-decoration-color: currentColor;
 }
 
@@ -372,6 +378,15 @@ a:hover {
   padding-block: 64px 80px;
 }
 
+/*
+ * Home renders no title and reserves no room for one: its opening starts at the page padding, on
+ * the same line as the first ink of every other route — Blog's `Blog`, an article's title. An
+ * earlier version pushed the opening down to where those routes' *content* starts, on the reasoning
+ * that prose in the title slot reads as a heading that lost its size. That held while Home was three
+ * paragraphs and nothing else; with the labelled index below it the opening reads as an opening, and
+ * the reserved slot only left the top of the page empty.
+ */
+
 .blog-page > h1,
 .article-title-block h1,
 .error-page h1 {
@@ -483,18 +498,61 @@ figcaption {
   line-height: 26px;
 }
 
+/*
+ * Home's index sits under the opening prose, so it is compressed rather than repeated from Blog:
+ * one small label owns it instead of a rule, entries drop their separators, and the summary falls
+ * to the metadata tier so title, summary, and date read as three steps instead of two.
+ */
+.home-recent {
+  margin-top: 40px;
+}
+
+.home-recent > h2 {
+  margin: 0 0 12px;
+  color: var(--meta);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.home-recent .post-entry {
+  padding-block: 0;
+  border-bottom: 0;
+}
+
+.home-recent .post-entry + .post-entry {
+  margin-top: 20px;
+}
+
+.home-recent .post-summary {
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
 .empty-state {
   margin: 0;
   color: var(--text-muted);
 }
 
+/* The mark is punctuation, so it carries no word to give it weight; the body tier supplies that. */
 .home-more-posts {
   margin: 28px 0 0;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 17px;
+  line-height: 28px;
 }
 
+/*
+ * The base `a` rule loses to UnoCSS preflight, which is why prose restates the treatment on
+ * `.prose-content a`. This link sits outside prose, so it has to restate it too — declaring only
+ * `text-decoration-color` left it inheriting body text with no underline, reading as plain text.
+ */
 .home-more-posts a {
+  color: var(--accent);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   text-decoration-color: color-mix(in srgb, var(--accent) 42%, transparent);
 }
 
@@ -1062,8 +1120,24 @@ figcaption {
 }
 
 @media (max-width: 760px) {
-  .article-page {
-    --article-inline-gutter: max(20px, calc(29px - (100vw - 100%) / 2));
+  /*
+   * The gutter has to hold the heading `#`, which is as wide as the heading it belongs to — about
+   * `20px` beside an H2 — plus the accepted `8px` gap. The former `29px` left the symbol under a
+   * pixel from the viewport edge, so it reads as falling off the screen. `40px` seats it clear of
+   * the edge without touching the accepted gap.
+   *
+   * Every route shares the value, not only the ones that render `#`: the reading axis would
+   * otherwise jump horizontally when navigation moves between Home, Blog, and an article.
+   */
+  .article-page,
+  .home-page,
+  .blog-page {
+    --article-inline-gutter: max(20px, calc(40px - (100vw - 100%) / 2));
+  }
+
+  .home-page,
+  .blog-page {
+    width: min(calc(100% - var(--article-inline-gutter) - var(--article-inline-gutter)), 720px);
   }
 
   .site-header-inner {

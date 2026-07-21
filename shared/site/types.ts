@@ -1,7 +1,7 @@
 import type { MusubiDocument } from '../content/types.ts'
 
 export type ContentStatus = 'Draft' | 'Published'
-export type ContentType = 'Post' | 'Page'
+export type ContentType = 'Post' | 'Page' | 'Home'
 
 export interface SourceContentRow {
   sourceLabel: string
@@ -78,12 +78,21 @@ export interface Page extends CommonContent {
   navigationOrder?: number
 }
 
-export type SiteContent = Post | Page
+/**
+ * The optional authored opening of `/`. It never carries a Slug of its own: its route is always
+ * `/`, and the generated recent-Post list still renders below it.
+ */
+export interface Home extends CommonContent {
+  type: 'Home'
+}
+
+export type SiteContent = Post | Page | Home
 
 export interface Site {
   config: SiteConfig
   posts: Post[]
   pages: Page[]
+  home?: Home
   navigation: NavigationItem[]
   byRoute: ReadonlyMap<string, SiteContent>
   routes: string[]
@@ -108,6 +117,7 @@ export interface RouteManifest {
   routes: string[]
   posts: PublishedPageMeta[]
   standalonePages: PublishedPageMeta[]
+  home?: PublishedPageMeta
   navigation: NavigationItem[]
   homePosts: PublicPageMeta[]
   blogPosts: PublicPageMeta[]

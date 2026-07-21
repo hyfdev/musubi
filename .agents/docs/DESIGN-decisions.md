@@ -70,18 +70,18 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Default example identity, route roles, and sticky header behavior
 
-[VOUCHED @hyfdev 2026-07-15]
+[VOUCHED @hyfdev 2026-07-22]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
 - **Scope:** The identity shown by Musubi's default example, the distinct roles of the default Home and Blog routes, the absence of a default About route, and the global header's scroll behavior. This decision does not set the final footer copy or the exact shared header and footer height.
 - **Default example identity:** Display `Musubi` as the site name in the framework's default example. Treat it as the example's configured site identity, not as a hard-coded requirement for deployed personal sites. A deployer replaces that configuration with the deployed site's own name.
 - **Header identity treatment:** Render the configured site name as plain text. Do not add an icon, decorative rule, or AI-invented mark. A future logo or icon requires a separate explicit decision.
-- **Home:** Use Home as a restrained recent-articles view. Do not add a personal introduction, hero, or equivalent promotional block above the list.
+- **Home:** Use Home as a restrained recent-articles view that may open with authored prose. One optional `Type = Home` row supplies that opening; when no such row is published, Home begins with the list. Do not add a hero or an equivalent promotional block, and do not let the opening grow until the list falls below the fold.
 - **Blog:** Use `/blog` as the complete chronological archive and display every published article on that one page. Do not introduce article-index pagination, pagination controls, or `/blog/page/:page` routes. Home remains the restrained recent-articles view, while Blog provides the complete collection; this distinct role is why both remain in the primary navigation.
 - **About:** Do not provide an About page or navigation item by default.
 - **Sticky header:** Keep the global header sticky while preserving the page's reading space. When the reader scrolls downward, slide the header upward out of view; when the reader scrolls upward, reveal it again. Keep it visible at the top of the page.
-- **Reason or reference:** Yunfei wants the framework example to identify itself as Musubi while allowing a deployed site to supply its own name. He accepted the recent-versus-archive separation, rejected a default homepage introduction and About page, and explicitly selected the hide-on-downward-scroll and reveal-on-upward-scroll header behavior.
+- **Reason or reference:** Yunfei wants the framework example to identify itself as Musubi while allowing a deployed site to supply its own name. He accepted the recent-versus-archive separation, rejected a default About page, and explicitly selected the hide-on-downward-scroll and reveal-on-upward-scroll header behavior. He originally rejected a homepage introduction as well, and reversed that on 2026-07-22 after writing one and comparing the result against peer personal sites; the introduction is authored content the owner opts into, not a promotional block the framework ships.
 
 ### Initial built-in interface language
 
@@ -99,16 +99,16 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Shared content-led page opener
 
-[VOUCHED @hyfdev 2026-07-15]
+[VOUCHED @hyfdev 2026-07-22]
 
 - **Date:** 2026-07-15.
 - **Status:** Required.
 - **Scope:** The visible beginning of the default Home, Blog, Post, and Page surfaces. This decision governs whether a route adds a visible page heading and whether a label or decorative short rule precedes that heading. It does not alter the separately accepted long outer-shell divider below Post and Page headers.
-- **Home:** Begin directly with the recent-article list. Do not add a visible Home-page H1 such as `Latest` or `Writing`, and do not insert a page-introduction block merely to name the list.
+- **Home:** Begin with the optional authored opening when one is published, otherwise with the recent-article list. Do not add a visible Home-page H1: the opening carries no title of its own, and the `Type = Home` row's Title is never rendered. The list below the opening does take a small interface-tier label naming it, because with prose above it the list otherwise has neither a name nor a boundary; that label is the only naming block Home may add.
 - **Blog, Post, and Page:** Begin directly with the route's semantic H1. Continue with the optional lede, metadata, and body elements already selected for that surface; do not place an eyebrow label or decorative short brand-colored rule above the H1.
 - **Rejected recurring opener:** Do not use labels such as `Writing`, `Archive`, `Article`, or `Page` as a recurring visual signature above page titles. Kami's print-oriented label-and-short-rule treatment is a reference, not a requirement to reproduce on the web.
 - **Divider boundary:** Home and Blog do not gain a long divider as a substitute for the omitted opener decoration. Post and Page retain the long outer-shell header divider under their separately accepted composition rules.
-- **Reason or reference:** Yunfei selected the no-Home-heading option after comparing three coherent opener systems across Home, Blog, Post, and Page. This keeps Home content-led, avoids repeating route meaning above already sufficient H1s, and preserves the restrained single-axis composition without adding a print-derived signature to every web surface.
+- **Reason or reference:** Yunfei selected the no-Home-heading option after comparing three coherent opener systems across Home, Blog, Post, and Page. This keeps Home content-led, avoids repeating route meaning above already sufficient H1s, and preserves the restrained single-axis composition without adding a print-derived signature to every web surface. On 2026-07-22 he admitted the list label once Home gained an opening above the list: he declined naming the page after itself, since `Home` names a navigation position rather than content, but accepted that the list itself needs a name once it is no longer the whole page.
 
 ### Home recent-Post count
 
@@ -120,6 +120,17 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 - **Default count:** Show the five most recently published Posts, ordered from newest to oldest. If fewer than five Posts exist, show every available Post without placeholders or empty rows.
 - **Configuration boundary:** Five is the selected product default. This decision does not yet require or reject a deployer-facing setting that changes the count.
 - **Reason or reference:** Yunfei selected five after comparing three-, five-, and eight-Post Home specimens. Five provides recent context while keeping Home materially shorter than the complete Blog archive.
+
+### Home opening prose
+
+[VOUCHED @hyfdev 2026-07-22]
+
+- **Ruling:** A single optional Notion row with `Type = Home` contributes authored prose above Home's recent-Post list; that row never renders its own Title and never claims a Slug, and the index below it is compressed rather than repeated from Blog.
+- **Composition:** The opening starts at the page padding, on the line where every other route puts its first ink, and Home reserves no room for the title it does not render. The index carries a small interface-tier label, entries keep the `20px` title but drop their separators, and each summary falls to the metadata tier so title, summary, and date read as three steps. A single ellipsis, at body size and underlined, leads to `/blog`; its accessible name carries the meaning the mark cannot.
+- **Limits:** The recent-Post count stays five. Nothing bounds how long the opening may be, and an opening that pushes the list out of view defeats it. Home is a third routing kind beside Post and Page, not a Page pinned to `/`: it takes no Publish Date and never enters navigation. Whether the row's Description should feed the metadata for `/`, which still comes from Config, is open.
+- **Why:** Yunfei wanted an introduction on his own Home without giving up the recent-Post list, and picked prose above the list over replacing Home with a standalone Page. Offered `Type = Home` against three Slug-based alternatives, he chose it directly. He declined putting his name or the site name in the title slot as too showy, which is why the page carries no H1 at all. He kept the summaries but asked that they separate from the titles, and chose the ellipsis over the words `More posts`, keeping its underline on the grounds that an underline is what makes a thing look clickable.
+- **Source:** Yunfei, 2026-07-21 to 2026-07-22, working from a running preview. The Slug alternatives rejected on his behalf, with reasoning supplied by the implementer rather than by him: a reserved `index` slug, a magic value that would also make `/index` vanish; an empty Slug meaning root, which would turn a loud validation error into a silent home-page takeover; and an `Is Home` checkbox on a Page, leaving the same content reachable at both `/` and `/:slug`. A Slug cannot express `/` in any case — `invalidSlugDelimiter` rejects separators and a Page route is its slug with `/` prefixed.
+- **Changed alongside:** This reverses the "Do not add a personal introduction" clause of **Default example identity, route roles, and sticky header behavior** and the "Begin directly with the recent-article list" clause of **Shared content-led page opener**, both vouched 2026-07-15; the list label it introduces also reverses that entry's rejection of a block naming the list. Both entries were rewritten and re-vouched on the same day. It also reverses the equivalent clause of the Layout Home bullet in [`DESIGN.md`](./DESIGN.md), which carried no stamp.
 
 ### Page composition
 
