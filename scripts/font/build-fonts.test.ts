@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
@@ -13,7 +13,7 @@ afterEach(async () => {
 })
 
 describe('public font build', () => {
-  it('gives W04 and W05 the same Chinese corpus and publishes only required LXGW gaps', async () => {
+  it('gives W04 and W05 the same corpus and publishes the complete CJK-only fallback', async () => {
     const output = await mkdtemp(join(tmpdir(), 'musubi-font-build-'))
     temporaryDirectories.push(output)
     const rareLxgwOnlyCharacter = String.fromCodePoint(0x4dae)
@@ -30,13 +30,21 @@ describe('public font build', () => {
       expect(manifest.artifacts.tsangerW04.coverage.codePoints).toEqual(['U+4E2D'])
       expect(manifest.artifacts.tsangerW05.coverage.codePoints).toEqual(['U+4E2D'])
     }
-    const fallbackCodePoints = manifest.artifacts.fallbackShards.flatMap(
-      (artifact) => artifact.coverage.codePoints,
-    )
-    expect(fallbackCodePoints).toContain('U+4DAE')
-    if (!manifest.artifacts.tsangerW04) expect(fallbackCodePoints).toContain('U+4E2D')
+    expect(manifest.artifacts.fallbackShards).toHaveLength(8)
+    expect(
+      manifest.artifacts.fallbackShards.reduce(
+        (count, artifact) => count + artifact.coverage.count,
+        0,
+      ),
+    ).toBe(manifest.sources.fallback.runtimeCmapCodePointCount)
+    for (const codePoint of [0x3400, 0x4dae, 0x4e2d]) {
+      expect(
+        manifest.artifacts.fallbackShards.some((artifact) => covers(artifact, codePoint)),
+      ).toBe(true)
+    }
     for (const artifact of manifest.artifacts.fallbackShards) {
-      expect(artifact.coverage.cssUnicodeRange).not.toContain('U+0020')
+      expect(artifact.coverage.ranges.every((range) => rangeStart(range) > 0x7f)).toBe(true)
+      await expect(readFile(join(output, artifact.path))).resolves.toHaveLength(artifact.bytes)
     }
     for (const artifact of manifest.artifacts.charter) {
       expect(artifact.coverage.codePoints).toEqual(
@@ -74,3 +82,20 @@ describe('public font build', () => {
     expect(manifest.selectedCorpora.chinese.codePoints).toEqual(['U+4DAE', 'U+4E2D'])
   }, 60_000)
 })
+
+function covers(artifact: { coverage: { ranges: string[] } }, codePoint: number): boolean {
+  return artifact.coverage.ranges.some((range) => {
+    const [start, end] = parseRange(range)
+    return codePoint >= start && codePoint <= end
+  })
+}
+
+function rangeStart(range: string): number {
+  return parseRange(range)[0]
+}
+
+function parseRange(range: string): readonly [number, number] {
+  const match = /^U\+([0-9A-F]{4,6})(?:-([0-9A-F]{4,6}))?$/u.exec(range)!
+  const start = Number.parseInt(match[1]!, 16)
+  return [start, match[2] ? Number.parseInt(match[2], 16) : start]
+}

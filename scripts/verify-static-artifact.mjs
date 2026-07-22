@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { lstat, readFile, readdir } from 'node:fs/promises'
 import { join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
@@ -92,6 +93,8 @@ export async function verifyStaticArtifact(
   if (!fontCss?.isFile() || fontCss.size === 0) {
     throw new Error(`Static artifact is missing its font stylesheet: ${fontCssPath}`)
   }
+  const fontCssDocument = await readFile(resolve(root, fontCssPath.slice(1)), 'utf8')
+  await verifyRuntimeFallback(root, fontCssDocument)
 
   const headersDocument = await readFile(resolve(root, '_headers'), 'utf8')
   for (const requiredBlock of REQUIRED_HEADER_BLOCKS) {
@@ -159,6 +162,107 @@ export async function verifyStaticArtifact(
   }
 
   return { root, fileCount, totalBytes }
+}
+
+async function verifyRuntimeFallback(root, fontCssDocument) {
+  const manifestPath = resolve(root, '_musubi/generated/fonts/fonts-manifest.json')
+  const manifestDocument = await readFile(manifestPath, 'utf8').catch(() => undefined)
+  if (!manifestDocument) {
+    throw new Error('Static artifact is missing its generated font manifest')
+  }
+  const manifest = JSON.parse(manifestDocument)
+  const runtimeCount = manifest?.sources?.fallback?.runtimeCmapCodePointCount
+  const shards = manifest?.artifacts?.fallbackShards
+  if (manifest?.schemaVersion !== 5 || !Number.isInteger(runtimeCount) || runtimeCount <= 0) {
+    throw new Error('Static artifact font manifest has no complete runtime fallback coverage')
+  }
+  if (!Array.isArray(shards) || shards.length !== 8) {
+    throw new Error('Static artifact must contain all 8 runtime fallback shards')
+  }
+
+  const faceBlocks = fontCssDocument.match(/@font-face\s*\{[^}]*\}/gu) ?? []
+  const declaredCodePoints = new Set()
+  const declaredPaths = new Set()
+  for (const shard of shards) {
+    if (
+      shard?.family !== 'Musubi CJK Fallback' ||
+      typeof shard.path !== 'string' ||
+      !shard.path.startsWith('fonts/') ||
+      shard.path.includes('\\') ||
+      shard.path
+        .split('/')
+        .some((segment) => segment === '' || segment === '.' || segment === '..') ||
+      !Number.isInteger(shard.bytes) ||
+      shard.bytes <= 0 ||
+      !Number.isInteger(shard?.coverage?.count) ||
+      !Array.isArray(shard?.coverage?.ranges) ||
+      typeof shard?.coverage?.cssUnicodeRange !== 'string' ||
+      shard.coverage.cssUnicodeRange !== shard.coverage.ranges.join(', ') ||
+      !/^[0-9a-f]{64}$/u.test(shard.sha256)
+    ) {
+      throw new Error('Static artifact font manifest contains an invalid runtime fallback shard')
+    }
+    if (declaredPaths.has(shard.path)) {
+      throw new Error(`Static artifact repeats runtime fallback shard: ${shard.path}`)
+    }
+    declaredPaths.add(shard.path)
+    const shardPath = resolve(root, '_musubi/generated', shard.path)
+    const file = await lstat(shardPath).catch(() => undefined)
+    if (!file?.isFile() || file.size !== shard.bytes) {
+      throw new Error(`Static artifact is missing runtime fallback shard: ${shard.path}`)
+    }
+    const bytes = await readFile(shardPath)
+    if (createHash('sha256').update(bytes).digest('hex') !== shard.sha256) {
+      throw new Error(`Static artifact runtime fallback hash differs: ${shard.path}`)
+    }
+    const shardUrl = `/_musubi/generated/${shard.path}`
+    const matchingFaces = faceBlocks.filter((block) => block.includes(`url('${shardUrl}')`))
+    if (matchingFaces.length !== 1) {
+      throw new Error(`Static artifact font CSS omits runtime fallback shard: ${shard.path}`)
+    }
+    const face = matchingFaces[0]
+    if (
+      !face.includes("font-family: 'Musubi CJK Fallback';") ||
+      !face.includes('font-style: normal;') ||
+      !face.includes('font-weight: 400 500;') ||
+      !face.includes(`unicode-range: ${shard.coverage.cssUnicodeRange};`)
+    ) {
+      throw new Error(`Static artifact font CSS misdeclares runtime fallback shard: ${shard.path}`)
+    }
+    let shardDeclaredCount = 0
+    for (const range of shard.coverage.ranges) {
+      const [start, end] = parseUnicodeRange(range)
+      if (start <= 0x7f) {
+        throw new Error(`Static runtime fallback exposes ASCII through ${range}`)
+      }
+      for (let codePoint = start; codePoint <= end; codePoint += 1) {
+        if (declaredCodePoints.has(codePoint)) {
+          throw new Error(
+            `Static runtime fallback coverage overlaps at U+${codePoint.toString(16).toUpperCase()}`,
+          )
+        }
+        declaredCodePoints.add(codePoint)
+        shardDeclaredCount += 1
+      }
+    }
+    if (shardDeclaredCount !== shard.coverage.count) {
+      throw new Error(
+        `Static runtime fallback shard declares ${shard.coverage.count} mappings but its ranges contain ${shardDeclaredCount}: ${shard.path}`,
+      )
+    }
+  }
+  if (declaredCodePoints.size !== runtimeCount) {
+    throw new Error(
+      `Static runtime fallback declares ${declaredCodePoints.size} mappings; expected ${runtimeCount}`,
+    )
+  }
+}
+
+function parseUnicodeRange(range) {
+  const match = /^U\+([0-9A-F]{4,6})(?:-([0-9A-F]{4,6}))?$/u.exec(range)
+  if (!match) throw new Error(`Static runtime fallback has an invalid unicode range: ${range}`)
+  const start = Number.parseInt(match[1], 16)
+  return [start, match[2] ? Number.parseInt(match[2], 16) : start]
 }
 
 export async function verifyNoGeneratedDeployRedirect(

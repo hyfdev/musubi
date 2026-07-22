@@ -194,7 +194,7 @@ async function main(): Promise<void> {
   await writeFontCss(fonts)
   await writeFontBuildState(inputFingerprint)
   console.log(
-    `Fonts ready for ${site.posts.length + site.pages.length + (site.home ? 1 : 0)} Published pages (${fonts.artifacts.fallbackShards.length} fallback subsets).`,
+    `Fonts ready for ${site.posts.length + site.pages.length + (site.home ? 1 : 0)} Published pages (${fonts.artifacts.fallbackShards.length} runtime fallback shards).`,
   )
 }
 

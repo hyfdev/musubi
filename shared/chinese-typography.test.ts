@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vite-plus/test'
 import {
   classifyChineseTypographyText,
+  isPotentialChineseTypographyCodePoint,
   segmentChineseTypographyText,
 } from './chinese-typography.ts'
 
@@ -12,6 +13,17 @@ function selectedCharacters(value: string): string {
 }
 
 describe('contextual Chinese typography', () => {
+  it('defines the complete character universe for the runtime CJK fallback', () => {
+    for (const character of ['中', '。', 'Ａ', '—', '…']) {
+      expect(isPotentialChineseTypographyCodePoint(character, character.codePointAt(0)!)).toBe(true)
+    }
+    for (const character of ['A', '1', ' ', '↓']) {
+      expect(isPotentialChineseTypographyCodePoint(character, character.codePointAt(0)!)).toBe(
+        false,
+      )
+    }
+  })
+
   it('keeps ambiguous punctuation in Latin text with the Latin font', () => {
     expect(selectedCharacters('English — prose · more…')).toBe('')
   })

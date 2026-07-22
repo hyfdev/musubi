@@ -51,6 +51,17 @@ export function classifyChineseTypographyCodePoint(
   return null
 }
 
+/** Returns whether a font mapping can ever be selected by the Chinese typography classifier. */
+export function isPotentialChineseTypographyCodePoint(
+  character: string,
+  codePoint: number,
+): boolean {
+  return (
+    CONTEXTUAL_CHINESE_PUNCTUATION.has(codePoint) ||
+    classifyChineseTypographyCodePoint(character, codePoint) !== null
+  )
+}
+
 /**
  * Classifies a complete text run so punctuation shared by Chinese and Latin typography follows
  * the nearest script on either side. Newlines stop the lookup and therefore keep separately
