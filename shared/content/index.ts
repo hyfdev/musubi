@@ -1,4 +1,10 @@
-export { extractCorpusText, extractTextFromAst, extractTypographyCorpora } from './corpus.ts'
+export {
+  extractCorpusText,
+  extractFontCorporaFromAst,
+  extractInlineTypographyContext,
+  extractTextFromAst,
+  extractTypographyCorpora,
+} from './corpus.ts'
 export { MusubiContentError } from './errors.ts'
 export { createHeadingIdBase, extractInlineText } from './headings.ts'
 export { normalizeMusubiMarkdown } from './normalize.ts'

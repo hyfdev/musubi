@@ -12,7 +12,8 @@ const DEFAULT_PORT = 4173
 const IMMUTABLE_CACHE_CONTROL = 'public, max-age=31536000, immutable'
 const REVALIDATE_CACHE_CONTROL = 'public, max-age=0, must-revalidate'
 const HASHED_NUXT_ASSET_PATTERN = /^_nuxt\/(?:[^/]+\/)*[^/]+[.-][A-Za-z0-9_-]{8,}\.[a-z0-9]+$/u
-const HASHED_GENERATED_FONT_PATTERN = /^_musubi\/generated\/fonts\/[^/]+-[0-9a-f]{16}\.woff2$/iu
+const HASHED_GENERATED_FONT_PATTERN =
+  /^_musubi\/generated\/fonts\/[^/]+-[0-9a-f]{16}\.(?:css|woff2)$/iu
 
 const CONTENT_TYPES = new Map([
   ['.avif', 'image/avif'],

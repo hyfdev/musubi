@@ -12,6 +12,10 @@ const HEADER_BLOCKS = {
     '/_musubi/generated/fonts/*.woff2',
     '  Cache-Control: public, max-age=31536000, immutable',
   ],
+  fontCss: [
+    '/_musubi/generated/fonts/fonts-*.css',
+    '  Cache-Control: public, max-age=31536000, immutable',
+  ],
   preview: ['https://:version.:subdomain.workers.dev/*', '  X-Robots-Tag: noindex'],
 }
 
@@ -99,6 +103,7 @@ describe('static delivery controls', () => {
     ['HSTS', 'hsts'],
     ['Nuxt immutable cache', 'nuxt'],
     ['font immutable cache', 'fonts'],
+    ['font CSS immutable cache', 'fontCss'],
     ['workers.dev noindex', 'preview'],
   ])('rejects a missing %s header block', async (name, omittedBlock) => {
     const root = await validArtifact({ omittedHeaderBlock: omittedBlock })
@@ -124,7 +129,12 @@ describe('static delivery controls', () => {
 async function validArtifact({ omittedHeaderBlock } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'musubi-static-artifact-'))
   temporaryDirectories.push(root)
-  await writeFile(join(root, 'index.html'), '<!doctype html><title>Musubi</title>')
+  await mkdir(join(root, '_musubi/generated/fonts'), { recursive: true })
+  await writeFile(
+    join(root, 'index.html'),
+    '<!doctype html><title>Musubi</title><link rel="stylesheet" href="/_musubi/generated/fonts/fonts-0123456789abcdef.css">',
+  )
+  await writeFile(join(root, '_musubi/generated/fonts/fonts-0123456789abcdef.css'), '@font-face {}')
   await writeFile(
     join(root, '404.html'),
     '<!doctype html><title>Page not found</title><a href="/">Home</a>',

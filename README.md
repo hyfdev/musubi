@@ -28,17 +28,19 @@ The deployable artifact is `.output/public`. It does not need `.output/server`, 
 
 Production deployment, publication, cache, and rollback procedures are documented in [Production Operations](./docs/production.md).
 
-## Optional Tsanger typography
+## Font setup
 
-Musubi works without proprietary font files: the open-licensed `Musubi CJK Fallback` is always available. Preferred Tsanger JinKai W04/W05 sources are never committed: `font:setup` downloads and verifies them into the ignored `.musubi/font/tsanger/` cache (skips download when a verified cache already exists). Default download order is jsDelivr (`cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/…`), then the official `tsanger.cn` hosts; checksums must match the pinned pair.
+Musubi self-hosts content-derived Charter and JetBrains Mono subsets so English and code typography do not depend on fonts installed on the reader's device. `font:setup` downloads and verifies the pinned open-licensed WOFF2 sources into the ignored `.musubi/font/latin/` cache; the public build includes only generated content-addressed subsets and the required licenses.
 
-The default pipeline runs `vp run font:setup` so install, dev, and site builds download a missing verified Tsanger cache (or reuse an existing one). Failure prints a clear error and stops the pipeline. `MUSUBI_TSANGER_SETUP=0` skips the download attempt only; an existing cache or paired `MUSUBI_TSANGER_*_PATH` files still feed `font:build`. To force Fallback-only, clear the cache (`vp run font:setup -- --clear`) and keep setup skipped or leave no local sources.
+Preferred Tsanger JinKai W04/W05 sources are also never committed: `font:setup` downloads and verifies them into the ignored `.musubi/font/tsanger/` cache and skips the download when a verified cache already exists. Default download order is jsDelivr (`cdn.jsdelivr.net/gh/tw93/Kami@main/assets/fonts/…`), then the official `tsanger.cn` hosts; checksums must match the pinned pair.
+
+The default pipeline runs `vp run font:setup` so install, dev, and site builds prepare all required source files. A missing Charter or JetBrains Mono source is always restored or fails clearly. `MUSUBI_TSANGER_SETUP=0` skips only the Tsanger download attempt; an existing cache or paired `MUSUBI_TSANGER_*_PATH` files still feed `font:build`. To force a fallback-only Chinese build, clear the Tsanger cache (`vp run font:setup -- --clear`) and keep its setup skipped or leave no local sources.
 
 - `postinstall` — `font:setup` after `nuxt prepare`
 - `pnpm run dev` / `vp run site:build` — `font:setup` before `font:build`
 - `pnpm run build` — `notion:setup` then `site:build`
 
-`font:build` only reads the on-disk Notion snapshot plus any Tsanger cache or path overrides; it does not call Notion itself. Review the official terms before using Tsanger. Full source files must never become public deployment artifacts.
+`font:build` only reads the on-disk Notion snapshot and verified font caches or Tsanger path overrides; it does not call Notion itself. Review the official terms before using Tsanger. Full source files must never become public deployment artifacts.
 
 Builder-only environment (do not commit secrets or private mirror URLs):
 
@@ -78,7 +80,7 @@ The static preview mirrors the production cache contract: HTML and stable metada
 - Drafts, tag routes, paginated Blog routes, and a public content API are not generated.
 - Notion Markdown is parsed into Musubi's allowlisted AST and rendered by Vue templates. Raw HTML and executable MDX are rejected.
 - Notion images and file blocks retain their remote HTTPS URLs; Musubi does not download or rewrite them in the initial architecture. An X embed stores only its source URL and renders as a safe ordinary link without build-time oEmbed requests or browser widget loading.
-- Tsanger JinKai W04 and W05 are accepted as optional local build inputs and are subset by body-versus-emphasis usage when supplied. Preferred subsets and the public LXGW WenKai GB Medium fallback use content-addressed WOFF2 URLs; the fallback preserves every mapped source code point across Unicode-range shards that also cover later runtime text.
+- Tsanger JinKai W04 and W05 are accepted as optional local build inputs and receive the same complete build-known Chinese corpus when supplied; their visual body-versus-emphasis roles remain distinct. Charter and JetBrains Mono are self-hosted from pinned sources. All public faces and the font stylesheet use content-addressed URLs. LXGW WenKai GB Medium is subset only for build-known Chinese mappings absent from either Tsanger source; unknown post-deployment text continues to the system fallback.
 - Light and warm dark themes follow the system by default; a persisted three-choice control selects Light, Dark, or System directly.
 
 The durable product boundary is documented in [Project Context Records](./.agents/docs/README.md), and the exact visual direction lives in [DESIGN.md](./.agents/docs/DESIGN.md).

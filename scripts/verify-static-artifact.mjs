@@ -17,6 +17,11 @@ const REQUIRED_HEADER_BLOCKS = [
     value: '/_musubi/generated/fonts/*.woff2\n  Cache-Control: public, max-age=31536000, immutable',
   },
   {
+    name: 'font CSS immutable cache',
+    value:
+      '/_musubi/generated/fonts/fonts-*.css\n  Cache-Control: public, max-age=31536000, immutable',
+  },
+  {
     name: 'workers.dev noindex',
     value: 'https://:version.:subdomain.workers.dev/*\n  X-Robots-Tag: noindex',
   },
@@ -74,6 +79,18 @@ export async function verifyStaticArtifact(
   const notFoundDocument = await readFile(resolve(root, '404.html'), 'utf8')
   if (!notFoundDocument.includes('Page not found') || !notFoundDocument.includes('href="/"')) {
     throw new Error('Static artifact 404.html does not contain the visible recovery page')
+  }
+
+  const indexDocument = await readFile(resolve(root, 'index.html'), 'utf8')
+  const fontCssPath = indexDocument.match(
+    /\/_musubi\/generated\/fonts\/fonts-[0-9a-f]{16}\.css/iu,
+  )?.[0]
+  if (!fontCssPath) {
+    throw new Error('Static artifact does not reference a content-addressed font stylesheet')
+  }
+  const fontCss = await lstat(resolve(root, fontCssPath.slice(1))).catch(() => undefined)
+  if (!fontCss?.isFile() || fontCss.size === 0) {
+    throw new Error(`Static artifact is missing its font stylesheet: ${fontCssPath}`)
   }
 
   const headersDocument = await readFile(resolve(root, '_headers'), 'utf8')

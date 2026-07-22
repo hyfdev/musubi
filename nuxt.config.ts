@@ -1,6 +1,24 @@
+import { readdirSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 import { loadSiteFromSnapshot } from './server/site/get-site.ts'
 
 const prerenderRoutes = [...(await loadSiteFromSnapshot()).routes, '/__musubi_not_found']
+const generatedFontCss = (() => {
+  try {
+    return readdirSync(resolve('public/_musubi/generated/fonts'), { withFileTypes: true })
+      .filter((entry) => entry.isFile() && /^fonts-[0-9a-f]{16}\.css$/u.test(entry.name))
+      .map((entry) => entry.name)
+      .sort()
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []
+    throw error
+  }
+})()
+const fontCssHref =
+  generatedFontCss.length === 1
+    ? `/_musubi/generated/fonts/${generatedFontCss[0]}`
+    : '/_musubi/generated/fonts/fonts-unbuilt.css'
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-07-12',
@@ -66,7 +84,7 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: 'en-SG' },
       link: [
         { rel: 'icon', href: '/favicon.ico' },
-        { rel: 'stylesheet', href: '/_musubi/generated/fonts/fonts.css' },
+        { rel: 'stylesheet', href: fontCssHref },
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },

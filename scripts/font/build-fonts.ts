@@ -6,9 +6,14 @@ import { fileURLToPath } from 'node:url'
 import { createFont, woff2 } from 'fonteditor-core'
 import subsetFont from 'subset-font'
 import {
-  classifyChineseTypographyCodePoint,
+  classifyChineseTypographyText,
   type ChineseTypographyCategory,
 } from '../../shared/chinese-typography.ts'
+import {
+  inspectLatinFontCache,
+  LATIN_FONT_SOURCES,
+  type LatinFontSourceKey,
+} from './latin-fonts.ts'
 import { inspectTsangerFontCache } from './tsanger-fonts.ts'
 
 const require = createRequire(import.meta.url)
@@ -34,6 +39,8 @@ const TOOL_VERSIONS = {
 const OUTPUT_PATHS = {
   manifest: 'fonts/fonts-manifest.json',
   fallbackLicense: 'fonts/OFL-Musubi-CJK-Fallback.txt',
+  charterLicense: 'fonts/LICENSE-Charter.txt',
+  jetbrainsMonoLicense: 'fonts/OFL-JetBrains-Mono.txt',
 } as const
 
 const TSANGER_OUTPUT_NAMES = {
@@ -44,6 +51,16 @@ const TSANGER_OUTPUT_NAMES = {
 const FALLBACK_LICENSE = {
   path: 'licenses/fonts/OFL-Musubi-CJK-Fallback.txt',
   sha256: '66e75815b1bb90bdaede3649abf5ea029d0dc7d5e61b0534d3245db61a510b93',
+} as const
+
+const CHARTER_LICENSE = {
+  path: 'licenses/fonts/Charter.txt',
+  sha256: 'e1681af74192c99114a60708a2b16e5c24b8bd1347d7ef8e2703a76f19aa59e7',
+} as const
+
+const JETBRAINS_MONO_LICENSE = {
+  path: 'licenses/fonts/OFL-JetBrains-Mono.txt',
+  sha256: '5988080cac27ec76c0250e04eebda4c5889378ec9843633bd71a351f14bb80ee',
 } as const
 
 const FALLBACK_FAMILY = 'Musubi CJK Fallback'
@@ -64,8 +81,8 @@ const FALLBACK_SHARDS = [
 ] as const
 
 export interface FontCorpora {
-  body: string
-  emphasis: string
+  text: string
+  code: string
 }
 
 export interface UnicodeCoverage {
@@ -83,8 +100,13 @@ export interface FontArtifact {
   coverage: UnicodeCoverage
 }
 
+export interface StyledFontArtifact extends FontArtifact {
+  style: 'normal' | 'italic'
+  weight: 400 | 700
+}
+
 export interface FontBuildManifest {
-  schemaVersion: 3
+  schemaVersion: 4
   familyStack: {
     body: readonly ['Tsanger JinKai W04', 'Musubi CJK Fallback']
     emphasis: readonly ['Tsanger JinKai W05', 'Musubi CJK Fallback']
@@ -108,12 +130,26 @@ export interface FontBuildManifest {
       sha256: string
       cmapCodePointCount: number
     }
+    latin: Record<
+      LatinFontSourceKey,
+      {
+        family: 'Charter' | 'JetBrains Mono'
+        style: 'normal' | 'italic'
+        weight: 400 | 700
+        url: string
+        bytes: number
+        sha256: string
+      }
+    >
   }
   selectedCorpora: {
-    body: UnicodeCoverage
-    emphasis: UnicodeCoverage
+    chinese: UnicodeCoverage
+    latin: UnicodeCoverage
+    code: UnicodeCoverage
   }
   artifacts: {
+    charter: StyledFontArtifact[]
+    jetbrainsMono: StyledFontArtifact[]
     tsangerW04: FontArtifact | null
     tsangerW05: FontArtifact | null
     fallbackShards: FontArtifact[]
@@ -121,7 +157,37 @@ export interface FontBuildManifest {
   }
   licenses: {
     fallback: { path: string; sha256: string }
+    charter: { path: string; sha256: string }
+    jetbrainsMono: { path: string; sha256: string }
   }
+}
+
+interface PrebuiltFallbackManifest {
+  schemaVersion: 3
+  familyStack: {
+    body: readonly ['Tsanger JinKai W04', 'Musubi CJK Fallback']
+    emphasis: readonly ['Tsanger JinKai W05', 'Musubi CJK Fallback']
+  }
+  tools: FontBuildManifest['tools']
+  sources: {
+    tsanger: {
+      mode: 'absent'
+      w04: null
+      w05: null
+    }
+    fallback: FontBuildManifest['sources']['fallback']
+  }
+  selectedCorpora: {
+    body: UnicodeCoverage
+    emphasis: UnicodeCoverage
+  }
+  artifacts: {
+    tsangerW04: null
+    tsangerW05: null
+    fallbackShards: FontArtifact[]
+    manifestPath: string
+  }
+  licenses: { fallback: { path: string; sha256: string } }
 }
 
 interface CachedSource {
@@ -135,6 +201,12 @@ interface LocalTsangerSources {
   w05: CachedSource & { sha256: string }
 }
 
+interface LocalLatinSource extends CachedSource {
+  sha256: string
+}
+
+type LocalLatinSources = Record<LatinFontSourceKey, LocalLatinSource>
+
 interface ParsedNameRecord {
   platformId: number
   encodingId: number
@@ -147,8 +219,8 @@ export async function buildPublicFonts(
   corpora: FontCorpora,
   generatedPublicDirectory: string,
 ): Promise<FontBuildManifest> {
-  if (typeof corpora.body !== 'string' || typeof corpora.emphasis !== 'string') {
-    throw new TypeError('The public font corpora must contain body and emphasis strings.')
+  if (typeof corpora.text !== 'string' || typeof corpora.code !== 'string') {
+    throw new TypeError('The public font corpora must contain text and code strings.')
   }
   if (typeof generatedPublicDirectory !== 'string' || generatedPublicDirectory.trim() === '') {
     throw new TypeError('The generated public directory must be a nonempty path.')
@@ -156,23 +228,17 @@ export async function buildPublicFonts(
 
   const outputRoot = resolve(generatedPublicDirectory)
   await mkdir(join(outputRoot, 'fonts'), { recursive: true })
-  const prebuiltFallback = await installPrebuiltFallback(outputRoot)
-  const fallbackShards = prebuiltFallback.artifacts.fallbackShards
-
-  const body = collectChineseTypographyCodePoints(corpora.body)
-  const emphasis = collectChineseTypographyCodePoints(corpora.emphasis)
-  const required = [...new Set([...body.codePoints, ...emphasis.codePoints])]
-  const unavailable = required.filter(
-    (codePoint) =>
-      !fallbackShards.some((artifact) => coverageContains(artifact.coverage, codePoint)),
-  )
-  if (unavailable.length > 0) {
-    throw new Error(
-      `Required Chinese typography code points are absent from the complete fallback: ${formatCodePoints(unavailable).join(', ')}`,
-    )
-  }
-
+  await assertToolVersion('subset-font', TOOL_VERSIONS.subsetFont)
+  await assertToolVersion('fonteditor-core', TOOL_VERSIONS.fonteditorCore)
+  await woff2.init()
+  const prebuiltFallback = await readPrebuiltFallbackManifest()
+  await installFontLicenses(outputRoot)
   const tsangerSources = await loadLocalTsangerSources()
+  const latinSources = await loadLocalLatinSources()
+  const chinese = collectChineseTypographyCodePoints(`${corpora.text}\n${corpora.code}`)
+  const latin = collectNonChineseTypographyCodePoints(corpora.text)
+  const code = collectNonChineseTypographyCodePoints(corpora.code)
+
   console.log(
     tsangerSources
       ? `Chinese typography source: Tsanger JinKai W04/W05 (${tsangerSources.mode}).`
@@ -182,27 +248,62 @@ export async function buildPublicFonts(
   let tsangerW05: FontArtifact | null = null
   await removeTsangerOutputs(outputRoot)
   if (tsangerSources) {
-    await assertToolVersion('subset-font', TOOL_VERSIONS.subsetFont)
-    await assertToolVersion('fonteditor-core', TOOL_VERSIONS.fonteditorCore)
-    await woff2.init()
     tsangerW04 = await buildTsangerSubset(
       tsangerSources.w04.buffer,
-      body.codePoints,
+      chinese.codePoints,
       TSANGER_OUTPUT_NAMES.w04,
       'Tsanger JinKai W04',
       outputRoot,
     )
     tsangerW05 = await buildTsangerSubset(
       tsangerSources.w05.buffer,
-      emphasis.codePoints,
+      chinese.codePoints,
       TSANGER_OUTPUT_NAMES.w05,
       'Tsanger JinKai W05',
       outputRoot,
     )
   }
 
+  const tsangerW04Cmap = tsangerSources ? readCmap(tsangerSources.w04.buffer, 'ttf') : null
+  const tsangerW05Cmap = tsangerSources ? readCmap(tsangerSources.w05.buffer, 'ttf') : null
+  const fallbackCodePoints = chinese.codePoints.filter(
+    (codePoint) =>
+      !tsangerW04Cmap ||
+      !tsangerW05Cmap ||
+      !tsangerW04Cmap.has(codePoint) ||
+      !tsangerW05Cmap.has(codePoint),
+  )
+  const unavailable = fallbackCodePoints.filter(
+    (codePoint) =>
+      !prebuiltFallback.artifacts.fallbackShards.some((artifact) =>
+        coverageContains(artifact.coverage, codePoint),
+      ),
+  )
+  if (unavailable.length > 0) {
+    throw new Error(
+      `Required Chinese typography code points are absent from Tsanger and LXGW: ${formatCodePoints(unavailable).join(', ')}`,
+    )
+  }
+  const fallbackShards = await buildFallbackSubsets(
+    prebuiltFallback.artifacts.fallbackShards,
+    fallbackCodePoints,
+    outputRoot,
+  )
+  const charter = await buildStyledFontSubsets(
+    latinSources,
+    'Charter',
+    latin.codePoints,
+    outputRoot,
+  )
+  const jetbrainsMono = await buildStyledFontSubsets(
+    latinSources,
+    'JetBrains Mono',
+    code.codePoints,
+    outputRoot,
+  )
+
   const manifest: FontBuildManifest = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     familyStack: {
       body: ['Tsanger JinKai W04', 'Musubi CJK Fallback'],
       emphasis: ['Tsanger JinKai W05', 'Musubi CJK Fallback'],
@@ -224,12 +325,28 @@ export async function buildPublicFonts(
       fallback: {
         ...prebuiltFallback.sources.fallback,
       },
+      latin: Object.fromEntries(
+        Object.entries(LATIN_FONT_SOURCES).map(([key, source]) => [
+          key,
+          {
+            family: source.family,
+            style: source.style,
+            weight: source.weight,
+            url: source.url,
+            bytes: source.bytes,
+            sha256: source.sha256,
+          },
+        ]),
+      ) as FontBuildManifest['sources']['latin'],
     },
     selectedCorpora: {
-      body: createCoverage(body.codePoints),
-      emphasis: createCoverage(emphasis.codePoints),
+      chinese: createCoverage(chinese.codePoints),
+      latin: createCoverage(latin.codePoints),
+      code: createCoverage(code.codePoints),
     },
     artifacts: {
+      charter,
+      jetbrainsMono,
       tsangerW04,
       tsangerW05,
       fallbackShards,
@@ -239,6 +356,14 @@ export async function buildPublicFonts(
       fallback: {
         path: OUTPUT_PATHS.fallbackLicense,
         sha256: FALLBACK_LICENSE.sha256,
+      },
+      charter: {
+        path: OUTPUT_PATHS.charterLicense,
+        sha256: CHARTER_LICENSE.sha256,
+      },
+      jetbrainsMono: {
+        path: OUTPUT_PATHS.jetbrainsMonoLicense,
+        sha256: JETBRAINS_MONO_LICENSE.sha256,
       },
     },
   }
@@ -251,35 +376,28 @@ export async function buildPublicFonts(
   return manifest
 }
 
-async function installPrebuiltFallback(outputRoot: string): Promise<FontBuildManifest> {
-  const manifest = await readPrebuiltFallbackManifest()
-  const files = [
-    manifest.licenses.fallback,
-    ...manifest.artifacts.fallbackShards.map((artifact) => ({
-      path: artifact.path,
-      sha256: artifact.sha256,
-      bytes: artifact.bytes,
-    })),
-  ]
-  for (const file of files) {
-    const relativePath = checkedPrebuiltRelativePath(file.path)
-    const buffer = await readFile(checkedPrebuiltPath(relativePath))
-    if (sha256(buffer) !== file.sha256 || ('bytes' in file && buffer.length !== file.bytes)) {
-      throw new Error(`Checked-in fallback font artifact failed verification: ${file.path}`)
-    }
-    await writeAtomic(resolve(outputRoot, relativePath), buffer, 0o644)
+async function installFontLicenses(outputRoot: string): Promise<void> {
+  for (const [source, outputPath] of [
+    [FALLBACK_LICENSE, OUTPUT_PATHS.fallbackLicense],
+    [CHARTER_LICENSE, OUTPUT_PATHS.charterLicense],
+    [JETBRAINS_MONO_LICENSE, OUTPUT_PATHS.jetbrainsMonoLicense],
+  ] as const) {
+    await writeAtomic(
+      resolve(outputRoot, outputPath),
+      await readVerifiedRepositoryFile(source),
+      0o644,
+    )
   }
-  return manifest
 }
 
-async function readPrebuiltFallbackManifest(): Promise<FontBuildManifest> {
+async function readPrebuiltFallbackManifest(): Promise<PrebuiltFallbackManifest> {
   const manifestBytes = await readFile(checkedPrebuiltPath(PREBUILT_FALLBACK_MANIFEST))
   if (sha256(manifestBytes) !== PREBUILT_FALLBACK_MANIFEST_SHA256) {
     throw new Error(
       'The checked-in fallback font manifest changed without updating its reviewed checksum.',
     )
   }
-  const manifest = JSON.parse(manifestBytes.toString('utf8')) as FontBuildManifest
+  const manifest = JSON.parse(manifestBytes.toString('utf8')) as PrebuiltFallbackManifest
   if (
     manifest.schemaVersion !== 3 ||
     manifest.tools.subsetFont !== TOOL_VERSIONS.subsetFont ||
@@ -413,7 +531,7 @@ export async function rebuildPrebuiltFallback(): Promise<void> {
       fallbackCodePoints,
       temporaryRoot,
     )
-    const manifest: FontBuildManifest = {
+    const manifest: PrebuiltFallbackManifest = {
       schemaVersion: 3,
       familyStack: {
         body: ['Tsanger JinKai W04', 'Musubi CJK Fallback'],
@@ -508,6 +626,21 @@ async function loadLocalTsangerSources(): Promise<LocalTsangerSources | null> {
   }
 }
 
+async function loadLocalLatinSources(): Promise<LocalLatinSources> {
+  const cached = await inspectLatinFontCache()
+  if (!cached) {
+    throw new Error(
+      'Charter and JetBrains Mono sources are missing; run "vp run font:setup" before font:build.',
+    )
+  }
+  return Object.fromEntries(
+    Object.entries(cached.fonts).map(([key, font]) => [
+      key,
+      { buffer: font.buffer, bytes: font.bytes, sha256: font.sha256 },
+    ]),
+  ) as LocalLatinSources
+}
+
 function validateTsangerIdentity(
   buffer: Buffer,
   expectedWeight: 'W04' | 'W05',
@@ -556,6 +689,85 @@ async function removeTsangerOutputs(outputRoot: string): Promise<void> {
       .filter((entry) => entry.isFile() && outputPattern.test(entry.name))
       .map((entry) => rm(join(fontDirectory, entry.name), { force: true })),
   )
+}
+
+async function buildStyledFontSubsets(
+  sources: LocalLatinSources,
+  family: 'Charter' | 'JetBrains Mono',
+  requestedCodePoints: number[],
+  outputRoot: string,
+): Promise<StyledFontArtifact[]> {
+  const artifacts: StyledFontArtifact[] = []
+  for (const [key, sourceMetadata] of Object.entries(LATIN_FONT_SOURCES)) {
+    if (sourceMetadata.family !== family) continue
+    const source = sources[key as LatinFontSourceKey]
+    const sourceCmap = readCmap(source.buffer, 'woff2')
+    const covered = requestedCodePoints.filter((codePoint) => sourceCmap.has(codePoint))
+    if (covered.length === 0) continue
+    const buffer = await createPlainSubset(source.buffer, covered)
+    validateExactSubset(
+      buffer,
+      covered,
+      `${family} ${sourceMetadata.weight} ${sourceMetadata.style}`,
+    )
+    validateLatinFontIdentity(buffer, family)
+    const familyName = family.replaceAll(' ', '-')
+    const styleName = sourceMetadata.style === 'italic' ? 'Italic' : 'Normal'
+    const outputPath = `fonts/${familyName}-${sourceMetadata.weight}-${styleName}-subset-${sha256(buffer).slice(0, 16)}.woff2`
+    await writeAtomic(join(outputRoot, outputPath), buffer, 0o644)
+    artifacts.push({
+      ...createArtifact(outputPath, family, buffer, covered),
+      style: sourceMetadata.style,
+      weight: sourceMetadata.weight,
+    })
+  }
+  return artifacts
+}
+
+async function buildFallbackSubsets(
+  prebuiltShards: readonly FontArtifact[],
+  requestedCodePoints: number[],
+  outputRoot: string,
+): Promise<FontArtifact[]> {
+  const artifacts: FontArtifact[] = []
+  const covered = new Set<number>()
+  for (const sourceArtifact of prebuiltShards) {
+    const selected = requestedCodePoints.filter((codePoint) =>
+      coverageContains(sourceArtifact.coverage, codePoint),
+    )
+    if (selected.length === 0) continue
+    const source = await readFile(checkedPrebuiltPath(sourceArtifact.path))
+    if (source.length !== sourceArtifact.bytes || sha256(source) !== sourceArtifact.sha256) {
+      throw new Error(
+        `Checked-in fallback font artifact failed verification: ${sourceArtifact.path}`,
+      )
+    }
+    const buffer = await createPlainSubset(source, selected)
+    validateFallbackFont(buffer, selected)
+    const shardId = /^Musubi-CJK-Fallback-(.+)-[0-9a-f]{16}\.woff2$/u.exec(
+      basename(sourceArtifact.path),
+    )?.[1]
+    if (!shardId) throw new Error(`Cannot identify fallback shard: ${sourceArtifact.path}`)
+    const outputPath = `fonts/Musubi-CJK-Fallback-${shardId}-subset-${sha256(buffer).slice(0, 16)}.woff2`
+    await writeAtomic(join(outputRoot, outputPath), buffer, 0o644)
+    artifacts.push(createArtifact(outputPath, FALLBACK_FAMILY, buffer, selected))
+    for (const codePoint of selected) covered.add(codePoint)
+  }
+  const missing = requestedCodePoints.filter((codePoint) => !covered.has(codePoint))
+  if (missing.length > 0) {
+    throw new Error(`Generated fallback subsets lost ${formatCodePoints(missing).join(', ')}.`)
+  }
+  return artifacts
+}
+
+function validateLatinFontIdentity(buffer: Buffer, expectedFamily: string): void {
+  const names = createFont(buffer, { type: 'woff2', compound2simple: false }).get().name
+  const family = names.preferredFamily ?? names.fontFamily
+  if (family !== expectedFamily) {
+    throw new Error(
+      `Generated ${expectedFamily} subset reports the family name "${String(family)}".`,
+    )
+  }
 }
 
 async function buildFallbackShards(
@@ -622,11 +834,10 @@ export function collectChineseTypographyCodePoints(corpus: string): {
   categoryCounts: Record<ChineseTypographyCategory, number>
 } {
   const byCodePoint = new Map<number, ChineseTypographyCategory>()
-  for (const character of corpus) {
-    const codePoint = character.codePointAt(0)
-    if (codePoint === undefined || byCodePoint.has(codePoint)) continue
-    const category = classifyChineseTypographyCodePoint(character, codePoint)
-    if (category) byCodePoint.set(codePoint, category)
+  for (const entry of classifyChineseTypographyText(corpus)) {
+    if (entry.category && !byCodePoint.has(entry.codePoint)) {
+      byCodePoint.set(entry.codePoint, entry.category)
+    }
   }
 
   const codePoints = [...byCodePoint.keys()].sort((left, right) => left - right)
@@ -638,6 +849,16 @@ export function collectChineseTypographyCodePoints(corpus: string): {
   }
   for (const category of byCodePoint.values()) categoryCounts[category] += 1
   return { codePoints, categoryCounts }
+}
+
+function collectNonChineseTypographyCodePoints(corpus: string): { codePoints: number[] } {
+  const codePoints = new Set<number>()
+  for (const entry of classifyChineseTypographyText(corpus)) {
+    if (!entry.cjk && entry.character !== '\n' && entry.character !== '\r') {
+      codePoints.add(entry.codePoint)
+    }
+  }
+  return { codePoints: [...codePoints].sort((left, right) => left - right) }
 }
 
 async function createPlainSubset(source: Buffer, codePoints: number[]): Promise<Buffer> {
@@ -698,6 +919,21 @@ function validateSubsetCoverage(buffer: Buffer, requiredCodePoints: number[]): v
   const missing = requiredCodePoints.filter((codePoint) => !actual.has(codePoint))
   if (missing.length > 0) {
     throw new Error(`Generated font subset is missing ${formatCodePoints(missing).join(', ')}.`)
+  }
+}
+
+function validateExactSubset(
+  buffer: Buffer,
+  requiredCodePoints: number[],
+  description: string,
+): void {
+  validateSubsetCoverage(buffer, requiredCodePoints)
+  const actual = [...readCmap(buffer, 'woff2')].sort((left, right) => left - right)
+  const expected = [...new Set(requiredCodePoints)].sort((left, right) => left - right)
+  if (!sameNumbers(actual, expected)) {
+    throw new Error(
+      `Generated ${description} subset contains mappings outside its selected corpus.`,
+    )
   }
 }
 

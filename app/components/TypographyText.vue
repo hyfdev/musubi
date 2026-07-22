@@ -1,21 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { isChineseTypographyCharacter } from '#shared/chinese-typography.ts'
+import { segmentChineseTypographyText } from '#shared/chinese-typography.ts'
 
 const props = defineProps<{
   value: string
+  context?: string
+  contextStart?: number
 }>()
 
-const segments = computed(() => {
-  const result: { value: string; cjk: boolean }[] = []
-  for (const character of props.value) {
-    const cjk = isChineseTypographyCharacter(character)
-    const previous = result.at(-1)
-    if (previous?.cjk === cjk) previous.value += character
-    else result.push({ value: character, cjk })
-  }
-  return result
-})
+const segments = computed(() =>
+  segmentChineseTypographyText(props.value, props.context ?? props.value, props.contextStart ?? 0),
+)
 </script>
 
 <template>

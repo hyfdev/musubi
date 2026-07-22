@@ -7,9 +7,127 @@ export function extractTextFromAst(document: MusubiDocument): string {
 
 export const extractCorpusText = extractTextFromAst
 
+export interface DocumentFontCorpora {
+  text: string
+  code: string
+}
+
+export function extractFontCorporaFromAst(document: MusubiDocument): DocumentFontCorpora {
+  const text: string[] = []
+  const code: string[] = []
+  for (const block of document.children) collectBlockFontCorpora(block, text, code)
+  return { text: text.filter(Boolean).join('\n'), code: code.filter(Boolean).join('\n') }
+}
+
+/**
+ * Flattens one rendered inline run for Chinese typography classification. Inline markup stays
+ * transparent, while visual line breaks and inline-code font boundaries become newlines. Each
+ * inline-code replacement keeps the same UTF-16 length so Vue can reuse the string for offsets.
+ */
+export function extractInlineTypographyContext(nodes: readonly MusubiInline[]): string {
+  return nodes
+    .map((node) => {
+      switch (node.type) {
+        case 'text':
+          return node.value
+        case 'inlineCode':
+          return '\n'.repeat(node.value.length)
+        case 'break':
+          return '\n'
+        case 'strong':
+        case 'emphasis':
+        case 'delete':
+        case 'link':
+          return extractInlineTypographyContext(node.children)
+      }
+    })
+    .join('')
+}
+
 export interface TypographyCorpora {
   body: string
   emphasis: string
+}
+
+function collectBlockFontCorpora(block: MusubiBlock, text: string[], code: string[]): void {
+  switch (block.type) {
+    case 'paragraph':
+    case 'heading':
+      collectInlineFontCorpora(block.children, text, code)
+      return
+    case 'code':
+      code.push(block.language ?? '', block.value)
+      return
+    case 'list':
+      for (const item of block.children) {
+        for (const child of item.children) collectBlockFontCorpora(child, text, code)
+      }
+      return
+    case 'quote':
+    case 'callout':
+      for (const child of block.children) collectBlockFontCorpora(child, text, code)
+      return
+    case 'image':
+      text.push(block.alt, block.caption ?? '')
+      return
+    case 'file':
+      collectInlineFontCorpora(block.children, text, code)
+      return
+    case 'table':
+      for (const row of block.children) {
+        for (const cell of row.children) collectInlineFontCorpora(cell.children, text, code)
+      }
+      return
+    case 'xEmbed':
+      text.push('X')
+      return
+    case 'divider':
+    case 'tableOfContents':
+      return
+  }
+}
+
+function collectInlineFontCorpora(
+  nodes: readonly MusubiInline[],
+  text: string[],
+  code: string[],
+): void {
+  text.push(extractInlineTypographyContext(nodes))
+  for (const node of nodes) {
+    switch (node.type) {
+      case 'inlineCode':
+        code.push(node.value)
+        break
+      case 'strong':
+      case 'emphasis':
+      case 'delete':
+      case 'link':
+        collectInlineCodeCorpora(node.children, code)
+        break
+      case 'text':
+      case 'break':
+        break
+    }
+  }
+}
+
+function collectInlineCodeCorpora(nodes: readonly MusubiInline[], code: string[]): void {
+  for (const node of nodes) {
+    switch (node.type) {
+      case 'inlineCode':
+        code.push(node.value)
+        break
+      case 'strong':
+      case 'emphasis':
+      case 'delete':
+      case 'link':
+        collectInlineCodeCorpora(node.children, code)
+        break
+      case 'text':
+      case 'break':
+        break
+    }
+  }
 }
 
 export function extractTypographyCorpora(document: MusubiDocument): TypographyCorpora {

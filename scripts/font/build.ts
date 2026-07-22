@@ -1,17 +1,17 @@
 import { createHash } from 'node:crypto'
 import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, relative, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-import { extractTypographyCorpora } from '../../shared/content/corpus.ts'
-import { formatPublishedDate } from '../../shared/site/format.ts'
-import type { Site } from '../../shared/site/types.ts'
 import { loadSiteFromSnapshot } from '../../server/site/get-site.ts'
-import { buildPublicFonts, type FontBuildManifest, type FontCorpora } from './build-fonts.ts'
+import { buildPublicFonts, type FontBuildManifest } from './build-fonts.ts'
+import { createPublicFontCorpora } from './corpus.ts'
+import { latinFontCacheDirectory } from './latin-fonts.ts'
 import { tsangerFontCacheDirectory } from './tsanger-fonts.ts'
 
 const generatedPublicDirectory = resolve('public/_musubi/generated')
 const fontBuildStatePath = resolve('.musubi/font/build-state.json')
-const FONT_BUILD_STATE_VERSION = 1
+const FONT_BUILD_STATE_VERSION = 2
 
 interface FontBuildState {
   schemaVersion: typeof FONT_BUILD_STATE_VERSION
@@ -19,79 +19,54 @@ interface FontBuildState {
   outputs: Record<string, string>
 }
 
-const applicationText = [
-  'Home',
-  'Blog',
-  'Table of contents',
-  'Referenced X post',
-  'Read the post on X',
-  'Theme',
-  'System',
-  'Light',
-  'Dark',
-  'Copy',
-  'Copied',
-  'Copy failed',
-  'Back to Blog',
-  'Note',
-  'Warning',
-  'Error',
-  'Page not found',
-  'The page you requested does not exist or is not published.',
-  'Back to Home',
-  'No posts have been published yet.',
-  'Built with Musubi',
-  '·',
-  '—',
-].join('\n')
-
-function publicCorpora(site: Site): FontCorpora {
-  const contents = [...site.posts, ...site.pages]
-  const configText = Object.values(site.config).join('\n')
-  const navigationText = site.navigation.map((item) => item.title).join('\n')
-  const typography = contents.map((page) => extractTypographyCorpora(page.document))
-  const metadataText = contents
-    .flatMap((page) => [page.title, page.description, ...page.tags])
-    .join('\n')
-  const titleText = contents.map((page) => page.title).join('\n')
-  const renderedDates = site.posts
-    .map((page) => formatPublishedDate(page.date, site.config))
-    .join('\n')
-  return {
-    body: [
-      applicationText,
-      configText,
-      navigationText,
-      metadataText,
-      renderedDates,
-      ...typography.map((corpus) => corpus.body),
-    ]
-      .join('\n')
-      .normalize('NFC'),
-    emphasis: [titleText, ...typography.map((corpus) => corpus.emphasis)]
-      .join('\n')
-      .normalize('NFC'),
-  }
+interface FontBuildFingerprintOptions {
+  root?: string
+  environment?: NodeJS.ProcessEnv
+  tsangerCachePath?: string
+  latinCachePath?: string
 }
 
+export const FONT_BUILD_REPOSITORY_INPUTS = [
+  '.musubi/notion-data-snapshot',
+  'licenses/fonts',
+  'package.json',
+  'pnpm-lock.yaml',
+  'scripts/font',
+  'server/site',
+  'shared/chinese-typography.ts',
+  'shared/content',
+  'shared/site',
+] as const
+
 async function writeFontCss(fonts: FontBuildManifest): Promise<void> {
-  const tsangerFace = (
+  const face = (
     family: string,
-    weight: number,
-    artifact: FontBuildManifest['artifacts']['tsangerW04'],
-  ): string | null => {
-    if (!artifact) return null
-    return `@font-face {\n  font-family: '${family}';\n  src: url('/_musubi/generated/${artifact.path}') format('woff2');\n  font-display: swap;\n  font-style: normal;\n  font-weight: ${weight};\n  unicode-range: ${artifact.coverage.cssUnicodeRange};\n}`
+    weight: string | number,
+    style: 'normal' | 'italic',
+    artifact: NonNullable<FontBuildManifest['artifacts']['tsangerW04']>,
+  ): string => {
+    return `@font-face {\n  font-family: '${family}';\n  src: url('/_musubi/generated/${artifact.path}') format('woff2');\n  font-display: swap;\n  font-style: ${style};\n  font-weight: ${weight};\n  unicode-range: ${artifact.coverage.cssUnicodeRange};\n}`
   }
   const faces = [
-    tsangerFace('Tsanger JinKai W04', 400, fonts.artifacts.tsangerW04),
-    tsangerFace('Tsanger JinKai W05', 500, fonts.artifacts.tsangerW05),
-    ...fonts.artifacts.fallbackShards.map(
-      (artifact) =>
-        `@font-face {\n  font-family: 'Musubi CJK Fallback';\n  src: url('/_musubi/generated/${artifact.path}') format('woff2');\n  font-display: swap;\n  font-style: normal;\n  font-weight: 400 500;\n  unicode-range: ${artifact.coverage.cssUnicodeRange};\n}`,
+    ...fonts.artifacts.charter.map((artifact) =>
+      face('Charter', artifact.weight, artifact.style, artifact),
+    ),
+    ...fonts.artifacts.jetbrainsMono.map((artifact) =>
+      face('JetBrains Mono', artifact.weight, artifact.style, artifact),
+    ),
+    fonts.artifacts.tsangerW04
+      ? face('Tsanger JinKai W04', 400, 'normal', fonts.artifacts.tsangerW04)
+      : null,
+    fonts.artifacts.tsangerW05
+      ? face('Tsanger JinKai W05', 500, 'normal', fonts.artifacts.tsangerW05)
+      : null,
+    ...fonts.artifacts.fallbackShards.map((artifact) =>
+      face('Musubi CJK Fallback', '400 500', 'normal', artifact),
     ),
   ].filter((face): face is string => face !== null)
-  await writeFile(resolve(generatedPublicDirectory, 'fonts/fonts.css'), `${faces.join('\n\n')}\n`)
+  const css = `${faces.join('\n\n')}\n`
+  const path = resolve(generatedPublicDirectory, `fonts/fonts-${hashBytes(css).slice(0, 16)}.css`)
+  await writeFile(path, css)
 }
 
 function hashBytes(value: string | Uint8Array): string {
@@ -130,32 +105,35 @@ async function fingerprintPath(
   }
 }
 
-async function fontBuildInputFingerprint(): Promise<string> {
+export async function fontBuildInputFingerprint(
+  options: FontBuildFingerprintOptions = {},
+): Promise<string> {
   const hash = createHash('sha256')
   hash.update(`musubi-font-build:${FONT_BUILD_STATE_VERSION}\0`)
-  const repositoryInputs = [
-    '.musubi/notion-data-snapshot',
-    'licenses/fonts/OFL-LXGW-WenKai-GB.txt',
-    'package.json',
-    'pnpm-lock.yaml',
-    'scripts/font',
-    'server/site',
-    'shared/content',
-    'shared/site',
-  ]
-  for (const input of repositoryInputs) {
-    await fingerprintPath(hash, resolve(input), input)
+  const root = options.root ?? resolve()
+  for (const input of FONT_BUILD_REPOSITORY_INPUTS) {
+    await fingerprintPath(hash, resolve(root, input), input)
   }
 
+  const environment = options.environment ?? process.env
   const environmentInputs = [
-    ['MUSUBI_TSANGER_W04_PATH', process.env.MUSUBI_TSANGER_W04_PATH?.trim()],
-    ['MUSUBI_TSANGER_W05_PATH', process.env.MUSUBI_TSANGER_W05_PATH?.trim()],
+    ['MUSUBI_TSANGER_W04_PATH', environment.MUSUBI_TSANGER_W04_PATH?.trim()],
+    ['MUSUBI_TSANGER_W05_PATH', environment.MUSUBI_TSANGER_W05_PATH?.trim()],
   ] as const
   for (const [name, path] of environmentInputs) {
     hash.update(`${name}\0${path ?? 'unset'}\0`)
-    if (path) await fingerprintPath(hash, resolve(path), name)
+    if (path) await fingerprintPath(hash, resolve(root, path), name)
   }
-  await fingerprintPath(hash, tsangerFontCacheDirectory(), 'Tsanger setup cache')
+  await fingerprintPath(
+    hash,
+    options.tsangerCachePath ?? tsangerFontCacheDirectory(),
+    'Tsanger setup cache',
+  )
+  await fingerprintPath(
+    hash,
+    options.latinCachePath ?? latinFontCacheDirectory(),
+    'Latin webfont setup cache',
+  )
   return hash.digest('hex')
 }
 
@@ -212,15 +190,17 @@ async function main(): Promise<void> {
   const site = await loadSiteFromSnapshot()
   await rm(generatedPublicDirectory, { recursive: true, force: true })
   await mkdir(generatedPublicDirectory, { recursive: true })
-  const fonts = await buildPublicFonts(publicCorpora(site), generatedPublicDirectory)
+  const fonts = await buildPublicFonts(createPublicFontCorpora(site), generatedPublicDirectory)
   await writeFontCss(fonts)
   await writeFontBuildState(inputFingerprint)
   console.log(
-    `Fonts ready for ${site.posts.length + site.pages.length} Published pages (${fonts.artifacts.fallbackShards.length} fallback shards).`,
+    `Fonts ready for ${site.posts.length + site.pages.length + (site.home ? 1 : 0)} Published pages (${fonts.artifacts.fallbackShards.length} fallback subsets).`,
   )
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error))
-  process.exitCode = 1
-})
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error))
+    process.exitCode = 1
+  })
+}
