@@ -430,16 +430,14 @@ Record a preference only after Yunfei has stated or selected it. A coherent prop
 
 ### Chinese typography
 
-[VOUCHED @hyfdev 2026-07-14]
-
 - **Date:** 2026-07-14.
 - **Status:** Required.
 - **Scope:** Chinese prose and Chinese interface text.
 - **Decision:** Use Tsanger JinKai 02 W04 for Chinese body copy and ordinary Chinese interface text. Use Tsanger JinKai 02 W05 for Chinese titles, headings, and explicit emphasis.
-- **Default status:** Use this W04/W05 pairing as Musubi's default Chinese typography for now. Do not select an OFL replacement while Yunfei is seeking confirmation from Tsanger.
-- **Publication handling:** Proceed with the public Musubi implementation without making Tsanger confirmation a code or release gate; Yunfei will seek confirmation from the font author separately. Keep Tsanger as the preferred visual default and support generated webfont subsets in published deployments. The repository implementation may accept builder-supplied local source files rather than committing the upstream TTF files or automatically downloading them; this input boundary does not change the selected output typography.
+- **Default status:** Use this W04/W05 pairing as Musubi's default Chinese typography for now.
+- **Publication handling:** Proceed with the public Musubi implementation, keep Tsanger as the preferred visual default, and support generated webfont subsets in published deployments. Do not track a separate task to seek confirmation from the font author. The repository implementation may accept builder-supplied local source files rather than committing the upstream TTF files or automatically downloading them; this input boundary does not change the selected output typography.
 - **License boundary:** This decision records Yunfei's implementation and release direction, not a factual claim that Musubi's MIT license relicenses third-party fonts. Keep third-party font notices and generated font artifacts outside the root MIT grant where applicable.
-- **Reason or reference:** Yunfei selected the mixed variant after comparing all-W04, all-W05, and mixed variants against the same local Musubi list and article content. The typeface follows Kami's pinned [W04 and W05 font files](https://github.com/tw93/Kami/tree/f97bfc9ef83626edb863f6e42632067047a23601/assets/fonts).
+- **Reason or reference:** Yunfei selected the mixed variant after comparing all-W04, all-W05, and mixed variants against the same local Musubi list and article content. The typeface follows Kami's pinned [W04 and W05 font files](https://github.com/tw93/Kami/tree/f97bfc9ef83626edb863f6e42632067047a23601/assets/fonts). On 2026-07-23, Yunfei explicitly retired the separate author-confirmation follow-up; no additional reason was given.
 
 ### Chinese font delivery and complete runtime fallback
 
