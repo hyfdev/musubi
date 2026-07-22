@@ -4,6 +4,8 @@ import { join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const REQUIRED_FILES = ['index.html', '404.html', '_headers']
+const RUNTIME_FALLBACK_SHARD_COUNT = 32
+const RUNTIME_FALLBACK_MAX_SHARD_BYTES = 600_000
 const REQUIRED_HEADER_BLOCKS = [
   {
     name: 'HSTS',
@@ -172,12 +174,21 @@ async function verifyRuntimeFallback(root, fontCssDocument) {
   }
   const manifest = JSON.parse(manifestDocument)
   const runtimeCount = manifest?.sources?.fallback?.runtimeCmapCodePointCount
+  const sharding = manifest?.sources?.fallback?.sharding
   const shards = manifest?.artifacts?.fallbackShards
-  if (manifest?.schemaVersion !== 5 || !Number.isInteger(runtimeCount) || runtimeCount <= 0) {
+  if (
+    manifest?.schemaVersion !== 6 ||
+    !Number.isInteger(runtimeCount) ||
+    runtimeCount <= 0 ||
+    sharding?.shardCount !== RUNTIME_FALLBACK_SHARD_COUNT ||
+    sharding?.maxShardBytes !== RUNTIME_FALLBACK_MAX_SHARD_BYTES
+  ) {
     throw new Error('Static artifact font manifest has no complete runtime fallback coverage')
   }
-  if (!Array.isArray(shards) || shards.length !== 8) {
-    throw new Error('Static artifact must contain all 8 runtime fallback shards')
+  if (!Array.isArray(shards) || shards.length !== RUNTIME_FALLBACK_SHARD_COUNT) {
+    throw new Error(
+      `Static artifact must contain all ${RUNTIME_FALLBACK_SHARD_COUNT} runtime fallback shards`,
+    )
   }
 
   const faceBlocks = fontCssDocument.match(/@font-face\s*\{[^}]*\}/gu) ?? []
@@ -194,6 +205,7 @@ async function verifyRuntimeFallback(root, fontCssDocument) {
         .some((segment) => segment === '' || segment === '.' || segment === '..') ||
       !Number.isInteger(shard.bytes) ||
       shard.bytes <= 0 ||
+      shard.bytes > RUNTIME_FALLBACK_MAX_SHARD_BYTES ||
       !Number.isInteger(shard?.coverage?.count) ||
       !Array.isArray(shard?.coverage?.ranges) ||
       typeof shard?.coverage?.cssUnicodeRange !== 'string' ||

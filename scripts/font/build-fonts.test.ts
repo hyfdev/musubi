@@ -30,7 +30,14 @@ describe('public font build', () => {
       expect(manifest.artifacts.tsangerW04.coverage.codePoints).toEqual(['U+4E2D'])
       expect(manifest.artifacts.tsangerW05.coverage.codePoints).toEqual(['U+4E2D'])
     }
-    expect(manifest.artifacts.fallbackShards).toHaveLength(8)
+    expect(manifest.schemaVersion).toBe(6)
+    expect(manifest.sources.fallback.sharding).toMatchObject({
+      hotShardCount: 10,
+      coldShardCount: 22,
+      shardCount: 32,
+      maxShardBytes: 600_000,
+    })
+    expect(manifest.artifacts.fallbackShards).toHaveLength(32)
     expect(
       manifest.artifacts.fallbackShards.reduce(
         (count, artifact) => count + artifact.coverage.count,
@@ -44,6 +51,7 @@ describe('public font build', () => {
     }
     for (const artifact of manifest.artifacts.fallbackShards) {
       expect(artifact.coverage.ranges.every((range) => rangeStart(range) > 0x7f)).toBe(true)
+      expect(artifact.bytes).toBeLessThanOrEqual(600_000)
       await expect(readFile(join(output, artifact.path))).resolves.toHaveLength(artifact.bytes)
     }
     for (const artifact of manifest.artifacts.charter) {

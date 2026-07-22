@@ -180,7 +180,7 @@ async function validArtifact({ omittedHeaderBlock } = {}) {
   temporaryDirectories.push(root)
   await mkdir(join(root, '_musubi/generated/fonts'), { recursive: true })
   const fallbackBytes = Buffer.from('runtime fallback')
-  const fallbackShards = Array.from({ length: 8 }, (_, index) => {
+  const fallbackShards = Array.from({ length: 32 }, (_, index) => {
     const codePoint = 0x3400 + index
     const range = `U+${codePoint.toString(16).toUpperCase().padStart(4, '0')}`
     return {
@@ -212,8 +212,13 @@ async function validArtifact({ omittedHeaderBlock } = {}) {
   await writeFile(
     join(root, '_musubi/generated/fonts/fonts-manifest.json'),
     JSON.stringify({
-      schemaVersion: 5,
-      sources: { fallback: { runtimeCmapCodePointCount: fallbackShards.length } },
+      schemaVersion: 6,
+      sources: {
+        fallback: {
+          runtimeCmapCodePointCount: fallbackShards.length,
+          sharding: { shardCount: 32, maxShardBytes: 600_000 },
+        },
+      },
       artifacts: { fallbackShards },
     }),
   )

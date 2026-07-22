@@ -14,6 +14,7 @@ export default defineConfig({
     ignorePatterns: [
       '.snapshot',
       '.musubi/notion-data-snapshot',
+      'scripts/font/fallback-hot-shards.json',
       'scripts/font/prebuilt-fallback/fonts-manifest.json',
       'AGENTS.md',
       'CLAUDE.md',

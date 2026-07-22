@@ -18,10 +18,18 @@ import {
 import { inspectTsangerFontCache } from './tsanger-fonts.ts'
 
 const require = createRequire(import.meta.url)
-const PREBUILT_FALLBACK_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), 'prebuilt-fallback')
+const FONT_SCRIPT_ROOT = dirname(fileURLToPath(import.meta.url))
+const PREBUILT_FALLBACK_ROOT = resolve(FONT_SCRIPT_ROOT, 'prebuilt-fallback')
 const PREBUILT_FALLBACK_MANIFEST = 'fonts-manifest.json'
 const PREBUILT_FALLBACK_MANIFEST_SHA256 =
-  '6d6a1571a1b08863e1d6e0416adf938558719ad0d8b8497f55c1815fd49cb97b'
+  '952c02da91774b0a5eb75931eea05d141aba080d8e5f52c6446585e44b97872c'
+const FALLBACK_HOT_SHARDS = {
+  repositoryPath: 'scripts/font/fallback-hot-shards.json',
+  sha256: '0a6eba8d2bacfe33d5342108d54cca6ba59c6a6a4eade8e7a71153e2bbba47d1',
+  sourceCssUrl: 'https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400&display=swap',
+  sourceCssSha256: '34fa73340446758ccf3dc9ae215bd8ea05321621db71f793c123ee081c727748',
+  sourceVersion: 'v35',
+} as const
 
 const LXGW_SOURCE = {
   repository: 'https://github.com/lxgw/LxgwWenKaiGB',
@@ -72,7 +80,7 @@ const FALLBACK_UNIQUE_NAME = 'Musubi CJK Fallback Medium'
 const RESERVED_FONT_NAME_PATTERN = /LXGW\s*WenKai|LXGWWenKai/iu
 const PRESERVED_NAME_IDS = Array.from({ length: 26 }, (_, index) => index)
 
-const FALLBACK_SHARDS = [
+const FALLBACK_REGIONS = [
   { id: 'punctuation', maximum: 0x33ff },
   { id: 'extension-a', maximum: 0x4dbf },
   { id: 'unified-1', maximum: 0x61ff },
@@ -82,6 +90,57 @@ const FALLBACK_SHARDS = [
   { id: 'compatibility', maximum: 0xffff },
   { id: 'supplementary', maximum: Number.POSITIVE_INFINITY },
 ] as const
+const FALLBACK_HOT_SHARD_COUNT = 10
+const FALLBACK_HOT_CODE_POINT_COUNT = 3_494
+const FALLBACK_COLD_CODE_POINT_LIMIT = 1_536
+const FALLBACK_COLD_SHARD_COUNT = 22
+const FALLBACK_SHARD_COUNT = FALLBACK_HOT_SHARD_COUNT + FALLBACK_COLD_SHARD_COUNT
+const FALLBACK_MAX_SHARD_BYTES = 600_000
+const FALLBACK_SHARDING = {
+  strategy: 'noto-serif-sc-v35-common-pairs-regional-cold-v1',
+  hotShardDataPath: FALLBACK_HOT_SHARDS.repositoryPath,
+  hotShardDataSha256: FALLBACK_HOT_SHARDS.sha256,
+  sourceCssUrl: FALLBACK_HOT_SHARDS.sourceCssUrl,
+  sourceCssSha256: FALLBACK_HOT_SHARDS.sourceCssSha256,
+  sourceVersion: FALLBACK_HOT_SHARDS.sourceVersion,
+  hotCodePointCount: FALLBACK_HOT_CODE_POINT_COUNT,
+  hotShardCount: FALLBACK_HOT_SHARD_COUNT,
+  coldCodePointLimit: FALLBACK_COLD_CODE_POINT_LIMIT,
+  coldShardCount: FALLBACK_COLD_SHARD_COUNT,
+  shardCount: FALLBACK_SHARD_COUNT,
+  maxShardBytes: FALLBACK_MAX_SHARD_BYTES,
+} as const
+
+interface PinnedFallbackHotShardSnapshot {
+  schemaVersion: 1
+  source: {
+    family: string
+    version: string
+    cssUrl: string
+    cssSha256: string
+    userAgent: string
+    retrievedAt: string
+    selection: string
+    lxgwSourceSha256: string
+  }
+  strategy: {
+    sourceGroupCount: number
+    sourceGroupsPerShard: number
+    hotShardCount: number
+    codePointCount: number
+  }
+  shards: Array<{
+    id: string
+    sourceGroups: number[]
+    count: number
+    ranges: string[]
+  }>
+}
+
+interface FallbackShardGroup {
+  id: string
+  codePoints: number[]
+}
 
 export interface FontCorpora {
   text: string
@@ -109,7 +168,7 @@ export interface StyledFontArtifact extends FontArtifact {
 }
 
 export interface FontBuildManifest {
-  schemaVersion: 5
+  schemaVersion: 6
   familyStack: {
     body: readonly ['Tsanger JinKai W04', 'Musubi CJK Fallback']
     emphasis: readonly ['Tsanger JinKai W05', 'Musubi CJK Fallback']
@@ -133,6 +192,7 @@ export interface FontBuildManifest {
       sha256: string
       sourceCmapCodePointCount: number
       runtimeCmapCodePointCount: number
+      sharding: typeof FALLBACK_SHARDING
     }
     latin: Record<
       LatinFontSourceKey,
@@ -167,7 +227,7 @@ export interface FontBuildManifest {
 }
 
 interface PrebuiltFallbackManifest {
-  schemaVersion: 4
+  schemaVersion: 5
   familyStack: {
     body: readonly ['Tsanger JinKai W04', 'Musubi CJK Fallback']
     emphasis: readonly ['Tsanger JinKai W05', 'Musubi CJK Fallback']
@@ -290,7 +350,7 @@ export async function buildPublicFonts(
   )
 
   const manifest: FontBuildManifest = {
-    schemaVersion: 5,
+    schemaVersion: 6,
     familyStack: {
       body: ['Tsanger JinKai W04', 'Musubi CJK Fallback'],
       emphasis: ['Tsanger JinKai W05', 'Musubi CJK Fallback'],
@@ -400,7 +460,7 @@ async function readPrebuiltFallbackManifest(): Promise<PrebuiltFallbackManifest>
   }
   const manifest = JSON.parse(manifestBytes.toString('utf8')) as PrebuiltFallbackManifest
   if (
-    manifest.schemaVersion !== 4 ||
+    manifest.schemaVersion !== 5 ||
     manifest.tools.subsetFont !== TOOL_VERSIONS.subsetFont ||
     manifest.tools.fonteditorCore !== TOOL_VERSIONS.fonteditorCore ||
     manifest.sources.fallback.release !== LXGW_SOURCE.release ||
@@ -409,11 +469,12 @@ async function readPrebuiltFallbackManifest(): Promise<PrebuiltFallbackManifest>
     manifest.sources.fallback.sha256 !== LXGW_SOURCE.sha256 ||
     manifest.sources.fallback.sourceCmapCodePointCount !== LXGW_SOURCE.sourceCmapCodePointCount ||
     manifest.sources.fallback.runtimeCmapCodePointCount !== LXGW_SOURCE.runtimeCmapCodePointCount ||
+    JSON.stringify(manifest.sources.fallback.sharding) !== JSON.stringify(FALLBACK_SHARDING) ||
     manifest.licenses.fallback.path !== OUTPUT_PATHS.fallbackLicense ||
     manifest.licenses.fallback.sha256 !== FALLBACK_LICENSE.sha256 ||
     manifest.artifacts.tsangerW04 !== null ||
     manifest.artifacts.tsangerW05 !== null ||
-    manifest.artifacts.fallbackShards.length !== FALLBACK_SHARDS.length
+    manifest.artifacts.fallbackShards.length !== FALLBACK_SHARD_COUNT
   ) {
     throw new Error('The checked-in fallback font manifest does not match this Musubi version.')
   }
@@ -421,6 +482,7 @@ async function readPrebuiltFallbackManifest(): Promise<PrebuiltFallbackManifest>
   for (const artifact of manifest.artifacts.fallbackShards) {
     if (
       artifact.family !== FALLBACK_FAMILY ||
+      artifact.bytes > FALLBACK_MAX_SHARD_BYTES ||
       artifact.coverage.count <= 0 ||
       artifact.coverage.ranges.length === 0 ||
       artifact.coverage.cssUnicodeRange !== artifact.coverage.ranges.join(', ')
@@ -475,12 +537,14 @@ export async function verifyPrebuiltFallbackCoverage(): Promise<void> {
   const manifest = await readPrebuiltFallbackManifest()
   await woff2.init()
   const combined = new Set<number>()
+  const actualByShard: number[][] = []
   for (const artifact of manifest.artifacts.fallbackShards) {
     const buffer = await readFile(checkedPrebuiltPath(artifact.path))
     if (buffer.length !== artifact.bytes || sha256(buffer) !== artifact.sha256) {
       throw new Error(`Checked-in fallback font artifact failed verification: ${artifact.path}`)
     }
     const actual = [...readCmap(buffer, 'woff2')].sort((left, right) => left - right)
+    actualByShard.push(actual)
     const declared = expandCoverage(artifact.coverage)
     if (!sameNumbers(actual, declared)) {
       throw new Error(`Checked-in fallback cmap differs from its manifest: ${artifact.path}`)
@@ -501,6 +565,20 @@ export async function verifyPrebuiltFallbackCoverage(): Promise<void> {
     throw new Error(
       `Checked-in runtime fallback cmap has ${combined.size} code points; expected ${manifest.sources.fallback.runtimeCmapCodePointCount}.`,
     )
+  }
+  const expectedGroups = await createFallbackShardGroups(
+    [...combined].sort((left, right) => left - right),
+  )
+  for (const [index, expected] of expectedGroups.entries()) {
+    const artifact = manifest.artifacts.fallbackShards[index]!
+    if (
+      !artifact.path.includes(`Musubi-CJK-Fallback-${expected.id}-`) ||
+      !sameNumbers(actualByShard[index]!, expected.codePoints)
+    ) {
+      throw new Error(
+        `Checked-in fallback shard does not match the pinned ${expected.id} grouping: ${artifact.path}`,
+      )
+    }
   }
 }
 
@@ -554,7 +632,7 @@ export async function rebuildPrebuiltFallback(): Promise<void> {
       temporaryRoot,
     )
     const manifest: PrebuiltFallbackManifest = {
-      schemaVersion: 4,
+      schemaVersion: 5,
       familyStack: {
         body: ['Tsanger JinKai W04', 'Musubi CJK Fallback'],
         emphasis: ['Tsanger JinKai W05', 'Musubi CJK Fallback'],
@@ -574,6 +652,7 @@ export async function rebuildPrebuiltFallback(): Promise<void> {
           sha256: LXGW_SOURCE.sha256,
           sourceCmapCodePointCount: fallbackCmap.size,
           runtimeCmapCodePointCount: fallbackCodePoints.length,
+          sharding: FALLBACK_SHARDING,
         },
       },
       artifacts: {
@@ -758,26 +837,149 @@ async function buildFallbackShards(
   codePoints: number[],
   outputRoot: string,
 ): Promise<FontArtifact[]> {
-  const groups = new Map<string, number[]>()
-  for (const codePoint of codePoints) {
-    const shard = FALLBACK_SHARDS.find((candidate) => codePoint <= candidate.maximum)!
-    const values = groups.get(shard.id) ?? []
-    values.push(codePoint)
-    groups.set(shard.id, values)
-  }
-
+  const groups = await createFallbackShardGroups(codePoints)
   const artifacts: FontArtifact[] = []
-  for (const shard of FALLBACK_SHARDS) {
-    const selected = groups.get(shard.id) ?? []
-    if (selected.length === 0) continue
-    const buffer = await loadOrCreateFallbackShard(source, selected, shard.id)
-    validateFallbackFont(buffer, selected)
+  for (const group of groups) {
+    const buffer = await loadOrCreateFallbackShard(source, group.codePoints, group.id)
+    validateFallbackFont(buffer, group.codePoints)
+    if (buffer.length > FALLBACK_MAX_SHARD_BYTES) {
+      throw new Error(
+        `Generated fallback shard ${group.id} is ${buffer.length} bytes; expected at most ${FALLBACK_MAX_SHARD_BYTES}.`,
+      )
+    }
     const contentHash = sha256(buffer).slice(0, 16)
-    const path = `fonts/Musubi-CJK-Fallback-${shard.id}-${contentHash}.woff2`
+    const path = `fonts/Musubi-CJK-Fallback-${group.id}-${contentHash}.woff2`
     await writeAtomic(join(outputRoot, path), buffer, 0o644)
-    artifacts.push(createArtifact(path, FALLBACK_FAMILY, buffer, selected, false))
+    artifacts.push(createArtifact(path, FALLBACK_FAMILY, buffer, group.codePoints, false))
   }
   return artifacts
+}
+
+async function createFallbackShardGroups(codePoints: number[]): Promise<FallbackShardGroup[]> {
+  const snapshot = await readPinnedFallbackHotShardSnapshot()
+  const available = new Set(codePoints)
+  const assigned = new Set<number>()
+  const groups: FallbackShardGroup[] = []
+
+  for (const shard of snapshot.shards) {
+    const selected = expandRanges(shard.ranges)
+    for (const codePoint of selected) {
+      if (!available.has(codePoint)) {
+        throw new Error(
+          `Pinned fallback hot shard ${shard.id} contains ${formatCodePoint(codePoint)} outside the LXGW runtime set.`,
+        )
+      }
+      if (assigned.has(codePoint)) {
+        throw new Error(`Pinned fallback hot shards overlap at ${formatCodePoint(codePoint)}.`)
+      }
+      assigned.add(codePoint)
+    }
+    groups.push({ id: shard.id, codePoints: selected })
+  }
+
+  const coldByRegion = new Map<string, number[]>()
+  for (const codePoint of codePoints) {
+    if (assigned.has(codePoint)) continue
+    const region = FALLBACK_REGIONS.find((candidate) => codePoint <= candidate.maximum)
+    if (!region) throw new Error(`No fallback region contains ${formatCodePoint(codePoint)}.`)
+    const selected = coldByRegion.get(region.id) ?? []
+    selected.push(codePoint)
+    coldByRegion.set(region.id, selected)
+    assigned.add(codePoint)
+  }
+
+  let coldShardCount = 0
+  for (const region of FALLBACK_REGIONS) {
+    const selected = coldByRegion.get(region.id) ?? []
+    for (let offset = 0; offset < selected.length; offset += FALLBACK_COLD_CODE_POINT_LIMIT) {
+      coldShardCount += 1
+      groups.push({
+        id: `${region.id}-cold-${String(offset / FALLBACK_COLD_CODE_POINT_LIMIT + 1).padStart(2, '0')}`,
+        codePoints: selected.slice(offset, offset + FALLBACK_COLD_CODE_POINT_LIMIT),
+      })
+    }
+  }
+
+  if (
+    assigned.size !== codePoints.length ||
+    coldShardCount !== FALLBACK_COLD_SHARD_COUNT ||
+    groups.length !== FALLBACK_SHARD_COUNT
+  ) {
+    throw new Error(
+      `Fallback sharding produced ${groups.length} shards (${coldShardCount} cold) for ${assigned.size} code points; expected ${FALLBACK_SHARD_COUNT} shards (${FALLBACK_COLD_SHARD_COUNT} cold) for ${codePoints.length} code points.`,
+    )
+  }
+  return groups
+}
+
+async function readPinnedFallbackHotShardSnapshot(): Promise<PinnedFallbackHotShardSnapshot> {
+  const bytes = await readFile(resolve(FONT_SCRIPT_ROOT, 'fallback-hot-shards.json'))
+  if (sha256(bytes) !== FALLBACK_HOT_SHARDS.sha256) {
+    throw new Error(
+      'The pinned fallback hot-shard data changed without updating its reviewed checksum.',
+    )
+  }
+  const snapshot = JSON.parse(bytes.toString('utf8')) as PinnedFallbackHotShardSnapshot
+  if (
+    snapshot.schemaVersion !== 1 ||
+    snapshot.source.family !== 'Noto Serif SC' ||
+    snapshot.source.version !== FALLBACK_HOT_SHARDS.sourceVersion ||
+    snapshot.source.cssUrl !== FALLBACK_HOT_SHARDS.sourceCssUrl ||
+    snapshot.source.cssSha256 !== FALLBACK_HOT_SHARDS.sourceCssSha256 ||
+    snapshot.source.lxgwSourceSha256 !== LXGW_SOURCE.sha256 ||
+    snapshot.strategy.sourceGroupCount !== 20 ||
+    snapshot.strategy.sourceGroupsPerShard !== 2 ||
+    snapshot.strategy.hotShardCount !== FALLBACK_HOT_SHARD_COUNT ||
+    snapshot.strategy.codePointCount !== FALLBACK_HOT_CODE_POINT_COUNT ||
+    snapshot.shards.length !== FALLBACK_HOT_SHARD_COUNT
+  ) {
+    throw new Error('The pinned fallback hot-shard data does not match this Musubi version.')
+  }
+
+  const combined = new Set<number>()
+  let declaredCount = 0
+  for (const [index, shard] of snapshot.shards.entries()) {
+    const expectedId = `common-${String(index + 1).padStart(2, '0')}`
+    const expectedSourceGroups = [119 - index * 2, 118 - index * 2]
+    if (
+      shard.id !== expectedId ||
+      JSON.stringify(shard.sourceGroups) !== JSON.stringify(expectedSourceGroups) ||
+      !Number.isInteger(shard.count) ||
+      shard.count <= 0 ||
+      !Array.isArray(shard.ranges) ||
+      shard.ranges.length === 0
+    ) {
+      throw new Error(`Pinned fallback hot shard ${shard.id} is invalid.`)
+    }
+    const selected = expandRanges(shard.ranges)
+    if (selected.length !== shard.count) {
+      throw new Error(
+        `Pinned fallback hot shard ${shard.id} declares ${shard.count} code points but expands to ${selected.length}.`,
+      )
+    }
+    for (const codePoint of selected) {
+      if (combined.has(codePoint)) {
+        throw new Error(`Pinned fallback hot shards overlap at ${formatCodePoint(codePoint)}.`)
+      }
+      combined.add(codePoint)
+    }
+    declaredCount += selected.length
+  }
+  if (declaredCount !== FALLBACK_HOT_CODE_POINT_COUNT) {
+    throw new Error(
+      `Pinned fallback hot shards contain ${declaredCount} code points; expected ${FALLBACK_HOT_CODE_POINT_COUNT}.`,
+    )
+  }
+  return snapshot
+}
+
+function expandRanges(ranges: string[]): number[] {
+  const codePoints: number[] = []
+  for (const range of ranges) {
+    const [start, end] = parseCoverageRange(range)
+    for (let codePoint = start; codePoint <= end; codePoint += 1) codePoints.push(codePoint)
+  }
+  return codePoints.sort((left, right) => left - right)
 }
 
 async function loadOrCreateFallbackShard(
@@ -790,9 +992,13 @@ async function loadOrCreateFallbackShard(
   await chmod(cacheDirectory, 0o700)
   const key = sha256(
     Buffer.from(
-      [LXGW_SOURCE.sha256, TOOL_VERSIONS.subsetFont, TOOL_VERSIONS.fonteditorCore, shardId].join(
-        ':',
-      ),
+      [
+        LXGW_SOURCE.sha256,
+        TOOL_VERSIONS.subsetFont,
+        TOOL_VERSIONS.fonteditorCore,
+        shardId,
+        sha256(Buffer.from(codePoints.join(','))),
+      ].join(':'),
     ),
   )
   const cachePath = join(cacheDirectory, `${key}.woff2`)
