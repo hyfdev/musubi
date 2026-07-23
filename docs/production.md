@@ -40,11 +40,14 @@ Application and configuration changes use the connected Workers Builds pipeline:
 2. Let Workers Builds publish the new `musubi` Worker version.
 3. Verify Home, Blog, a Post, slashless canonical routes, the visible 404 response, fonts, themes, and cache headers at `https://musubi.hyf.me`.
 
-Notion-only changes use the smallest explicit trigger:
+For the maintained snapshot-based example, Notion-only changes use the same reviewed Git boundary as application changes:
 
 1. Publish the intended rows in Notion.
-2. Retrigger the production build for the current `main` commit in Workers Builds.
-3. Verify the changed route and one direct hard refresh at `https://musubi.hyf.me`.
+2. Run `vp run notion:setup`, review the snapshot diff, and commit it.
+3. Push the reviewed commit to `main` so Workers Builds runs the offline `site:build`.
+4. Verify the changed route and one direct hard refresh at `https://musubi.hyf.me`.
+
+A separately connected site configured with `pnpm run build` and the three Notion build inputs may instead retrigger its current production commit because that build command refreshes the snapshot before static generation.
 
 This trigger deliberately remains manual. Automatic Notion webhooks can be added later only when their operational value justifies another credential and failure path.
 

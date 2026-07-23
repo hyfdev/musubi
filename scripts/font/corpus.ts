@@ -25,8 +25,6 @@ const applicationText = [
   'Error',
   'Page not found',
   'The page you requested does not exist or is not published.',
-  'Something went wrong',
-  'This page could not be rendered.',
   'Back to Home',
   'No posts have been published yet.',
   'Built with Musubi',
