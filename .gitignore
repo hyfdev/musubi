@@ -27,6 +27,7 @@ logs
 
 # Deployment
 .wrangler
+/wrangler.json
 .dev.vars*
 !.dev.vars.example
 

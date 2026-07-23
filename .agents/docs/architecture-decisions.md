@@ -94,8 +94,8 @@ Judgments the human actually expressed about architecture — selections, accept
 ### Static deployment target
 
 - **Ruling:** The maintained Musubi example must generate its Wrangler configuration as part of the static build and use it to deploy `dist/client` through Cloudflare Workers Static Assets, not Cloudflare Pages, Void Platform, or a runtime Worker.
-- **Limits:** The generated configuration lives at `dist/wrangler.json`, outside the public `dist/client`, and a generated `.wrangler/deploy/config.json` redirect lets Wrangler's default production and preview commands discover it. The Worker has no `main`, assets binding, runtime Notion credentials, or server process. `dist/ssr` remains a local build artifact; it may remain on disk because the generated configuration selects only `dist/client` for deployment.
+- **Limits:** The build generates the Git-ignored root `wrangler.json`, where Wrangler discovers it directly, and the configuration selects only `dist/client` for deployment. The Worker has no `main`, assets binding, runtime Notion credentials, or server process. `dist/ssr` remains a local build artifact and may remain on disk.
 - **Why:** Yunfei rejected Pages because it is being retired in favor of Workers, selected Workers explicitly, required the Void migration to keep Cloudflare deployment, and wants the Wrangler configuration to be a build result rather than independently maintained source. Wrangler routing remains necessary for a visible 404 and slashless canonical URLs.
-- **Source:** Yunfei He (@hyfdev), 2026-07-19 Cloudflare direction and 2026-07-23 Void migration, static-output, generated-Wrangler-configuration, and retained-build-artifact decisions; verified locally with Wrangler 4.112.0 static-asset routing, deploy-config redirection, and config-relative asset resolution.
+- **Source:** Yunfei He (@hyfdev), 2026-07-19 Cloudflare direction and 2026-07-23 Void migration, static-output, generated-root-Wrangler-configuration, and retained-build-artifact decisions; verified locally with Wrangler 4.112.0 static-asset routing and root configuration discovery.
 
 ## Open

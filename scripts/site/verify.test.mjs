@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
-import { renderWranglerConfig, renderWranglerDeployConfig } from './deployment.mjs'
+import { renderWranglerConfig } from './deployment.mjs'
 import { verifyDeploymentOutput, verifyStaticArtifact } from './verify.mjs'
 
 const temporaryDirectories = []
@@ -196,42 +196,41 @@ describe('static delivery controls', () => {
   it('accepts the generated Wrangler configuration while retaining the SSR artifact', async () => {
     const workspaceRoot = await validDeploymentOutput()
     const distRoot = join(workspaceRoot, 'dist')
+    const configPath = join(workspaceRoot, 'wrangler.json')
     const deployConfigPath = join(workspaceRoot, '.wrangler/deploy/config.json')
     await mkdir(join(distRoot, 'ssr'))
 
-    await expect(verifyDeploymentOutput({ distRoot, deployConfigPath })).resolves.toEqual({
-      configPath: join(distRoot, 'wrangler.json'),
+    await expect(
+      verifyDeploymentOutput({ distRoot, configPath, deployConfigPath }),
+    ).resolves.toEqual({
+      configPath,
       clientRoot: join(distRoot, 'client'),
-      deployConfigPath,
     })
   })
 
   it('rejects a changed generated Wrangler configuration', async () => {
     const workspaceRoot = await validDeploymentOutput()
     const distRoot = join(workspaceRoot, 'dist')
+    const configPath = join(workspaceRoot, 'wrangler.json')
     const deployConfigPath = join(workspaceRoot, '.wrangler/deploy/config.json')
-    await writeFile(
-      join(distRoot, 'wrangler.json'),
-      renderWranglerConfig().replace('"./client"', '"./ssr"'),
-    )
+    await writeFile(configPath, renderWranglerConfig().replace('"./dist/client"', '"./dist/ssr"'))
 
-    await expect(verifyDeploymentOutput({ distRoot, deployConfigPath })).rejects.toThrow(
-      'wrangler.json differs from the generated contract',
-    )
+    await expect(
+      verifyDeploymentOutput({ distRoot, configPath, deployConfigPath }),
+    ).rejects.toThrow('wrangler.json differs from the generated contract')
   })
 
-  it('rejects a changed Wrangler deploy redirect', async () => {
+  it('rejects a Wrangler deploy redirect that would override the root configuration', async () => {
     const workspaceRoot = await validDeploymentOutput()
     const distRoot = join(workspaceRoot, 'dist')
+    const configPath = join(workspaceRoot, 'wrangler.json')
     const deployConfigPath = join(workspaceRoot, '.wrangler/deploy/config.json')
-    await writeFile(
-      deployConfigPath,
-      renderWranglerDeployConfig().replace('dist/wrangler.json', 'dist/other.json'),
-    )
+    await mkdir(join(workspaceRoot, '.wrangler/deploy'), { recursive: true })
+    await writeFile(deployConfigPath, '{"configPath":"../../dist/wrangler.json"}')
 
-    await expect(verifyDeploymentOutput({ distRoot, deployConfigPath })).rejects.toThrow(
-      '.wrangler/deploy/config.json differs from the generated contract',
-    )
+    await expect(
+      verifyDeploymentOutput({ distRoot, configPath, deployConfigPath }),
+    ).rejects.toThrow('.wrangler/deploy/config.json')
   })
 })
 
@@ -239,9 +238,7 @@ async function validDeploymentOutput() {
   const workspaceRoot = await mkdtemp(join(tmpdir(), 'musubi-deployment-output-'))
   temporaryDirectories.push(workspaceRoot)
   await mkdir(join(workspaceRoot, 'dist'), { recursive: true })
-  await mkdir(join(workspaceRoot, '.wrangler/deploy'), { recursive: true })
-  await writeFile(join(workspaceRoot, 'dist/wrangler.json'), renderWranglerConfig())
-  await writeFile(join(workspaceRoot, '.wrangler/deploy/config.json'), renderWranglerDeployConfig())
+  await writeFile(join(workspaceRoot, 'wrangler.json'), renderWranglerConfig())
   return workspaceRoot
 }
 

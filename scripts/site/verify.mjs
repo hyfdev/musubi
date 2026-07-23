@@ -4,12 +4,7 @@ import { dirname, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
 
-import {
-  WRANGLER_CONFIG,
-  WRANGLER_CONFIG_FILENAME,
-  WRANGLER_DEPLOY_CONFIG,
-  WRANGLER_DEPLOY_CONFIG_PATH,
-} from './deployment.mjs'
+import { WRANGLER_CONFIG, WRANGLER_CONFIG_FILENAME } from './deployment.mjs'
 
 const REQUIRED_FILES = [
   'index.html',
@@ -207,11 +202,12 @@ export async function verifyStaticArtifact(
 
 export async function verifyDeploymentOutput({
   distRoot = resolve('dist'),
-  deployConfigPath = resolve(WRANGLER_DEPLOY_CONFIG_PATH),
+  configPath = resolve(WRANGLER_CONFIG_FILENAME),
+  deployConfigPath = resolve('.wrangler/deploy/config.json'),
 } = {}) {
   const root = resolve(distRoot)
-  const configPath = resolve(root, WRANGLER_CONFIG_FILENAME)
-  const configDocument = await readFile(configPath, 'utf8').catch(() => undefined)
+  const resolvedConfigPath = resolve(configPath)
+  const configDocument = await readFile(resolvedConfigPath, 'utf8').catch(() => undefined)
   if (!configDocument) {
     throw new Error(`Static deployment output is missing ${WRANGLER_CONFIG_FILENAME}`)
   }
@@ -228,41 +224,21 @@ export async function verifyDeploymentOutput({
     )
   }
 
-  const clientRoot = resolve(root, config.assets.directory)
+  const clientRoot = resolve(dirname(resolvedConfigPath), config.assets.directory)
   if (clientRoot !== resolve(root, 'client')) {
     throw new Error(
       `Static deployment output ${WRANGLER_CONFIG_FILENAME} does not select dist/client`,
     )
   }
 
-  const resolvedDeployConfigPath = resolve(deployConfigPath)
-  const deployConfigDocument = await readFile(resolvedDeployConfigPath, 'utf8').catch(
-    () => undefined,
-  )
-  if (!deployConfigDocument) {
-    throw new Error(`Static deployment output is missing ${WRANGLER_DEPLOY_CONFIG_PATH}`)
-  }
-
-  let deployConfig
-  try {
-    deployConfig = JSON.parse(deployConfigDocument)
-  } catch {
-    throw new Error(`Static deployment output contains invalid ${WRANGLER_DEPLOY_CONFIG_PATH}`)
-  }
-  if (!isDeepStrictEqual(deployConfig, WRANGLER_DEPLOY_CONFIG)) {
+  const redirect = await lstat(deployConfigPath).catch(() => undefined)
+  if (redirect) {
     throw new Error(
-      `Static deployment output ${WRANGLER_DEPLOY_CONFIG_PATH} differs from the generated contract`,
+      'Static deployment output retains .wrangler/deploy/config.json, which would override the root Wrangler configuration',
     )
   }
 
-  const redirectedConfigPath = resolve(dirname(resolvedDeployConfigPath), deployConfig.configPath)
-  if (redirectedConfigPath !== configPath) {
-    throw new Error(
-      `Static deployment output ${WRANGLER_DEPLOY_CONFIG_PATH} does not select ${configPath}`,
-    )
-  }
-
-  return { configPath, clientRoot, deployConfigPath: resolvedDeployConfigPath }
+  return { configPath: resolvedConfigPath, clientRoot }
 }
 
 async function verifyRuntimeFallback(root, fontCssDocument) {

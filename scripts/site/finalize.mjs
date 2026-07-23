@@ -1,12 +1,7 @@
-import { mkdir, readFile, rm, rmdir, writeFile } from 'node:fs/promises'
-import { dirname, resolve } from 'node:path'
+import { readFile, rm, rmdir, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 
-import {
-  renderWranglerConfig,
-  renderWranglerDeployConfig,
-  WRANGLER_CONFIG_FILENAME,
-  WRANGLER_DEPLOY_CONFIG_PATH,
-} from './deployment.mjs'
+import { renderWranglerConfig, WRANGLER_CONFIG_FILENAME } from './deployment.mjs'
 
 const distRoot = resolve('dist')
 const publicRoot = resolve(distRoot, 'client')
@@ -23,9 +18,8 @@ await rmdir(viteDirectory).catch((error) => {
   if (!['ENOENT', 'ENOTEMPTY'].includes(error.code)) throw error
 })
 
-const deployConfigPath = resolve(WRANGLER_DEPLOY_CONFIG_PATH)
-await mkdir(dirname(deployConfigPath), { recursive: true })
-await writeFile(resolve(distRoot, WRANGLER_CONFIG_FILENAME), renderWranglerConfig(), 'utf8')
-await writeFile(deployConfigPath, renderWranglerDeployConfig(), 'utf8')
+await rm(resolve(distRoot, WRANGLER_CONFIG_FILENAME), { force: true })
+await rm(resolve('.wrangler/deploy/config.json'), { force: true })
+await writeFile(resolve(WRANGLER_CONFIG_FILENAME), renderWranglerConfig(), 'utf8')
 
 console.log('Finalized the static output and generated its Wrangler deployment configuration')
