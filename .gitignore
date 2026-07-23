@@ -1,16 +1,12 @@
-# Void and legacy Nuxt dev/build outputs
+# Void dev/build outputs
 .void
-.output
-.data
-.nuxt
-.nitro
-.cache
+dist
+
 .musubi/*
 !.musubi/notion-data-snapshot/
 !.musubi/notion-data-snapshot/config.json
 !.musubi/notion-data-snapshot/pages/
 !.musubi/notion-data-snapshot/pages/*.json
-dist
 
 # Node dependencies
 node_modules
