@@ -22,20 +22,16 @@ Judgments the human actually expressed about architecture — selections, accept
 
 ### Git-tracked Notion Data boundary
 
-[VOUCHED @hyfdev 2026-07-18]
-
-- **Ruling:** Musubi must persist the fetched Notion content, called Notion Data, in Git as one Config Data JSON file and one Page Data JSON file per Published Notion page; development and check builds read these local files without fetching Notion, while a production build refreshes the same files before Nuxt reads them.
+- **Ruling:** Musubi must persist the fetched Notion content, called Notion Data, in Git as one Config Data JSON file and one Page Data JSON file per Published Notion page; development and check builds read these local files without fetching Notion, while a production build refreshes the same files before the site renderer reads them.
 - **Limits:** Filtering Draft rows is the explicit exception: otherwise, the code that fetches and stores Notion Data must not add Musubi business or rendering rules. “Notion page” includes rows that Musubi later treats as either a Post or a Page. This decision governs neither the containing directory, page filename key, body representation, media and attachment policy, nor the exact refresh algorithm; the existing architecture statements about those subjects are outside this vouch. Changing Git tracking, file granularity, which builds may fetch Notion, or the no-Musubi-rules ingestion boundary reopens this decision.
 - **Why:** Yunfei wants the directory structure to make the separation between Notion fetching and Musubi rendering visible, wants local development to avoid repeatedly fetching Notion, and prefers page-local Git diffs over rewriting one aggregate Page Data file when one page changes.
 - **Source:** Yunfei He (@hyfdev), 2026-07-18, explicit direction in the Musubi architecture discussion.
 
 ### Notion code and snapshot locations
 
-[VOUCHED @hyfdev 2026-07-18]
-
-- **Ruling:** Notion retrieval must be managed outside Nuxt under `scripts/notion/`, with `index.ts` as its entry point; the one Git-tracked Notion Data set must live under `.musubi/notion-data-snapshot/` as `config.json` plus one JSON file per Published Notion page in `pages/`, and Nuxt must consume those files directly without a second aggregated content JSON such as `.musubi/site.json`.
-- **Limits:** The Notion directory may split implementation details into more files as it grows. This decision does not choose the stable page filename key, the exact JSON schema, or other internal filenames. Changing either subsystem root, moving Notion retrieval into Nuxt, or reintroducing a second aggregate reopens this decision.
-- **Why:** Yunfei wants the Notion Data subsystem, including its code, managed independently from Nuxt and selected the concise `scripts/notion/` name plus the shared `.musubi/` data root. Nuxt can perform Musubi-specific conversion in memory, so persisting a second aggregated content JSON would duplicate the same content boundary without being needed.
+- **Ruling:** Notion retrieval must be managed outside the application framework under `scripts/notion/`, with `index.ts` as its entry point; the one Git-tracked Notion Data set must live under `.musubi/notion-data-snapshot/` as `config.json` plus one JSON file per Published Notion page in `pages/`, and the site build must consume those files directly without a second aggregated content JSON such as `.musubi/site.json`.
+- **Limits:** The Notion directory may split implementation details into more files as it grows. This decision does not choose the stable page filename key, the exact JSON schema, or other internal filenames. Changing either subsystem root, moving Notion retrieval into the application framework, or reintroducing a second aggregate reopens this decision.
+- **Why:** Yunfei wants the Notion Data subsystem, including its code, managed independently from the application framework and selected the concise `scripts/notion/` name plus the shared `.musubi/` data root. The site build can perform Musubi-specific conversion in memory, so persisting a second aggregated content JSON would duplicate the same content boundary without being needed.
 - **Source:** Yunfei He (@hyfdev), 2026-07-18, explicit corrections during the Musubi architecture discussion.
 
 ### Font code and working-data locations
@@ -47,14 +43,12 @@ Judgments the human actually expressed about architecture — selections, accept
 - **Why:** Yunfei selected concise domain directory names and the shared `.musubi/` root; no additional rationale was given.
 - **Source:** Yunfei He (@hyfdev), 2026-07-18, explicit direction during the Musubi architecture discussion.
 
-### Nuxt snapshot consumption and rendering flow
+### Snapshot consumption and rendering flow
 
-[VOUCHED @hyfdev 2026-07-18]
-
-- **Ruling:** Nuxt must read `.musubi/notion-data-snapshot/` through `server/site/`, use pure code under `shared/site/` and `shared/content/` to create one in-memory `Site` containing `SiteConfig`, `Post`, and `Page` values, pass only the required slices through the four build-only `shell`, `home`, `blog`, and `page` handlers, and keep `app/` responsible only for page selection and rendering.
-- **Limits:** Production caches one `Site` per Node process, while development recreates it after snapshot files change. Derived routes, navigation, Home entries, Blog ordering, and parsed documents remain in memory and are never written as a second aggregate. Internal helper files may split without reopening this decision if these boundaries remain intact. Persisting an aggregate site model, reading the snapshot in browser code, accessing Notion from this flow, or publishing the build-only handlers as a runtime API reopens it. X, media, and font network work are outside this decision.
-- **Why:** Yunfei accepted the reviewed Nuxt data-flow packet as a whole; no additional rationale was given.
-- **Source:** Yunfei He (@hyfdev), 2026-07-18, explicit acceptance during the Musubi architecture discussion.
+- **Ruling:** Void build-time loaders must read `.musubi/notion-data-snapshot/` through `server/site/`, use pure code under `shared/site/` and `shared/content/` to create one in-memory `Site` containing `SiteConfig`, `Post`, and `Page` values, pass only explicitly public slices through global middleware and page loaders, and keep Vue components responsible only for presentation.
+- **Limits:** Production generation caches one `Site` per Node process, while development recreates it after snapshot files change. Derived routes, navigation, Home entries, Blog ordering, and parsed documents remain in memory and are never written as a second aggregate. `shared/site/public.ts` strips internal source and page labels before serialization. Internal helper files may split without reopening this decision if these boundaries remain intact. Persisting an aggregate site model, reading the snapshot in browser code, accessing Notion from this flow, publishing loaders as a runtime content API, or allowing repeated SSG loader execution to perform side effects reopens it. X, media, and font network work are outside this decision.
+- **Why:** Yunfei approved migrating Musubi from Nuxt to Void Framework while preserving the existing Notion snapshot and static-publication boundaries.
+- **Source:** Yunfei He (@hyfdev), 2026-07-23, explicit migration approval; earlier data-boundary acceptance on 2026-07-18.
 
 ### Snapshot content and refresh
 
@@ -85,16 +79,23 @@ Judgments the human actually expressed about architecture — selections, accept
 
 ### User-facing task and network boundary
 
-- **Ruling:** Musubi must expose `notion:setup` to create or refresh Notion Data, `font:setup` / `font:build` for pinned Charter, JetBrains Mono, optional Tsanger sources, and generated web fonts, `site:build` for the offline static site pipeline from the on-disk snapshot (brand check, font setup, font build, Nuxt generate, finalize, artifact), package entry `build` as `notion:setup` then `site:build`, package entry `dev` for local development from existing Notion Data, and `ready` for the complete local quality gate including `site:build`.
-- **Limits:** `package.json` scripts are only lifecycle hooks (`postinstall`, `prepare`) and thin entries (`dev`, `build`, `preview`). All composable steps are Vite+ tasks under `vp run`. `vp dev` is the Vite+ built-in development command and is not Musubi's application entry. `generate` and `production` must not be user-facing Musubi task names; Nuxt generate remains an implementation detail inside `site:build`. `dev`, `site:build`, and `ready` must not access Notion. `font:setup` runs from postinstall, dev, and site:build; missing required Charter or JetBrains Mono source files and an attempted Tsanger setup must download successfully or fail with a clear error. `MUSUBI_TSANGER_SETUP=0` may skip only the Tsanger download attempt; it does not clear an existing Tsanger cache—use `font:setup -- --clear` when those sources must not be used. Full upstream sources stay out of Git and public artifacts.
+- **Ruling:** Musubi must expose `notion:setup` to create or refresh Notion Data, `font:setup` / `font:build` for pinned Charter, JetBrains Mono, optional Tsanger sources, and generated web fonts, `site:build` for the offline static site pipeline from the on-disk snapshot (brand check, font setup, font build, Void build, finalize, artifact), package entry `build` as `notion:setup` then `site:build`, package entry `dev` for local development from existing Notion Data, and `ready` for the complete local quality gate including `site:build`.
+- **Limits:** `package.json` scripts are only lifecycle hooks (`postinstall`, `prepare`) and thin entries (`dev`, `build`, `preview`). All composable steps are Vite+ tasks under `vp run`. `vp dev` is the Vite+ built-in development command and is not Musubi's application entry. `generate` and `production` must not be user-facing Musubi task names; Void's Vite build remains an implementation detail inside `site:build`. `dev`, `site:build`, and `ready` must not access Notion. `font:setup` runs from postinstall, dev, and site:build; missing required Charter or JetBrains Mono source files and an attempted Tsanger setup must download successfully or fail with a clear error. `MUSUBI_TSANGER_SETUP=0` may skip only the Tsanger download attempt; it does not clear an existing Tsanger cache—use `font:setup -- --clear` when those sources must not be used. Full upstream sources stay out of Git and public artifacts.
 - **Why:** Yunfei rejected mixing `build` with a misnamed `check:build`, selected `site:build` for the offline pipeline and `build` as content refresh plus that pipeline, required package scripts to stay minimal so orchestration lives in Vite+ tasks, and required font setup to fail loudly on download errors rather than soft-continue.
 - **Source:** Yunfei He (@hyfdev), 2026-07-18 original task-boundary corrections; 2026-07-20 session refined task names (`site:build`), package/task split, and fail-hard `font:setup`. Prior vouch stamp removed after those wording changes pending re-vouch.
 
+### Void Framework without Void Platform
+
+- **Ruling:** Musubi must use Void Framework for its application and static-generation layer while continuing to deploy directly to Cloudflare; adopting Void Framework must not require Void Platform.
+- **Limits:** The initial migration pins the public `void` and `@void/vue` packages at `0.10.10`, preserves Vue components and the accepted visual result, and keeps runtime rendering and ISR out of scope. A future runtime or ISR requirement reopens where Notion-derived data lives because a deployed Worker cannot read the build machine's snapshot directory.
+- **Why:** Yunfei wants to migrate Musubi to Void Framework, keep Cloudflare deployment, consider future architectural change without solving hypothetical ISR now, and proceed once the public npm release was shown to support the current static site.
+- **Source:** Yunfei He (@hyfdev), 2026-07-22 to 2026-07-23, explicit framework, deployment, scope, and implementation decisions.
+
 ### Static deployment target
 
-- **Ruling:** The maintained Musubi example must deploy `.output/public` through Cloudflare Workers Static Assets, not Cloudflare Pages and not a Nuxt runtime Worker.
-- **Limits:** The Worker has no `main`, assets binding, runtime Notion credentials, or Nitro server. A small checked Wrangler configuration may define static routing behavior that Cloudflare cannot infer safely. The existing Vercel project may remain during migration only as a rollback path and can be removed after the Workers deployment is accepted.
-- **Why:** Yunfei rejected Pages because it is being retired in favor of Workers, selected Workers explicitly, and prefers Cloudflare's direct framework support over manually maintained provider machinery. Local verification showed that generic Nuxt auto-configuration would add an unnecessary runtime Worker, while zero-config static deployment would lose Musubi's visible 404 and slashless canonical URL behavior.
-- **Source:** Yunfei He (@hyfdev), 2026-07-19, explicit direction during the Cloudflare migration discussion; verified locally with Wrangler 4.112.0 automatic configuration and static-asset routing.
+- **Ruling:** The maintained Musubi example must deploy `dist/client` through Cloudflare Workers Static Assets, not Cloudflare Pages, Void Platform, or a runtime Worker.
+- **Limits:** The Worker has no `main`, assets binding, runtime Notion credentials, or server process. A small checked Wrangler configuration may define static routing behavior that Cloudflare cannot infer safely. `dist/ssr` is a build-time implementation artifact and must never be deployed. The existing Vercel project may remain during migration only as a rollback path and can be removed after the Workers deployment is accepted.
+- **Why:** Yunfei rejected Pages because it is being retired in favor of Workers, selected Workers explicitly, and required the Void migration to keep Cloudflare deployment. Local verification showed that the checked Wrangler routing is still needed for a visible 404 and slashless canonical URLs.
+- **Source:** Yunfei He (@hyfdev), 2026-07-19 Cloudflare direction and 2026-07-23 Void migration approval; verified locally with Wrangler 4.112.0 static-asset routing.
 
 ## Open

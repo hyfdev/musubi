@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { createError, useFetch, useHead } from '#imports'
 import PostList from '../../components/PostList.vue'
 import { formatPublishedYear } from '#shared/site/format'
+import type { BlogPageProps } from '#shared/site/public'
 import type { PublicPageMeta } from '#shared/site/types'
 
-const { data, error } = await useFetch('/api/build/blog', { key: 'musubi-blog' })
-if (error.value || !data.value) {
-  throw createError({
-    status: 500,
-    statusText: 'The Blog page could not be loaded',
-    cause: error.value,
-  })
-}
-const page = data.value
+const page = defineProps<BlogPageProps>()
 const groups = computed(() => {
   const byYear = new Map<string, PublicPageMeta[]>()
   for (const post of page.posts) {
@@ -23,18 +15,6 @@ const groups = computed(() => {
     byYear.set(year, entries)
   }
   return [...byYear].map(([year, posts]) => ({ year, posts }))
-})
-const canonical = new URL('/blog', page.config.link).toString()
-
-useHead({
-  title: 'Blog',
-  link: [{ rel: 'canonical', href: canonical }],
-  meta: [
-    { property: 'og:title', content: `Blog — ${page.config.title}` },
-    { property: 'og:description', content: page.config.description },
-    { property: 'og:type', content: 'website' },
-    { property: 'og:url', content: canonical },
-  ],
 })
 </script>
 

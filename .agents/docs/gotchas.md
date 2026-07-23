@@ -2,17 +2,38 @@
 
 Traps already paid for in this repository. Each entry states what not to do, why, and what would make the trap obsolete.
 
-## Nuxt dev warnings with Vite+ (`NUXT_B5004`, `NUXT_B2005`)
+## Void 0.10.10 needs a direct `pathe` dependency
 
-- **Do not** delete root `vite.config.ts`, move Vite+ `fmt` / `lint` / `staged` / `run.tasks` into `nuxt.config` `vite`, or open work to "fix" these two messages on their own.
-- **`NUXT_B5004` (external `vite.config.ts`):** Nuxt 4.5 warns that standalone bundler configs are unsupported and suggests merging into `nuxt.config`. Musubi's root `vite.config.ts` is the Vite+ toolchain file (tasks, fmt, lint, staged hooks), not Nuxt's Vite builder config. Nuxt maintainers document that Vite+ **requires** a separate `vite.config.ts` and does **not** work under `nuxt.config` `vite`; the warning is expected coexistence noise. Real Vite builder options still belong only under `nuxt.config` `vite`. Evidence: [NUXT_B5004](https://nuxt.com/docs/4.x/errors/b5004), [nuxt#34857](https://github.com/nuxt/nuxt/discussions/34857).
-- **`NUXT_B2005` (`check-if-page-unused` has no default export):** False positive on Nuxt's own pages plugin in `4.5.0`. The compiled file uses `export { plugin as default, ... }`; export detection missed multi-export default re-exports. Fixed upstream in [nuxt#35676](https://github.com/nuxt/nuxt/pull/35676) (issue [nuxt#35664](https://github.com/nuxt/nuxt/issues/35664)); expect the warning to disappear on a Nuxt patch/nightly that includes that fix—not via project plugins or `pnpm patch` unless something forces it.
-- **Ruling until then:** ignore both in dev logs; do not treat them as blockers for `dev`, `site:build`, or review.
+- **Do not** remove direct `pathe@2.0.3` merely because Musubi source does not import it.
+- Void's published prerender runner imports `pathe` at runtime, but `void@0.10.10` does not carry it in the package dependency graph. Strict pnpm therefore fails during prerender unless the application supplies it.
+- **Ruling:** Keep the direct dependency until a published Void release includes the fix for [void#285](https://github.com/voidzero-dev/void/issues/285), then remove it only after a clean install and full static build pass without it.
 
-## Global CSS path under Nuxt 4 `app/` + Vite 8
+## Void prerender failures do not necessarily fail the build
 
-- **Do not** list app CSS as `./app/assets/...` in `nuxt.config` `css`.
-- With default Nuxt 4 layout, `srcDir` is `app/`, and `~/` / `@/` alias to that directory. Prefer `~/assets/css/main.css`. Relative `./app/...` paths are written into `virtual:nuxt:.nuxt/css.mjs` and fail to resolve under Vite 8 (`Failed to resolve import "./app/assets/css/main.css"`), so HTML can still SSR while main site styles 404.
+- **Do not** treat a zero exit from `vp build` as proof that every requested static route exists.
+- Void 0.10.10 logs an individual prerender failure and can still finish the top-level build successfully. Musubi requires complete publication, so a missing page cannot be a warning.
+- **Ruling:** `scripts/verify-static-artifact.mjs` independently requires one flat HTML file and one matching `/_void/pages/*.json` file for every validated route, plus the 404 pair. Keep this gate after every Void build.
+
+## Void source-directory conventions are active at the configured root
+
+- **Do not** leave a second root-level `pages/` or `middleware/` directory when `void.json` sets `sourceDir` to `app`.
+- Even an empty convention directory at the wrong root can change project discovery or produce a conflicting structure. Application pages and middleware live only under `app/`; build-time snapshot code remains under `server/site/` because it is imported explicitly.
+
+## Static generation runs loaders more than once
+
+- Void generates both route HTML and page JSON, so the loader for a prerendered path normally runs once for each representation.
+- **Ruling:** Loaders and global middleware may read deterministic local state but must not perform one-shot mutations, fetch Notion, or rely on one execution per route. `getSite()` caches the parsed production `Site` per process so repeated representation requests do not repeatedly parse the snapshot.
+
+## Known non-fatal Void and Node messages
+
+- Void 0.10.10 currently warns that `renderPreambleScript` has no matching export and that `serveStatic` cannot find `./client` while the build is moving from SSR output to prerendered client output. The required `dist/client` files are still emitted and verified.
+- Node 24 may also report `es-module-lexer`'s `lexer.asm.js` as invalid asm.js. It falls back to ordinary JavaScript and has not changed dev, type-check, test, or build results.
+- **Ruling:** Do not patch dependencies merely to silence these messages. Re-evaluate them on a Void upgrade or if a verified output or runtime failure accompanies one.
+
+## Visible 404 in Node development
+
+- Void 0.10.10's Node dev server has no generated `404.html` asset before a build. An unknown page therefore has an empty 404 response even though `app/pages/404.vue` exists; forcing an HTML body onto that 404 is stripped by the dev adapter.
+- **Ruling:** Development-only middleware rewrites unknown document paths to the real `/404` page so the recovery UI remains testable; that dev response is 200. The production artifact still contains `404.html`, and Cloudflare's `not_found_handling: "404-page"` returns it with status 404. Remove the rewrite if a future Void version serves the component with a real 404 in dev.
 
 ## UnoCSS preflight removes link underlines
 

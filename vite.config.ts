@@ -1,9 +1,20 @@
+import { fileURLToPath } from 'node:url'
+
+import { voidVue } from '@void/vue/plugin'
+import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite-plus'
+import { voidPlugin } from 'void'
 
 const fontSetup = 'node --env-file-if-exists=.env.local scripts/font/index.ts'
 const notionSetup = 'node --env-file-if-exists=.env.local scripts/notion/index.ts'
 
 export default defineConfig({
+  plugins: [...voidPlugin(), ...voidVue(), ...UnoCSS()],
+  resolve: {
+    alias: {
+      '#shared': fileURLToPath(new URL('./shared', import.meta.url)),
+    },
+  },
   fmt: {
     tabWidth: 2,
     useTabs: false,
@@ -36,7 +47,7 @@ export default defineConfig({
     },
     options: {
       typeAware: true,
-      // Keep Vue-aware type checking behind the dedicated Nuxt task.
+      // Keep Vue-aware type checking behind the dedicated Void task.
       typeCheck: false,
     },
   },
@@ -55,7 +66,7 @@ export default defineConfig({
         cache: false,
       },
       typecheck: {
-        command: 'vp run nuxt:typecheck',
+        command: 'vp run void:typecheck',
         cache: false,
       },
       test: {
@@ -89,16 +100,16 @@ export default defineConfig({
         command: 'node scripts/font/build.ts',
         cache: false,
       },
-      'nuxt:dev': {
-        command: 'nuxt dev',
+      'void:dev': {
+        command: 'vp dev',
         cache: false,
       },
-      'nuxt:typecheck': {
-        command: 'nuxt typecheck',
+      'void:typecheck': {
+        command: ['void prepare', 'vue-tsc --noEmit'],
         cache: false,
       },
-      'nuxt:generate': {
-        command: 'nuxt generate --preset static',
+      'void:build': {
+        command: 'vp build',
         cache: false,
       },
       'static:finalize': {
@@ -119,7 +130,7 @@ export default defineConfig({
           'vp run brand:check',
           'vp run font:setup',
           'vp run font:build',
-          'vp run nuxt:generate',
+          'vp run void:build',
           'vp run static:finalize',
           'vp run artifact',
         ],

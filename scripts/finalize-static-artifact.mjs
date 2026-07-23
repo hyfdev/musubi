@@ -1,18 +1,18 @@
-import { readFile, rm, writeFile } from 'node:fs/promises'
+import { readFile, rm, rmdir } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-const publicRoot = resolve('.output/public')
-const sourceDirectory = resolve(publicRoot, '__musubi_not_found')
-const sourcePath = resolve(sourceDirectory, 'index.html')
-const targetPath = resolve(publicRoot, '404.html')
+const publicRoot = resolve('dist/client')
+const notFoundPath = resolve(publicRoot, '404.html')
+const notFoundDocument = await readFile(notFoundPath, 'utf8').catch(() => undefined)
 
-const document = await readFile(sourcePath, 'utf8').catch(() => undefined)
-if (!document?.includes('Page not found') || !document.includes('href="/"')) {
-  throw new Error("Nuxt did not generate Musubi's visible static 404 source page")
+if (!notFoundDocument?.includes('Page not found') || !notFoundDocument.includes('href="/"')) {
+  throw new Error("Void did not generate Musubi's visible static 404 page")
 }
 
-await writeFile(targetPath, document)
-await rm(sourceDirectory, { recursive: true, force: true })
-await rm(resolve(publicRoot, '200.html'), { force: true })
+const viteDirectory = resolve(publicRoot, '.vite')
+await rm(resolve(viteDirectory, 'manifest.json'), { force: true })
+await rmdir(viteDirectory).catch((error) => {
+  if (!['ENOENT', 'ENOTEMPTY'].includes(error.code)) throw error
+})
 
-console.log('Finalized the visible static 404 document and removed the unused 200 fallback')
+console.log('Finalized the Void static artifact and removed its build-only client manifest')

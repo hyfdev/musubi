@@ -8,7 +8,7 @@ import { verifyNoGeneratedDeployRedirect, verifyStaticArtifact } from './verify-
 const temporaryDirectories = []
 const HEADER_BLOCKS = {
   hsts: ['/*', '  Strict-Transport-Security: max-age=63072000'],
-  nuxt: ['/_nuxt/*', '  Cache-Control: public, max-age=31536000, immutable'],
+  void: ['/assets/*', '  Cache-Control: public, max-age=31536000, immutable'],
   fonts: [
     '/_musubi/generated/fonts/*.woff2',
     '  Cache-Control: public, max-age=31536000, immutable',
@@ -37,23 +37,32 @@ describe('static font artifact boundary', () => {
     })
   })
 
-  it('accepts Nuxt client chunks and extracted payloads', async () => {
+  it('accepts content-addressed Void client assets and page data', async () => {
     const root = await validArtifact()
-    await mkdir(join(root, '_nuxt'), { recursive: true })
-    await writeFile(join(root, '_nuxt/entry.js'), 'export {}')
-    await writeFile(join(root, '_payload.json'), '{"data":[]}')
+    await mkdir(join(root, 'assets'), { recursive: true })
+    await writeFile(join(root, 'assets/entry-D_6GC0Tp.js'), 'export {}')
 
     await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).resolves.toMatchObject({
       root,
     })
   })
 
-  it('rejects JavaScript outside _nuxt', async () => {
+  it('rejects JavaScript outside Void assets', async () => {
     const root = await validArtifact()
     await writeFile(join(root, 'surprise.js'), 'alert(1)')
 
     await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).rejects.toThrow(
       'Static artifact contains unexpected browser JavaScript: surprise.js',
+    )
+  })
+
+  it('rejects an unhashed file under immutable Void asset caching', async () => {
+    const root = await validArtifact()
+    await mkdir(join(root, 'assets'), { recursive: true })
+    await writeFile(join(root, 'assets/logo.svg'), '<svg/>')
+
+    await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).rejects.toThrow(
+      'Static artifact contains a non-content-addressed Void asset under immutable caching: assets/logo.svg',
     )
   })
 
@@ -132,17 +141,38 @@ describe('static font artifact boundary', () => {
 describe('static route completeness', () => {
   it('rejects a missing generated route', async () => {
     const root = await validArtifact()
-    await mkdir(join(root, 'blog/quiet-builds'), { recursive: true })
-    await writeFile(
-      join(root, 'blog/quiet-builds/index.html'),
-      '<!doctype html><title>Post</title>',
-    )
-    await rm(join(root, 'blog/quiet-builds/index.html'))
+    await mkdir(join(root, 'blog'), { recursive: true })
+    await mkdir(join(root, '_void/pages/blog'), { recursive: true })
+    await writeFile(join(root, 'blog/quiet-builds.html'), '<!doctype html><title>Post</title>')
+    await writeFile(join(root, '_void/pages/blog/quiet-builds.json'), '{"props":{}}')
+    await rm(join(root, 'blog/quiet-builds.html'))
+
+    await expect(
+      verifyStaticArtifact(root, { expectedRoutes: ['/', '/blog/quiet-builds'] }),
+    ).rejects.toThrow('Static artifact is missing route /blog/quiet-builds: blog/quiet-builds.html')
+  })
+
+  it('rejects missing page data even when the HTML route exists', async () => {
+    const root = await validArtifact()
+    await mkdir(join(root, 'blog'), { recursive: true })
+    await writeFile(join(root, 'blog/quiet-builds.html'), '<!doctype html><title>Post</title>')
 
     await expect(
       verifyStaticArtifact(root, { expectedRoutes: ['/', '/blog/quiet-builds'] }),
     ).rejects.toThrow(
-      'Static artifact is missing route /blog/quiet-builds: blog/quiet-builds/index.html',
+      'Static artifact is missing page data /blog/quiet-builds: _void/pages/blog/quiet-builds.json',
+    )
+  })
+
+  it('rejects internal snapshot labels in public page data', async () => {
+    const root = await validArtifact()
+    await writeFile(
+      join(root, '_void/pages/index.json'),
+      '{"props":{"pageLabel":"\\u002Fbuild\\u002F.musubi\\u002Fnotion-data-snapshot"}}',
+    )
+
+    await expect(verifyStaticArtifact(root, { expectedRoutes: ['/'] })).rejects.toThrow(
+      'Static artifact exposes an internal Notion snapshot label: _void/pages/index.json',
     )
   })
 })
@@ -150,7 +180,7 @@ describe('static route completeness', () => {
 describe('static delivery controls', () => {
   it.each([
     ['HSTS', 'hsts'],
-    ['Nuxt immutable cache', 'nuxt'],
+    ['Void asset immutable cache', 'void'],
     ['font immutable cache', 'fonts'],
     ['font CSS immutable cache', 'fontCss'],
     ['workers.dev noindex', 'preview'],
@@ -179,6 +209,7 @@ async function validArtifact({ omittedHeaderBlock } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'musubi-static-artifact-'))
   temporaryDirectories.push(root)
   await mkdir(join(root, '_musubi/generated/fonts'), { recursive: true })
+  await mkdir(join(root, '_void/pages'), { recursive: true })
   const fallbackBytes = Buffer.from('runtime fallback')
   const fallbackShards = Array.from({ length: 32 }, (_, index) => {
     const codePoint = 0x3400 + index
@@ -226,6 +257,8 @@ async function validArtifact({ omittedHeaderBlock } = {}) {
     join(root, '404.html'),
     '<!doctype html><title>Page not found</title><a href="/">Home</a>',
   )
+  await writeFile(join(root, '_void/pages/index.json'), '{"props":{}}')
+  await writeFile(join(root, '_void/pages/404.json'), '{"props":{}}')
   await writeFile(
     join(root, '_headers'),
     Object.entries(HEADER_BLOCKS)

@@ -1,4 +1,5 @@
-# Nuxt dev/build outputs
+# Void and legacy Nuxt dev/build outputs
+.void
 .output
 .data
 .nuxt

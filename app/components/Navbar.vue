@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRoute } from '#imports'
+import { useRouter } from '@void/vue'
 import type { NavigationItem, SiteConfig } from '#shared/site/types'
 import ColorModeToggle from './ColorModeToggle.vue'
 import TypographyText from './TypographyText.vue'
@@ -9,12 +9,12 @@ defineProps<{
   navigation: NavigationItem[]
 }>()
 
-const route = useRoute()
+const router = useRouter()
 
 function isCurrent(target: string): boolean {
-  if (target === '/') return route.path === '/'
-  if (target === '/blog') return route.path === '/blog' || route.path.startsWith('/blog/')
-  return route.path === target
+  if (target === '/') return router.path === '/'
+  if (target === '/blog') return router.path === '/blog' || router.path.startsWith('/blog/')
+  return router.path === target
 }
 </script>
 

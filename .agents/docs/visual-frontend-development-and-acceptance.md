@@ -12,7 +12,7 @@ Use this loop for changes to visible UI, layout, content presentation, themes, r
 
 ## Programmatic checks do not replace visual acceptance
 
-- Focused unit tests, formatting, linting, Vue-aware type checking, and the Nuxt production build are programmatic checks, not substitutes for visual acceptance.
+- Focused unit tests, formatting, linting, Vue-aware type checking, and the Void production build are programmatic checks, not substitutes for visual acceptance.
 - Musubi does not currently maintain a committed browser or end-to-end test suite. Interactive browser acceptance remains an inspected development workflow rather than a project dependency.
 - Interactive browser control may use `agent-browser`, a Playwright or Chrome DevTools wrapper, direct browser tooling, or another controller with the required capabilities. The controller is not a Musubi dependency or a project-level source of truth.
 
@@ -38,7 +38,7 @@ Use this loop for changes to visible UI, layout, content presentation, themes, r
 
 ### 4. Start the static production surface
 
-- Serve `.output/public` without `.output/server` for final acceptance. A development server is suitable for rapid iteration but does not prove that the static production artifact loads correctly.
+- Serve `dist/client` without `dist/ssr` for final acceptance. A development server is suitable for rapid iteration but does not prove that the static production artifact loads correctly.
 - Use an available explicit port and fail on collisions so concurrent worktrees cannot accidentally inspect another server.
 - Wait for an explicit ready state rather than a fixed sleep.
 

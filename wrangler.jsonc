@@ -3,7 +3,7 @@
   "name": "musubi",
   "compatibility_date": "2026-07-18",
   "assets": {
-    "directory": "./.output/public",
+    "directory": "./dist/client",
     "not_found_handling": "404-page",
     "html_handling": "drop-trailing-slash",
   },

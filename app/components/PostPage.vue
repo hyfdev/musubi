@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { formatPublishedDate } from '#shared/site/format'
-import type { Post, SiteConfig } from '#shared/site/types'
+import type { PublicPost } from '#shared/site/public'
+import type { SiteConfig } from '#shared/site/types'
 import TypographyText from './TypographyText.vue'
 import ContentRenderer from './content/ContentRenderer.vue'
 
 defineProps<{
-  page: Post
+  page: PublicPost
   config: SiteConfig
 }>()
 </script>

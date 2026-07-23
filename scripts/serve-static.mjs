@@ -11,7 +11,7 @@ const DEFAULT_HOST = '127.0.0.1'
 const DEFAULT_PORT = 4173
 const IMMUTABLE_CACHE_CONTROL = 'public, max-age=31536000, immutable'
 const REVALIDATE_CACHE_CONTROL = 'public, max-age=0, must-revalidate'
-const HASHED_NUXT_ASSET_PATTERN = /^_nuxt\/(?:[^/]+\/)*[^/]+[.-][A-Za-z0-9_-]{8,}\.[a-z0-9]+$/u
+const HASHED_VOID_ASSET_PATTERN = /^assets\/(?:[^/]+\/)*[^/]+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/u
 const HASHED_GENERATED_FONT_PATTERN =
   /^_musubi\/generated\/fonts\/[^/]+-[0-9a-f]{16}\.(?:css|woff2)$/iu
 
@@ -108,7 +108,7 @@ export function cacheControlForArtifactPath(relativePath) {
   const normalizedPath = relativePath.replaceAll('\\', '/').replace(/^\/+/u, '')
 
   if (
-    HASHED_NUXT_ASSET_PATTERN.test(normalizedPath) ||
+    HASHED_VOID_ASSET_PATTERN.test(normalizedPath) ||
     HASHED_GENERATED_FONT_PATTERN.test(normalizedPath)
   ) {
     return IMMUTABLE_CACHE_CONTROL

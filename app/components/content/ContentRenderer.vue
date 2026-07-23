@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { MusubiDocument } from '#shared/content/types'
+import type { PublicDocument } from '#shared/site/public'
 import BlockRenderer from './BlockRenderer.vue'
 
 defineProps<{
-  document: MusubiDocument
+  document: PublicDocument
 }>()
 </script>
 

@@ -7,15 +7,7 @@ import type {
 } from './types.ts'
 import { toPublicPageMeta } from './types.ts'
 
-const topLevelReservedSlugs = new Set([
-  'blog',
-  '_musubi',
-  '_nuxt',
-  '__musubi_not_found',
-  '__nuxt_error',
-  '200',
-  '404',
-])
+const topLevelReservedSlugs = new Set(['blog', 'assets', '_musubi', '_void', '404'])
 const invalidSlugDelimiter = /[\\/?#%]/u
 
 function hasControlCharacter(value: string): boolean {
@@ -114,7 +106,7 @@ function normalizePublishedRow(row: SourceContentRow): PublishedPageMeta {
 }
 
 function routeToOutputFile(route: string): string {
-  return route === '/' ? 'index.html' : `${route.slice(1)}/index.html`
+  return route === '/' ? 'index.html' : `${route.slice(1)}.html`
 }
 
 function assertNoFileCollision(entries: RouteManifestEntry[], publicFiles: string[]): void {
@@ -136,11 +128,25 @@ function assertNoFileCollision(entries: RouteManifestEntry[], publicFiles: strin
     files.set(key, owner)
   }
 
+  const routes = new Map(entries.map((entry) => [comparisonKey(entry.route.slice(1)), entry]))
+  const publicRoute = (file: string): string => {
+    if (file === 'index.html') return ''
+    if (file.endsWith('/index.html')) return file.slice(0, -'/index.html'.length)
+    if (file.endsWith('.html')) return file.slice(0, -'.html'.length)
+    return file
+  }
+
   for (const file of publicFiles) {
+    const routeOwner = routes.get(comparisonKey(publicRoute(file)))
+    if (routeOwner) {
+      throw new Error(
+        `public/${file} conflicts with ${routeOwner.sourceLabel}: public URL ${JSON.stringify(routeOwner.route)}`,
+      )
+    }
     add(file, `public/${file}`)
   }
-  add('200.html', 'Nuxt fallback document 200.html')
-  add('404.html', 'Nuxt error document 404.html')
+  add('_void', 'Void page-data namespace')
+  add('404.html', 'Void error document 404.html')
   for (const entry of entries) {
     add(entry.outputFile, entry.sourceLabel)
   }

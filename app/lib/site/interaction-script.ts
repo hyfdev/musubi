@@ -1,22 +1,4 @@
-<script setup lang="ts">
-import { createError, useFetch, useHead } from '#imports'
-import { provide } from 'vue'
-import Footer from './components/Footer.vue'
-import Navbar from './components/Navbar.vue'
-import { siteLinkKey } from './lib/site/link.ts'
-
-const { data, error } = await useFetch('/api/build/shell', { key: 'musubi-site-shell' })
-if (error.value || !data.value) {
-  throw createError({
-    status: 500,
-    statusText: 'The prepared site shell could not be loaded',
-    cause: error.value,
-  })
-}
-
-const shell = data.value
-provide(siteLinkKey, shell.config.link)
-const interactionScript = `(() => {
+export const interactionScript = `(() => {
   const storageKey = 'musubi-theme';
   const root = document.documentElement;
   const media = window.matchMedia('(prefers-color-scheme: dark)');
@@ -149,25 +131,3 @@ const interactionScript = `(() => {
 
   media.addEventListener('change', () => applyTheme(readChoice()));
 })();`
-
-useHead({
-  htmlAttrs: { lang: shell.config.lang },
-  titleTemplate: (title) =>
-    !title || title === shell.config.title
-      ? shell.config.title
-      : `${title} — ${shell.config.title}`,
-  meta: [{ name: 'description', content: shell.config.description }],
-  script: [{ key: 'musubi-interactions', innerHTML: interactionScript }],
-})
-</script>
-
-<template>
-  <a class="skip-link" href="#main-content" lang="en">Skip to content</a>
-  <div class="site-frame">
-    <Navbar :config="shell.config" :navigation="shell.navigation" />
-    <main id="main-content" class="site-main">
-      <NuxtPage />
-    </main>
-    <Footer :config="shell.config" />
-  </div>
-</template>

@@ -1,28 +1,9 @@
 <script setup lang="ts">
-import { createError, useFetch, useHead } from '#imports'
 import ContentRenderer from '../components/content/ContentRenderer.vue'
 import PostList from '../components/PostList.vue'
+import type { HomePageProps } from '#shared/site/public'
 
-const { data, error } = await useFetch('/api/build/home', { key: 'musubi-home' })
-if (error.value || !data.value) {
-  throw createError({
-    status: 500,
-    statusText: 'The Home page could not be loaded',
-    cause: error.value,
-  })
-}
-const page = data.value
-
-useHead({
-  title: page.config.title,
-  link: [{ rel: 'canonical', href: page.config.link }],
-  meta: [
-    { property: 'og:title', content: page.config.title },
-    { property: 'og:description', content: page.config.description },
-    { property: 'og:type', content: 'website' },
-    { property: 'og:url', content: page.config.link },
-  ],
-})
+const page = defineProps<HomePageProps>()
 </script>
 
 <template>

@@ -27,7 +27,7 @@ afterEach(async () => {
 
 describe('static artifact cache policy', () => {
   it.each([
-    ['_nuxt/entry.D_6GC0Tp.css', IMMUTABLE_CACHE_CONTROL],
+    ['assets/entry-D_6GC0Tp.css', IMMUTABLE_CACHE_CONTROL],
     [
       '_musubi/generated/fonts/Tsanger-JinKai-W04-subset-0123456789abcdef.woff2',
       IMMUTABLE_CACHE_CONTROL,
@@ -40,7 +40,7 @@ describe('static artifact cache policy', () => {
     ['index.html', REVALIDATE_CACHE_CONTROL],
     ['_musubi/generated/fonts/fonts-unbuilt.css', REVALIDATE_CACHE_CONTROL],
     ['_musubi/generated/fonts/fonts-manifest.json', REVALIDATE_CACHE_CONTROL],
-    ['_nuxt/builds/latest.json', REVALIDATE_CACHE_CONTROL],
+    ['_void/pages/index.json', REVALIDATE_CACHE_CONTROL],
     ['favicon.ico', REVALIDATE_CACHE_CONTROL],
   ])('serves %s with the expected policy', (path, expected) => {
     expect(cacheControlForArtifactPath(path)).toBe(expected)

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Page } from '#shared/site/types'
+import type { PublicStandalonePage } from '#shared/site/public'
 import TypographyText from './TypographyText.vue'
 import ContentRenderer from './content/ContentRenderer.vue'
 
 defineProps<{
-  page: Page
+  page: PublicStandalonePage
 }>()
 </script>
 

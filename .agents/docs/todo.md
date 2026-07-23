@@ -4,6 +4,8 @@ This record owns pending or deferred repository work that does not yet have an a
 
 ## Deferred
 
+- [ ] Update the authored Home prose in Notion from “powered by Nuxt” to the accepted Void Framework wording, then refresh the tracked snapshot. The sentence is content owned by Notion, so the framework migration must not conceal it with a renderer-side replacement or hand-edit only the generated snapshot.
+
 - [ ] Render a Callout that carries no role marker with its Notion source presentation, and keep the semantic Musubi treatment for explicit `{note}`, `{warning}`, and `{error}`.
   - **Deferred by:** Yunfei on 2026-07-21.
   - **Intent:** A Callout the author never marked should not look markedly different on the published site from what that author sees in Notion. The Note / Warning / Error presentation becomes an explicit opt-in instead of the silent default.

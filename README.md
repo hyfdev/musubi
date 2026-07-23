@@ -2,7 +2,7 @@
 
 # Musubi / 結縄
 
-Musubi is Yunfei's opinionated personal website framework. Notion is the editing surface; a dedicated setup step records its data as local JSON, then Nuxt and Vue validate and typeset that snapshot into a static site.
+Musubi is Yunfei's opinionated personal website framework. Notion is the editing surface; a dedicated setup step records its data as local JSON, then Void Framework and Vue validate and typeset that snapshot into a static site.
 
 ## Use a fork
 
@@ -24,7 +24,7 @@ vp run ready
 
 `package.json` keeps only lifecycle hooks and entry scripts (`dev`, `build`, `preview`). Composable steps live as Vite+ tasks under `vp run` (`site:build`, `notion:setup`, `font:setup`, `font:build`, `ready`, and the rest).
 
-The deployable artifact is `.output/public`. It does not need `.output/server`, a running Nitro process, Notion credentials, or a public content API.
+The deployable artifact is `dist/client`. It does not need `dist/ssr`, a running Worker or server process, Notion credentials, or a public content API.
 
 Production deployment, publication, cache, and rollback procedures are documented in [Production Operations](./docs/production.md).
 
@@ -36,7 +36,7 @@ Preferred Tsanger JinKai W04/W05 sources are also never committed: `font:setup` 
 
 The default pipeline runs `vp run font:setup` so install, dev, and site builds prepare all required source files. A missing Charter or JetBrains Mono source is always restored or fails clearly. `MUSUBI_TSANGER_SETUP=0` skips only the Tsanger download attempt; an existing cache or paired `MUSUBI_TSANGER_*_PATH` files still feed `font:build`. To force a fallback-only Chinese build, clear the Tsanger cache (`vp run font:setup -- --clear`) and keep its setup skipped or leave no local sources.
 
-- `postinstall` — `font:setup` after `nuxt prepare`
+- `postinstall` — `font:setup` after `void prepare`
 - `pnpm run dev` / `vp run site:build` — `font:setup` before `font:build`
 - `pnpm run build` — `notion:setup` then `site:build`
 
@@ -53,7 +53,7 @@ Manual: `vp run font:setup`, `vp run font:setup -- --clear`.
 
 ## Local visual loop
 
-Start Nuxt against the tracked local Notion Data snapshot:
+Start Void against the tracked local Notion Data snapshot:
 
 ```sh
 pnpm run dev
@@ -68,9 +68,9 @@ vp run site:build
 pnpm run preview -- --port 4173
 ```
 
-The static preview mirrors the production cache contract: HTML and stable metadata URLs revalidate with `ETag` and `Last-Modified`, while content-addressed Nuxt assets, generated files, and font subsets use a one-year immutable policy. A deployment host should preserve the same distinction.
+The static preview mirrors the production cache contract: HTML, Void page JSON, and stable metadata URLs revalidate with `ETag` and `Last-Modified`, while content-addressed Void assets, generated files, and font subsets use a one-year immutable policy. A deployment host should preserve the same distinction.
 
-`vp run lint` runs Vite+'s code lint and Google's official `designmd lint .agents/docs/DESIGN.md` together. `vp run ready` includes that repository lint task alongside formatting, focused unit tests, Nuxt's Vue-aware type check, local snapshot validation, static generation, and artifact checks. User-facing changes additionally require the real-browser workflow in [Visual Frontend Development and Acceptance](./.agents/docs/visual-frontend-development-and-acceptance.md).
+`vp run lint` runs Vite+'s code lint and Google's official `designmd lint .agents/docs/DESIGN.md` together. `vp run ready` includes that repository lint task alongside formatting, focused unit tests, Void's Vue-aware type check, local snapshot validation, static generation, and artifact checks. User-facing changes additionally require the real-browser workflow in [Visual Frontend Development and Acceptance](./.agents/docs/visual-frontend-development-and-acceptance.md).
 
 ## Content behavior
 

@@ -48,6 +48,35 @@ describe('Home routing', () => {
     })
   })
 
+  it('uses Void static output filenames for generated routes', () => {
+    const manifest = buildRouteManifest([page(), post({ date: '2026-07-23' })])
+
+    expect(manifest.entries.map(({ route, outputFile }) => [route, outputFile])).toEqual([
+      ['/', 'index.html'],
+      ['/blog', 'blog.html'],
+      ['/blog/post', 'blog/post.html'],
+      ['/about', 'about.html'],
+    ])
+  })
+
+  it('keeps Void asset and page-data namespaces unavailable to top-level Pages', () => {
+    expect(() => buildRouteManifest([page({ slug: 'assets' })])).toThrow(
+      'occupies a reserved Page route namespace',
+    )
+    expect(() => buildRouteManifest([page({ slug: '_void' })])).toThrow(
+      'occupies a reserved Page route namespace',
+    )
+  })
+
+  it('rejects a public file that would hide a generated route', () => {
+    expect(() => buildRouteManifest([page()], ['about'])).toThrow(
+      'public/about conflicts with Content row 1 ("About"): public URL "/about"',
+    )
+    expect(() => buildRouteManifest([page()], ['about.html'])).toThrow(
+      'public/about.html conflicts with Content row 1 ("About"): public URL "/about"',
+    )
+  })
+
   it('keeps Home out of the Page routes and the navigation', () => {
     const manifest = buildRouteManifest([home({ showInNavigation: true }), page()])
 

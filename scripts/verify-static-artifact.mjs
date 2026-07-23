@@ -1,19 +1,26 @@
 import { createHash } from 'node:crypto'
 import { lstat, readFile, readdir } from 'node:fs/promises'
-import { join, relative, resolve, sep } from 'node:path'
+import { relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const REQUIRED_FILES = ['index.html', '404.html', '_headers']
+const REQUIRED_FILES = [
+  'index.html',
+  '404.html',
+  '_headers',
+  '_void/pages/index.json',
+  '_void/pages/404.json',
+]
 const RUNTIME_FALLBACK_SHARD_COUNT = 32
 const RUNTIME_FALLBACK_MAX_SHARD_BYTES = 600_000
+const HASHED_VOID_ASSET_PATTERN = /^assets\/(?:[^/]+\/)*[^/]+-[A-Za-z0-9_-]{8,}\.[a-z0-9]+$/u
 const REQUIRED_HEADER_BLOCKS = [
   {
     name: 'HSTS',
     value: '/*\n  Strict-Transport-Security: max-age=63072000',
   },
   {
-    name: 'Nuxt immutable cache',
-    value: '/_nuxt/*\n  Cache-Control: public, max-age=31536000, immutable',
+    name: 'Void asset immutable cache',
+    value: '/assets/*\n  Cache-Control: public, max-age=31536000, immutable',
   },
   {
     name: 'font immutable cache',
@@ -45,12 +52,15 @@ function routeArtifactPath(route) {
     throw new Error(`Static route manifest contains an invalid route: ${route}`)
   }
 
-  const routeSegments = route.split('/').filter(Boolean)
-  return routeSegments.length === 0 ? 'index.html' : join(...routeSegments, 'index.html')
+  return route === '/' ? 'index.html' : `${route.slice(1)}.html`
+}
+
+function routePageDataPath(route) {
+  return route === '/' ? '_void/pages/index.json' : `_void/pages/${route.slice(1)}.json`
 }
 
 export async function verifyStaticArtifact(
-  artifactRoot = resolve('.output/public'),
+  artifactRoot = resolve('dist/client'),
   { expectedRoutes } = {},
 ) {
   const root = resolve(artifactRoot)
@@ -71,11 +81,13 @@ export async function verifyStaticArtifact(
 
   const routes = expectedRoutes ?? (await readExpectedRoutes())
   for (const route of routes) {
-    const relativePath = routeArtifactPath(route)
-    const filePath = resolve(root, relativePath)
-    const fileStat = await lstat(filePath).catch(() => undefined)
-    if (!fileStat?.isFile() || fileStat.size === 0) {
-      throw new Error(`Static artifact is missing route ${route}: ${relativePath}`)
+    for (const relativePath of [routeArtifactPath(route), routePageDataPath(route)]) {
+      const filePath = resolve(root, relativePath)
+      const fileStat = await lstat(filePath).catch(() => undefined)
+      if (!fileStat?.isFile() || fileStat.size === 0) {
+        const kind = relativePath.endsWith('.json') ? 'page data' : 'route'
+        throw new Error(`Static artifact is missing ${kind} ${route}: ${relativePath}`)
+      }
     }
   }
 
@@ -104,7 +116,7 @@ export async function verifyStaticArtifact(
       throw new Error(`Static artifact _headers is missing required block: ${requiredBlock.name}`)
     }
   }
-  for (const forbiddenPath of ['200.html', '__musubi_not_found']) {
+  for (const forbiddenPath of ['200.html', '__musubi_not_found', '.vite']) {
     const forbidden = await lstat(resolve(root, forbiddenPath)).catch(() => undefined)
     if (forbidden) {
       throw new Error(`Static artifact retains an internal fallback path: ${forbiddenPath}`)
@@ -137,20 +149,39 @@ export async function verifyStaticArtifact(
 
       const entryStat = await lstat(entryPath)
       const relativePath = relative(root, entryPath)
+      const normalizedPath = relativePath.split(sep).join('/')
 
-      // Nuxt full-static may emit client chunks under `_nuxt/` and per-route `_payload.json`.
-      // Reject JS outside that builder namespace, and reject any public `/api` tree (build-only data must stay out of the artifact).
       if (
         (relativePath.endsWith('.js') || relativePath.endsWith('.mjs')) &&
-        !relativePath.startsWith(`_nuxt${sep}`)
+        !relativePath.startsWith(`assets${sep}`)
       ) {
         throw new Error(`Static artifact contains unexpected browser JavaScript: ${relativePath}`)
+      }
+      if (normalizedPath.startsWith('assets/') && !HASHED_VOID_ASSET_PATTERN.test(normalizedPath)) {
+        throw new Error(
+          `Static artifact contains a non-content-addressed Void asset under immutable caching: ${normalizedPath}`,
+        )
       }
       if (/\.(?:otc|otf|ttc|ttf)$/i.test(relativePath)) {
         throw new Error(`Static artifact contains an upstream font source: ${relativePath}`)
       }
       if (relativePath.startsWith(`api${sep}`)) {
         throw new Error(`Static artifact contains a forbidden public data path: ${relativePath}`)
+      }
+      if (/\.(?:html|json)$/iu.test(relativePath)) {
+        const document = await readFile(entryPath, 'utf8')
+        const unescapedDocument = document
+          .replaceAll(/\\u002f/giu, '/')
+          .replaceAll(/\\u005c/giu, '\\')
+        if (
+          unescapedDocument.includes('notion-data-snapshot') ||
+          unescapedDocument.includes('"sourceLabel"') ||
+          unescapedDocument.includes('"pageLabel"')
+        ) {
+          throw new Error(
+            `Static artifact exposes an internal Notion snapshot label: ${normalizedPath}`,
+          )
+        }
       }
       fileCount += 1
       totalBytes += entryStat.size
