@@ -1,7 +1,15 @@
 import { createHash } from 'node:crypto'
 import { lstat, readFile, readdir } from 'node:fs/promises'
-import { relative, resolve, sep } from 'node:path'
+import { dirname, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { isDeepStrictEqual } from 'node:util'
+
+import {
+  WRANGLER_CONFIG,
+  WRANGLER_CONFIG_FILENAME,
+  WRANGLER_DEPLOY_CONFIG,
+  WRANGLER_DEPLOY_CONFIG_PATH,
+} from './deployment.mjs'
 
 const REQUIRED_FILES = [
   'index.html',
@@ -197,6 +205,66 @@ export async function verifyStaticArtifact(
   return { root, fileCount, totalBytes }
 }
 
+export async function verifyDeploymentOutput({
+  distRoot = resolve('dist'),
+  deployConfigPath = resolve(WRANGLER_DEPLOY_CONFIG_PATH),
+} = {}) {
+  const root = resolve(distRoot)
+  const configPath = resolve(root, WRANGLER_CONFIG_FILENAME)
+  const configDocument = await readFile(configPath, 'utf8').catch(() => undefined)
+  if (!configDocument) {
+    throw new Error(`Static deployment output is missing ${WRANGLER_CONFIG_FILENAME}`)
+  }
+
+  let config
+  try {
+    config = JSON.parse(configDocument)
+  } catch {
+    throw new Error(`Static deployment output contains invalid ${WRANGLER_CONFIG_FILENAME}`)
+  }
+  if (!isDeepStrictEqual(config, WRANGLER_CONFIG)) {
+    throw new Error(
+      `Static deployment output ${WRANGLER_CONFIG_FILENAME} differs from the generated contract`,
+    )
+  }
+
+  const clientRoot = resolve(root, config.assets.directory)
+  if (clientRoot !== resolve(root, 'client')) {
+    throw new Error(
+      `Static deployment output ${WRANGLER_CONFIG_FILENAME} does not select dist/client`,
+    )
+  }
+
+  const resolvedDeployConfigPath = resolve(deployConfigPath)
+  const deployConfigDocument = await readFile(resolvedDeployConfigPath, 'utf8').catch(
+    () => undefined,
+  )
+  if (!deployConfigDocument) {
+    throw new Error(`Static deployment output is missing ${WRANGLER_DEPLOY_CONFIG_PATH}`)
+  }
+
+  let deployConfig
+  try {
+    deployConfig = JSON.parse(deployConfigDocument)
+  } catch {
+    throw new Error(`Static deployment output contains invalid ${WRANGLER_DEPLOY_CONFIG_PATH}`)
+  }
+  if (!isDeepStrictEqual(deployConfig, WRANGLER_DEPLOY_CONFIG)) {
+    throw new Error(
+      `Static deployment output ${WRANGLER_DEPLOY_CONFIG_PATH} differs from the generated contract`,
+    )
+  }
+
+  const redirectedConfigPath = resolve(dirname(resolvedDeployConfigPath), deployConfig.configPath)
+  if (redirectedConfigPath !== configPath) {
+    throw new Error(
+      `Static deployment output ${WRANGLER_DEPLOY_CONFIG_PATH} does not select ${configPath}`,
+    )
+  }
+
+  return { configPath, clientRoot, deployConfigPath: resolvedDeployConfigPath }
+}
+
 async function verifyRuntimeFallback(root, fontCssDocument) {
   const manifestPath = resolve(root, '_musubi/generated/fonts/fonts-manifest.json')
   const manifestDocument = await readFile(manifestPath, 'utf8').catch(() => undefined)
@@ -308,22 +376,11 @@ function parseUnicodeRange(range) {
   return [start, match[2] ? Number.parseInt(match[2], 16) : start]
 }
 
-export async function verifyNoGeneratedDeployRedirect(
-  deployConfigPath = resolve('.wrangler/deploy/config.json'),
-) {
-  const redirect = await lstat(deployConfigPath).catch(() => undefined)
-  if (redirect) {
-    throw new Error(
-      'Static generation created .wrangler/deploy/config.json; this would redirect Wrangler away from the repository assets-only configuration',
-    )
-  }
-}
-
 async function main() {
-  await verifyNoGeneratedDeployRedirect()
-  const artifact = await verifyStaticArtifact()
+  const deployment = await verifyDeploymentOutput()
+  const artifact = await verifyStaticArtifact(deployment.clientRoot)
   console.log(
-    `Static artifact verified: ${artifact.fileCount} files, ${artifact.totalBytes} bytes in ${artifact.root}`,
+    `Static deployment output verified: ${artifact.fileCount} files, ${artifact.totalBytes} bytes in ${artifact.root}`,
   )
 }
 

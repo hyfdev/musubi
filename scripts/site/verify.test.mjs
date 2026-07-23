@@ -3,7 +3,8 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
-import { verifyNoGeneratedDeployRedirect, verifyStaticArtifact } from './verify.mjs'
+import { renderWranglerConfig, renderWranglerDeployConfig } from './deployment.mjs'
+import { verifyDeploymentOutput, verifyStaticArtifact } from './verify.mjs'
 
 const temporaryDirectories = []
 const HEADER_BLOCKS = {
@@ -192,18 +193,57 @@ describe('static delivery controls', () => {
     )
   })
 
-  it('rejects a generated Wrangler redirect', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'musubi-wrangler-redirect-'))
-    temporaryDirectories.push(root)
-    const redirect = join(root, '.wrangler/deploy/config.json')
-    await mkdir(join(root, '.wrangler/deploy'), { recursive: true })
-    await writeFile(redirect, '{}')
+  it('accepts the generated Wrangler configuration while retaining the SSR artifact', async () => {
+    const workspaceRoot = await validDeploymentOutput()
+    const distRoot = join(workspaceRoot, 'dist')
+    const deployConfigPath = join(workspaceRoot, '.wrangler/deploy/config.json')
+    await mkdir(join(distRoot, 'ssr'))
 
-    await expect(verifyNoGeneratedDeployRedirect(redirect)).rejects.toThrow(
-      'this would redirect Wrangler away from the repository assets-only configuration',
+    await expect(verifyDeploymentOutput({ distRoot, deployConfigPath })).resolves.toEqual({
+      configPath: join(distRoot, 'wrangler.json'),
+      clientRoot: join(distRoot, 'client'),
+      deployConfigPath,
+    })
+  })
+
+  it('rejects a changed generated Wrangler configuration', async () => {
+    const workspaceRoot = await validDeploymentOutput()
+    const distRoot = join(workspaceRoot, 'dist')
+    const deployConfigPath = join(workspaceRoot, '.wrangler/deploy/config.json')
+    await writeFile(
+      join(distRoot, 'wrangler.json'),
+      renderWranglerConfig().replace('"./client"', '"./ssr"'),
+    )
+
+    await expect(verifyDeploymentOutput({ distRoot, deployConfigPath })).rejects.toThrow(
+      'wrangler.json differs from the generated contract',
+    )
+  })
+
+  it('rejects a changed Wrangler deploy redirect', async () => {
+    const workspaceRoot = await validDeploymentOutput()
+    const distRoot = join(workspaceRoot, 'dist')
+    const deployConfigPath = join(workspaceRoot, '.wrangler/deploy/config.json')
+    await writeFile(
+      deployConfigPath,
+      renderWranglerDeployConfig().replace('dist/wrangler.json', 'dist/other.json'),
+    )
+
+    await expect(verifyDeploymentOutput({ distRoot, deployConfigPath })).rejects.toThrow(
+      '.wrangler/deploy/config.json differs from the generated contract',
     )
   })
 })
+
+async function validDeploymentOutput() {
+  const workspaceRoot = await mkdtemp(join(tmpdir(), 'musubi-deployment-output-'))
+  temporaryDirectories.push(workspaceRoot)
+  await mkdir(join(workspaceRoot, 'dist'), { recursive: true })
+  await mkdir(join(workspaceRoot, '.wrangler/deploy'), { recursive: true })
+  await writeFile(join(workspaceRoot, 'dist/wrangler.json'), renderWranglerConfig())
+  await writeFile(join(workspaceRoot, '.wrangler/deploy/config.json'), renderWranglerDeployConfig())
+  return workspaceRoot
+}
 
 async function validArtifact({ omittedHeaderBlock } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'musubi-static-artifact-'))
