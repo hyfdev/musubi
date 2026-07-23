@@ -188,10 +188,10 @@ Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a p
 
 ## Publication and failure behavior
 
-- A production build refreshes the latest Notion state visible to that build into the same Notion Data shape used locally, emits static files under `dist/client`, retains Void's local `dist/ssr` build artifact, and generates the Git-ignored root `wrangler.json` for the connected `hyf-me` Worker. Development and check builds use the Git-tracked Notion Data without source access. Cloudflare Workers Static Assets deploys only the `dist/client` directory selected by the generated configuration, without a Worker script, runtime Notion access, or a running server process. `void.json` uses `target: "node"` because loaders read local snapshot files during generation and `output: "static"` because the deployed site does not execute them.
+- A production build refreshes the latest Notion state visible to that build into the same Notion Data shape used locally, emits static files under `dist/client`, retains Void's local `dist/ssr` build artifact, and generates the Git-ignored root `wrangler.json` without a Worker name. Development and check builds use the Git-tracked Notion Data without source access. Cloudflare Workers Static Assets deploys only the `dist/client` directory selected by the generated configuration, without a Worker script, runtime Notion access, or a running server process. `void.json` uses `target: "node"` because loaders read local snapshot files during generation and `output: "static"` because the deployed site does not execute them.
 - Failure of either authoritative source, invalid required content or settings, an invalid route manifest, a missing required glyph, or an incomplete prerender stops publication. Remote-media reachability is not checked in the initial architecture.
 - Failure of an optional third-party embed remains local to that embed and cannot remove the surrounding article.
-- The generated Wrangler configuration names the current Cloudflare deployment target explicitly because a repository build cannot derive that custom identity and Workers Builds requires it to match the connected Worker. Renaming or moving the Worker requires updating this one generated contract.
+- The Worker name belongs to the external Workers Builds connection rather than Musubi's generated configuration. The Cloudflare deploy command must pass its connected name explicitly to Wrangler so the repository remains reusable without triggering a name-conflict pull request.
 
 ## Architectural decisions
 

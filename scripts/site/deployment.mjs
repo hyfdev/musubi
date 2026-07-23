@@ -1,7 +1,6 @@
 export const WRANGLER_CONFIG_FILENAME = 'wrangler.json'
 
 export const WRANGLER_CONFIG = {
-  name: 'hyf-me',
   compatibility_date: '2026-07-18',
   assets: {
     directory: './dist/client',
