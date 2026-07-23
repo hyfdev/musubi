@@ -1,6 +1,6 @@
 # Production Operations
 
-Musubi's maintained example targets Cloudflare Workers Static Assets at `https://musubi.hyf.me`. It deploys the generated static site without a Worker script, Void runtime server, or runtime bindings. The existing Vercel project remains available only as a migration rollback until the Cloudflare deployment is accepted on the custom domain.
+Musubi's maintained example targets Cloudflare Workers Static Assets at `https://musubi.hyf.me`. It deploys the generated static site without a Worker script, Void runtime server, or runtime bindings.
 
 ## Build contract
 
@@ -34,13 +34,11 @@ Run `vp run notion:setup` when the checked-in snapshot should be refreshed indep
 
 ## Publishing
 
-The first Cloudflare deployment is created without attaching `musubi.hyf.me`:
+Application and configuration changes use the connected Workers Builds pipeline:
 
-1. Push the prepared commit to `main`.
-2. Let Workers Builds publish the `musubi` Worker to its `workers.dev` URL.
-3. Verify Home, Blog, a Post, slashless canonical routes, the visible 404 response, fonts, themes, and cache headers.
-4. Record the existing Vercel DNS target and deployment ID, then attach `musubi.hyf.me` as the Worker Custom Domain.
-5. Verify the same surfaces on the custom domain before retiring the Vercel fallback.
+1. Push the reviewed commit to `main`.
+2. Let Workers Builds publish the new `musubi` Worker version.
+3. Verify Home, Blog, a Post, slashless canonical routes, the visible 404 response, fonts, themes, and cache headers at `https://musubi.hyf.me`.
 
 Notion-only changes use the smallest explicit trigger:
 
@@ -52,7 +50,7 @@ This trigger deliberately remains manual. Automatic Notion webhooks can be added
 
 ## Deployment rollback
 
-For an application or content regression after the cutover, roll the Worker back to the preceding successful version. During the migration observation period, a Cloudflare access or routing failure can instead be reversed by removing the Worker Custom Domain and restoring the recorded Vercel DNS target. Keep the Vercel project until the Cloudflare deployment has remained healthy for the chosen observation period.
+For an application or content regression, roll the Worker back to the preceding successful version.
 
 If the problem came from content, correct or revert it in Notion and rebuild. The tracked Notion Data snapshot can reproduce the prior state locally with `vp run site:build`; rolling back a deployment never writes to Notion.
 

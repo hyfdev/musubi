@@ -94,8 +94,8 @@ Judgments the human actually expressed about architecture — selections, accept
 ### Static deployment target
 
 - **Ruling:** The maintained Musubi example must deploy `dist/client` through Cloudflare Workers Static Assets, not Cloudflare Pages, Void Platform, or a runtime Worker.
-- **Limits:** The Worker has no `main`, assets binding, runtime Notion credentials, or server process. A small checked Wrangler configuration may define static routing behavior that Cloudflare cannot infer safely. `dist/ssr` is a build-time implementation artifact and must never be deployed. The existing Vercel project may remain during migration only as a rollback path and can be removed after the Workers deployment is accepted.
+- **Limits:** The Worker has no `main`, assets binding, runtime Notion credentials, or server process. A small checked Wrangler configuration may define static routing behavior that Cloudflare cannot infer safely. `dist/ssr` is a build-time implementation artifact and must never be deployed.
 - **Why:** Yunfei rejected Pages because it is being retired in favor of Workers, selected Workers explicitly, and required the Void migration to keep Cloudflare deployment. Local verification showed that the checked Wrangler routing is still needed for a visible 404 and slashless canonical URLs.
-- **Source:** Yunfei He (@hyfdev), 2026-07-19 Cloudflare direction and 2026-07-23 Void migration approval; verified locally with Wrangler 4.112.0 static-asset routing.
+- **Source:** Yunfei He (@hyfdev), 2026-07-19 Cloudflare direction and 2026-07-23 Void migration approval plus confirmation that the Cloudflare cutover was already complete; verified locally with Wrangler 4.112.0 static-asset routing.
 
 ## Open
