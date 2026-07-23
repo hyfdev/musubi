@@ -58,7 +58,7 @@ flowchart TB
 
 ## Distribution and trust boundaries
 
-- Musubi is one Void Framework application distributed as source. A user can fork it, connect a Notion workspace that follows the documented two-page contract, provide `NOTION_TOKEN`, `NOTION_DB_PAGE_ID`, and `NOTION_CONFIG_PAGE_ID`, and deploy the default website without editing source or a local configuration file. The private fetcher resolves the sole data source inside each page before querying it.
+- Musubi is one Void Framework application distributed as source. A user can fork it, connect a Notion workspace that supplies the current Database and Config inputs, provide `NOTION_TOKEN`, `NOTION_DB_PAGE_ID`, and `NOTION_CONFIG_PAGE_ID`, and deploy the default website without editing source or a local configuration file. The private fetcher resolves the sole data source inside each page before querying it.
 - The ordinary onboarding model is a dedicated Notion internal integration with only `Read content`, shared with the root containing both data sources. Public OAuth and broader personal workspace credentials are outside the product contract.
 - Notion is the sole canonical editing source for public content and public site settings. Git Markdown, browser-side editing, multiple source adapters, and a public arbitrary-configuration interface are not product capabilities.
 - Notion credentials and live source responses exist only under `scripts/notion/`. Its `index.ts` entry persists the fetched content under the Git-tracked `.musubi/notion-data-snapshot/`; local generation and application components consume those files without importing the Notion SDK or fetching the source.
@@ -82,7 +82,7 @@ The visible Notion page and its sole data source are both named `Database`. The 
 | `Show in Navigation` | `checkbox`     | Optional column; a missing column keeps every Page out of navigation       |
 | `Navigation Order`   | `number`       | Optional column and value; a missing column or empty value means unordered |
 
-The documented default Page template leaves `Show in Navigation` disabled. A site owner explicitly enables it for a Page that belongs in primary navigation. During migration, legacy `Content` values and the former `Date`, `ShowInNavigation`, and `NavigationOrder` property names remain compatible. Draft rows are never public. Invalid enum values, missing required Published fields, duplicate identities, and route conflicts fail generation. The underlying Database page is kept in the Dashboard's `System` area and locked against accidental view or property edits while remaining editable at the row-value level.
+A site owner explicitly enables `Show in Navigation` for a Page that belongs in primary navigation. During migration, legacy `Content` values and the former `Date`, `ShowInNavigation`, and `NavigationOrder` property names remain compatible. Draft rows are never public. Invalid enum values, missing required Published fields, duplicate identities, and route conflicts fail generation. The underlying Database page is kept in the Dashboard's `System` area and locked against accidental view or property edits while remaining editable at the row-value level.
 
 ### Site settings
 
@@ -184,7 +184,7 @@ Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a p
 - A production build refreshes the latest Notion state visible to that build into the same Notion Data shape used locally, then emits provider-neutral `dist/client`. Development and check builds use the Git-tracked Notion Data without source access. Cloudflare Workers Static Assets serves `dist/client` without a Worker script; `dist/ssr`, runtime Notion access, and a running server process are unnecessary. `void.json` uses `target: "node"` because loaders read local snapshot files during generation and `output: "static"` because the deployed site does not execute them.
 - Failure of either authoritative source, invalid required content or settings, an invalid route manifest, a missing required glyph, or an incomplete prerender stops publication. Remote-media reachability is not checked in the initial architecture.
 - Failure of an optional third-party embed remains local to that embed and cannot remove the surrounding article.
-- The maintained example targets the `musubi` Cloudflare Worker and `musubi.hyf.me`; [Production Operations](../../docs/production.md) defines its manual Notion publication trigger, static delivery behavior, cache policy, deployment verification, and Worker version rollback. Automatic Notion webhooks, connecting the separate `hyf.me` personal source, publishing a duplicable Notion template, and formal release operations remain outside the initial product.
+- The maintained example currently targets the `musubi` Cloudflare Worker and `musubi.hyf.me`. Its production operating procedure has not yet been finalized.
 
 ## Architectural decisions
 

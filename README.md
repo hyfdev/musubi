@@ -4,30 +4,6 @@
 
 Musubi is Yunfei's opinionated personal website framework. Notion is the editing surface; a dedicated setup step records its data as local JSON, then Void Framework and Vue validate and typeset that snapshot into a static site.
 
-## Use a fork
-
-You do not need to change source code or create a local website configuration file for the default site. An ordinary `.env.local` stores only the build secret and the two Notion source locators; optional private build inputs such as an alternate font-cache directory may also be set there.
-
-1. Fork this repository.
-2. Create or duplicate a Notion workspace that follows the [Database and Config contract](./docs/notion-workspace.md).
-3. Create a dedicated Notion internal integration with only `Read content`, then share the workspace root with it.
-4. Copy `.env.example` to `.env.local` and fill the token plus both Notion page IDs.
-5. Install, fetch the first Notion Data snapshot, and verify the site through Vite+:
-
-```sh
-vp install
-vp run notion:setup
-vp run ready
-```
-
-`vp run notion:setup` is the only content command that contacts Notion. It writes the tracked snapshot as `.musubi/notion-data-snapshot/config.json` plus one `.musubi/notion-data-snapshot/pages/<notion-page-id>.json` file per Published page. Unchanged pages are reused on later refreshes. `pnpm run dev`, `vp run site:build`, and `vp run ready` consume those files locally and do not contact Notion. `pnpm run build` is `notion:setup` then `site:build`: refresh content first, then the offline static site pipeline.
-
-`package.json` keeps only lifecycle hooks and entry scripts (`dev`, `build`, `preview`). Composable steps live as Vite+ tasks under `vp run` (`site:build`, `notion:setup`, `font:setup`, `font:build`, `ready`, and the rest).
-
-The deployable artifact is `dist/client`. It does not need `dist/ssr`, a running Worker or server process, Notion credentials, or a public content API.
-
-Production deployment, publication, cache, and rollback procedures are documented in [Production Operations](./docs/production.md).
-
 ## Font setup
 
 Musubi self-hosts content-derived Charter and JetBrains Mono subsets so English and code typography do not depend on fonts installed on the reader's device. `font:setup` downloads and verifies the pinned open-licensed WOFF2 sources into the ignored `.musubi/font/latin/` cache; the public build includes only generated content-addressed subsets and the required licenses.

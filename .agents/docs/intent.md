@@ -10,7 +10,7 @@ Musubi is an opinionated, Notion-backed framework for Yunfei's personal website.
 
 ## Success
 
-Musubi succeeds when Yunfei can use Notion as the single editing surface and each deployment either publishes a complete, readable, visually intentional static site from the data fetched for that build or fails clearly without silently omitting or corrupting required content. An ordinary user can fork Musubi, connect the documented Notion workspace, and deploy the default website without changing source code or a local configuration file.
+Musubi succeeds when Yunfei can use Notion as the single editing surface and each deployment either publishes a complete, readable, visually intentional static site from the data fetched for that build or fails clearly without silently omitting or corrupting required content. An ordinary user can fork Musubi, connect a compatible Notion workspace, and deploy the default website without changing source code or a local configuration file.
 
 ## Required website surface
 
@@ -19,7 +19,7 @@ The default website provides a five-Post recent Home, a complete unpaginated chr
 ## Audience and requirement priority
 
 - Musubi primarily serves Yunfei, and Yunfei's own needs remain the main source and driver of its requirements.
-- The documented fork-and-deploy path is a Yunfei-selected requirement. Other ordinary-user needs are considered, but they do not block Yunfei-driven work, take priority over Yunfei's requirements, or redefine the project around downstream users.
+- The fork-and-deploy path is a Yunfei-selected requirement. Other ordinary-user needs are considered, but they do not block Yunfei-driven work, take priority over Yunfei's requirements, or redefine the project around downstream users.
 
 ## Defining qualities
 

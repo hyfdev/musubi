@@ -41,4 +41,3 @@ This record owns Musubi's selected technologies, the few non-default restriction
 - [Visual Frontend Development and Acceptance](./visual-frontend-development-and-acceptance.md) owns the required verification process.
 - Root `vite.config.ts` under `run.tasks` owns the current `ready` composition and task cache settings. `package.json` owns the leaf scripts those tasks call.
 - [DESIGN.md](./DESIGN.md) owns visual tokens and presentation rules.
-- Production operations for the maintained example live in [Production Operations](../../docs/production.md).
