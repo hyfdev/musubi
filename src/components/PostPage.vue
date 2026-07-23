@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Link } from '@void/vue'
 import { formatPublishedDate } from '#shared/site/format'
 import type { PublicPost } from '#shared/site/public'
 import type { SiteConfig } from '#shared/site/types'
@@ -28,7 +29,7 @@ defineProps<{
     <div class="article-column reading-column">
       <ContentRenderer :document="page.document" />
       <nav class="article-end" aria-label="Article navigation" lang="en">
-        <a href="/blog">Back to Blog</a>
+        <Link href="/blog">Back to Blog</Link>
       </nav>
     </div>
   </article>

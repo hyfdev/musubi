@@ -184,7 +184,7 @@ Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a p
 - Social destinations come from `SiteConfig`, not Page rows. Tags remain optional Post metadata without navigation or route behavior.
 - The site provides explicit light and warm dark themes, follows the system preference by default, and offers a reader-controlled choice. Exact tokens, layout, typography, responsive behavior, and the Kami-derived direction live in [DESIGN.md](./DESIGN.md).
 - Locale-sensitive presentation resolves from `SiteConfig`; the repository defaults are `en-SG` and `Asia/Singapore`.
-- The browser receives one static representation of each body. Void emits content-hashed client assets and matching `/_void/pages/*.json` data for hydration and framework navigation, while Musubi deliberately keeps its ordinary internal anchors as full-document navigation. It does not ship a public content API or runtime rendering Worker. Output size and transferred resources are measured from the generated artifact rather than governed by invented targets.
+- The browser receives one static representation of each body. Void emits content-hashed client assets and matching `/_void/pages/*.json` data for hydration and framework navigation. Musubi uses Void links for site-owned cross-page navigation so the browser can reuse those static page-data files without a full document reload; fragment links, downloads, external destinations, and author-owned body links retain ordinary anchor behavior. It does not ship a public content API or runtime rendering Worker. Output size and transferred resources are measured from the generated artifact rather than governed by invented targets.
 
 ## Publication and failure behavior
 

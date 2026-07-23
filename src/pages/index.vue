@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Link } from '@void/vue'
 import ContentRenderer from '../components/content/ContentRenderer.vue'
 import PostList from '../components/PostList.vue'
 import type { HomePageProps } from '#shared/site/public'
@@ -22,7 +23,7 @@ const page = defineProps<HomePageProps>()
       <PostList :posts="page.posts" :config="page.config" :heading-level="3" />
       <!-- The visible mark is punctuation, so the accessible name has to carry the meaning. -->
       <p v-if="page.hasMorePosts" class="home-more-posts">
-        <a href="/blog" lang="en" aria-label="More posts">…</a>
+        <Link href="/blog" lang="en" aria-label="More posts">…</Link>
       </p>
     </section>
   </div>
