@@ -6,7 +6,7 @@ import {
   derivePaperDarkTarget,
   inspectDarkBrandColor,
   oklabDistanceBetweenHex,
-} from './lib/dark-brand-color.ts'
+} from './color.ts'
 
 const PAPER_REFERENCE_VECTORS = [
   ['#1B365D', '#435F93'],

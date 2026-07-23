@@ -5,7 +5,7 @@ import { createServer } from 'node:http'
 import { extname, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-import { verifyStaticArtifact } from './verify-static-artifact.mjs'
+import { verifyStaticArtifact } from './verify.mjs'
 
 const DEFAULT_HOST = '127.0.0.1'
 const DEFAULT_PORT = 4173

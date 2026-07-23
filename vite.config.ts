@@ -77,18 +77,15 @@ const config = {
         cache: false,
       },
       'brand:verify': {
-        command: 'node scripts/verify-brand-color.ts',
+        command: 'node scripts/brand/verify.ts',
         cache: false,
       },
       'brand:check': {
-        command: [
-          'node scripts/verify-brand-color.ts --quick',
-          'node scripts/update-brand-color.ts --check',
-        ],
+        command: ['node scripts/brand/verify.ts --quick', 'node scripts/brand/update.ts --check'],
         cache: false,
       },
       'brand:update': {
-        command: ['vp run brand:verify', 'node scripts/update-brand-color.ts --write'],
+        command: ['vp run brand:verify', 'node scripts/brand/update.ts --write'],
         cache: false,
       },
       'notion:setup': {
@@ -119,16 +116,16 @@ const config = {
         command: 'vp build',
         cache: false,
       },
-      'static:finalize': {
-        command: 'node scripts/finalize-static-artifact.mjs',
+      'site:finalize': {
+        command: 'node scripts/site/finalize.mjs',
         cache: false,
       },
-      'static:serve': {
-        command: 'node scripts/serve-static.mjs',
+      'site:serve': {
+        command: 'node scripts/site/serve.mjs',
         cache: false,
       },
-      artifact: {
-        command: 'node scripts/verify-static-artifact.mjs',
+      'site:verify': {
+        command: 'node scripts/site/verify.mjs',
         cache: false,
       },
       // Offline static site from the on-disk Notion snapshot (no Notion network).
@@ -138,8 +135,8 @@ const config = {
           'vp run font:setup',
           'vp run font:build',
           'vp run void:build',
-          'vp run static:finalize',
-          'vp run artifact',
+          'vp run site:finalize',
+          'vp run site:verify',
         ],
         cache: false,
       },

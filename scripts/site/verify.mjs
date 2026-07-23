@@ -38,7 +38,7 @@ const REQUIRED_HEADER_BLOCKS = [
 ]
 
 async function readExpectedRoutes() {
-  const { loadSiteFromSnapshot } = await import('../src/server/site/get-site.ts')
+  const { loadSiteFromSnapshot } = await import('../../src/server/site/get-site.ts')
   return (await loadSiteFromSnapshot()).routes
 }
 

@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
-import { cacheControlForArtifactPath, createStaticArtifactServer } from './serve-static.mjs'
+import { cacheControlForArtifactPath, createStaticArtifactServer } from './serve.mjs'
 
 const IMMUTABLE_CACHE_CONTROL = 'public, max-age=31536000, immutable'
 const REVALIDATE_CACHE_CONTROL = 'public, max-age=0, must-revalidate'

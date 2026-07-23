@@ -5,7 +5,7 @@
   "scripts": {
     "build": "vp run notion:setup && vp run site:build",
     "dev": "vp run brand:check && vp run font:setup && vp run font:build && vp run void:dev",
-    "preview": "vp run static:serve",
+    "preview": "vp run site:serve",
     "postinstall": "void prepare && vp run font:setup",
     "prepare": "vp config"
   },

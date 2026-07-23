@@ -18,7 +18,7 @@ Traps already paid for in this repository. Each entry states what not to do, why
 
 - **Do not** treat a zero exit from `vp build` as proof that every requested static route exists.
 - Void 0.10.10 logs an individual prerender failure and can still finish the top-level build successfully. Musubi requires complete publication, so a missing page cannot be a warning.
-- **Ruling:** `scripts/verify-static-artifact.mjs` independently requires one flat HTML file and one matching `/_void/pages/*.json` file for every validated route, plus the 404 pair. Keep this gate after every Void build.
+- **Ruling:** `scripts/site/verify.mjs` independently requires one flat HTML file and one matching `/_void/pages/*.json` file for every validated route, plus the 404 pair. Keep this gate after every Void build.
 
 ## Void source-directory conventions are active at the configured root
 

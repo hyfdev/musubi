@@ -6,9 +6,9 @@ import {
   MUSUBI_BRAND_SEED,
   MUSUBI_DARK_ACCENT_BACKGROUNDS,
   deriveDarkBrandColor,
-} from './lib/dark-brand-color.ts'
+} from './color.ts'
 
-const outputUrl = new URL('../src/assets/css/brand.generated.css', import.meta.url)
+const outputUrl = new URL('../../src/assets/css/brand.generated.css', import.meta.url)
 
 function renderGeneratedCss(): string {
   const darkBrandColor = deriveDarkBrandColor(MUSUBI_BRAND_SEED)

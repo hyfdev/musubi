@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
-import { verifyNoGeneratedDeployRedirect, verifyStaticArtifact } from './verify-static-artifact.mjs'
+import { verifyNoGeneratedDeployRedirect, verifyStaticArtifact } from './verify.mjs'
 
 const temporaryDirectories = []
 const HEADER_BLOCKS = {

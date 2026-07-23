@@ -4,7 +4,7 @@ import {
   PAPER_POINTS,
   PAPER_VARIOGRAM,
   type PaperHueReference,
-} from './dark-brand-model.ts'
+} from './model.ts'
 
 type Rgb = [number, number, number]
 
