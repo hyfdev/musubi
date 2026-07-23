@@ -179,6 +179,10 @@ describe('static route completeness', () => {
 })
 
 describe('static delivery controls', () => {
+  it('targets the connected Cloudflare Worker', () => {
+    expect(JSON.parse(renderWranglerConfig()).name).toBe('hyf-me')
+  })
+
   it.each([
     ['HSTS', 'hsts'],
     ['Void asset immutable cache', 'void'],
