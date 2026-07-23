@@ -179,6 +179,10 @@ describe('static route completeness', () => {
 })
 
 describe('static delivery controls', () => {
+  it('targets the current Cloudflare Worker', () => {
+    expect(JSON.parse(renderWranglerConfig()).name).toBe('musubi')
+  })
+
   it.each([
     ['HSTS', 'hsts'],
     ['Void asset immutable cache', 'void'],
