@@ -2,6 +2,12 @@
 
 Traps already paid for in this repository. Each entry states what not to do, why, and what would make the trap obsolete.
 
+## Type checking is split at the Void boundary
+
+- **Do not** add `scripts/notion/` or `scripts/font/` to the Void `tsconfig.json` merely to make `vue-tsc` see them. They are framework-independent build tools, not application source.
+- **Ruling:** `vp run typecheck` first runs `void prepare` plus `vue-tsc --noEmit` for `src/`, then runs ordinary `tsc` with the standalone NodeNext `tsconfig.tooling.json` for `scripts/`, `vite.config.ts`, and `uno.config.ts`. Keep both checks in the complete gate.
+- Vite+ exposes its fork's plugin type, while Void and UnoCSS publish plugins against Vite's public type. TypeScript 6 can crash or exceed its comparison depth when it structurally compares those plugin graphs. `vite.config.ts` therefore narrows only the combined `plugins` value to `UserConfig['plugins']` and checks the rest of the object with `satisfies UserConfig`; real dev and production builds remain the compatibility proof for the plugin list.
+
 ## Void 0.10.10 needs a direct `pathe` dependency
 
 - **Do not** remove direct `pathe@2.0.3` merely because Musubi source does not import it.
@@ -16,8 +22,9 @@ Traps already paid for in this repository. Each entry states what not to do, why
 
 ## Void source-directory conventions are active at the configured root
 
-- **Do not** leave a second root-level `pages/` or `middleware/` directory when `void.json` sets `sourceDir` to `app`.
-- Even an empty convention directory at the wrong root can change project discovery or produce a conflicting structure. Application pages and middleware live only under `app/`; build-time snapshot code remains under `server/site/` because it is imported explicitly.
+- Omitting `sourceDir` makes Void look for its file-based conventions at the project root; Musubi sets it explicitly to `src` to keep those directories together.
+- **Do not** leave a second root-level `pages/` or `middleware/` directory when `void.json` sets `sourceDir` to `src`.
+- Even an empty convention directory at the wrong root can change project discovery or produce a conflicting structure. Application pages and middleware live only under `src/`; build-time snapshot code remains under `src/server/site/` because it is imported explicitly.
 
 ## Static generation runs loaders more than once
 
@@ -32,7 +39,7 @@ Traps already paid for in this repository. Each entry states what not to do, why
 
 ## Visible 404 in Node development
 
-- Void 0.10.10's Node dev server has no generated `404.html` asset before a build. An unknown page therefore has an empty 404 response even though `app/pages/404.vue` exists; forcing an HTML body onto that 404 is stripped by the dev adapter.
+- Void 0.10.10's Node dev server has no generated `404.html` asset before a build. An unknown page therefore has an empty 404 response even though `src/pages/404.vue` exists; forcing an HTML body onto that 404 is stripped by the dev adapter.
 - **Ruling:** Development-only middleware rewrites unknown document paths to the real `/404` page so the recovery UI remains testable; that dev response is 200. The production artifact still contains `404.html`, and Cloudflare's `not_found_handling: "404-page"` returns it with status 404. Remove the rewrite if a future Void version serves the component with a real 404 in dev.
 
 ## UnoCSS preflight removes link underlines

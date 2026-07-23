@@ -70,7 +70,7 @@ pnpm run preview -- --port 4173
 
 The static preview mirrors the production cache contract: HTML, Void page JSON, and stable metadata URLs revalidate with `ETag` and `Last-Modified`, while content-addressed Void assets, generated files, and font subsets use a one-year immutable policy. A deployment host should preserve the same distinction.
 
-`vp run lint` runs Vite+'s code lint and Google's official `designmd lint .agents/docs/DESIGN.md` together. `vp run ready` includes that repository lint task alongside formatting, focused unit tests, Void's Vue-aware type check, local snapshot validation, static generation, and artifact checks. User-facing changes additionally require the real-browser workflow in [Visual Frontend Development and Acceptance](./.agents/docs/visual-frontend-development-and-acceptance.md).
+`vp run lint` runs Vite+'s code lint and Google's official `designmd lint .agents/docs/DESIGN.md` together. `vp run ready` includes that repository lint task alongside formatting, focused unit tests, Void's Vue-aware application type check, an independent strict TypeScript check for Notion and font tooling plus root build configuration, local snapshot validation, static generation, and artifact checks. User-facing changes additionally require the real-browser workflow in [Visual Frontend Development and Acceptance](./.agents/docs/visual-frontend-development-and-acceptance.md).
 
 ## Content behavior
 

@@ -7,8 +7,8 @@ import type {
   LoadedNotionPageSnapshot,
   NotionDataSnapshot,
   NotionMarkdownSnapshot,
-} from '../../scripts/notion/types.ts'
-import { NOTION_SNAPSHOT_SCHEMA_VERSION } from '../../scripts/notion/types.ts'
+} from '../notion-data/types.ts'
+import { NOTION_SNAPSHOT_SCHEMA_VERSION } from '../notion-data/types.ts'
 import type {
   Home,
   Page,

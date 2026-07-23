@@ -1,13 +1,13 @@
 import { lstat, readFile, readdir } from 'node:fs/promises'
 import { basename, join, resolve } from 'node:path'
 
-import { canonicalNotionId } from '../../scripts/notion/id.ts'
+import { canonicalNotionId } from '../../shared/notion-data/id.ts'
 import type {
   LoadedNotionPageSnapshot,
   NotionConfigSnapshot,
   NotionDataSnapshot,
   NotionPageSnapshot,
-} from '../../scripts/notion/types.ts'
+} from '../../shared/notion-data/types.ts'
 
 export const DEFAULT_NOTION_SNAPSHOT_ROOT = resolve('.musubi/notion-data-snapshot')
 

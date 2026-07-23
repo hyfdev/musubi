@@ -27,7 +27,7 @@ The perceptual model is transcribed from Kim, Lee, and Suk, [“Color adjustment
 
 - [`scripts/lib/dark-brand-color.ts`](../../scripts/lib/dark-brand-color.ts) owns the one-input/one-output derivation and the fixed backgrounds where the result is used.
 - [`scripts/lib/dark-brand-model.ts`](../../scripts/lib/dark-brand-model.ts) owns the attributed numeric model and hue table.
-- [`app/assets/css/brand.generated.css`](../../app/assets/css/brand.generated.css) stores the current light and dark values consumed by application CSS.
+- [`src/assets/css/brand.generated.css`](../../src/assets/css/brand.generated.css) stores the current light and dark values consumed by application CSS.
 - `vp run brand:update` runs the full verification and rewrites the generated CSS after the brand seed or approved dark backgrounds change.
 - `vp run brand:check` quickly verifies the paper and generated reference vectors plus the committed generated CSS. Normal generation and visual development run this check before proceeding.
 - `vp run brand:verify` additionally scans 216 representative sRGB inputs for contrast and checks adjacent-input continuity. `vp run ready` includes this full verification.

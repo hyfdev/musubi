@@ -3,7 +3,7 @@ import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { loadSiteFromSnapshot } from '../../server/site/get-site.ts'
+import { loadSiteFromSnapshot } from '../../src/server/site/get-site.ts'
 import { buildPublicFonts, type FontBuildManifest } from './build-fonts.ts'
 import { createPublicFontCorpora } from './corpus.ts'
 import { latinFontCacheDirectory } from './latin-fonts.ts'
@@ -32,10 +32,11 @@ export const FONT_BUILD_REPOSITORY_INPUTS = [
   'package.json',
   'pnpm-lock.yaml',
   'scripts/font',
-  'server/site',
-  'shared/chinese-typography.ts',
-  'shared/content',
-  'shared/site',
+  'src/server/site',
+  'src/shared/chinese-typography.ts',
+  'src/shared/content',
+  'src/shared/notion-data',
+  'src/shared/site',
 ] as const
 
 async function writeFontCss(fonts: FontBuildManifest): Promise<void> {

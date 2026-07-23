@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/void/schema.json",
-  "sourceDir": "app",
+  "sourceDir": "src",
   "target": "node",
   "output": "static"
 }

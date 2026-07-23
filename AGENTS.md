@@ -68,3 +68,4 @@ Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.de
 ## Musubi session rules (outside PCR markers)
 
 - Keep direct `pathe@2.0.3` while Musubi uses Void `0.10.10`, and keep the post-build route plus page-data completeness gate. Full context: [`.agents/docs/gotchas.md`](./.agents/docs/gotchas.md).
+- Use `vp run typecheck` for the complete type gate: `vp check` intentionally does not replace the separate Void/Vue and framework-independent tooling checks. Full context: [`.agents/docs/gotchas.md`](./.agents/docs/gotchas.md).

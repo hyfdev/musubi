@@ -3,7 +3,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { NOTION_SNAPSHOT_SCHEMA_VERSION, type NotionPageSnapshot } from './types.ts'
+import {
+  NOTION_SNAPSHOT_SCHEMA_VERSION,
+  type NotionPageSnapshot,
+} from '../../src/shared/notion-data/types.ts'
 import type { FetchedNotionData } from './source.ts'
 import { replaceNotionSnapshot, stableJson } from './snapshot.ts'
 

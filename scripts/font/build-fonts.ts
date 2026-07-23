@@ -9,7 +9,7 @@ import {
   classifyChineseTypographyText,
   isPotentialChineseTypographyCodePoint,
   type ChineseTypographyCategory,
-} from '../../shared/chinese-typography.ts'
+} from '../../src/shared/chinese-typography.ts'
 import {
   inspectLatinFontCache,
   LATIN_FONT_SOURCES,

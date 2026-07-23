@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 
-import { NOTION_SNAPSHOT_SCHEMA_VERSION } from '../../scripts/notion/types.ts'
+import { NOTION_SNAPSHOT_SCHEMA_VERSION } from '../../shared/notion-data/types.ts'
 import { loadNotionDataSnapshot } from './load-snapshot.ts'
 
 const temporaryDirectories: string[] = []

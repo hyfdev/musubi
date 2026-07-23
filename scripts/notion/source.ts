@@ -8,13 +8,13 @@ import {
   type PageObjectResponse,
 } from '@notionhq/client'
 
-import { canonicalNotionId } from './id.ts'
+import { canonicalNotionId } from '../../src/shared/notion-data/id.ts'
 import {
   NOTION_SNAPSHOT_SCHEMA_VERSION,
   type NotionConfigSnapshot,
   type NotionMarkdownSnapshot,
   type NotionPageSnapshot,
-} from './types.ts'
+} from '../../src/shared/notion-data/types.ts'
 import { mapConcurrent } from './concurrency.ts'
 
 export const NOTION_API_VERSION = '2026-03-11'
@@ -162,7 +162,7 @@ function canReusePage(previous: NotionPageSnapshot | undefined, page: PageObject
     oldPage.last_edited_time === page.last_edited_time &&
     !previous.unknownBlocks.some(
       (block) =>
-        Boolean(block) &&
+        block !== null &&
         typeof block === 'object' &&
         !Array.isArray(block) &&
         'request_id' in block,

@@ -20,16 +20,9 @@ function acceptsHtml(value: string | undefined): boolean {
 function isFrameworkOrAssetRequest(pathname: string): boolean {
   return (
     ['/favicon.ico', '/robots.txt'].includes(pathname) ||
-    [
-      '/_headers',
-      '/assets/',
-      '/_void/',
-      '/_musubi/',
-      '/@',
-      '/app/',
-      '/shared/',
-      '/node_modules/',
-    ].some((prefix) => pathname.startsWith(prefix))
+    ['/_headers', '/assets/', '/_void/', '/_musubi/', '/@', '/src/', '/node_modules/'].some(
+      (prefix) => pathname.startsWith(prefix),
+    )
   )
 }
 

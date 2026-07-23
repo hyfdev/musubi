@@ -1,7 +1,7 @@
 import { defineHandler, defineHead } from 'void'
-import { getSite } from '../../../server/site/get-site.ts'
-import type { BlogPageProps } from '../../../shared/site/public.ts'
-import { contentToPublicPageMeta } from '../../../shared/site/types.ts'
+import { getSite } from '../../server/site/get-site.ts'
+import type { BlogPageProps } from '../../shared/site/public.ts'
+import { contentToPublicPageMeta } from '../../shared/site/types.ts'
 
 export const loader = defineHandler<BlogPageProps>(async () => {
   const site = await getSite()

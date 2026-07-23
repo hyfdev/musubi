@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vite-plus/test'
-import { classifyChineseTypographyText } from '../../shared/chinese-typography.ts'
+import { classifyChineseTypographyText } from '../../src/shared/chinese-typography.ts'
 import {
   extractFontCorporaFromAst,
   extractInlineTypographyContext,
-} from '../../shared/content/corpus.ts'
-import type { MusubiDocument } from '../../shared/content/types.ts'
-import type { Home, Site } from '../../shared/site/types.ts'
+} from '../../src/shared/content/corpus.ts'
+import type { MusubiDocument } from '../../src/shared/content/types.ts'
+import type { Home, Site } from '../../src/shared/site/types.ts'
 import { createPublicFontCorpora } from './corpus.ts'
 
 const homeDocument: MusubiDocument = {
@@ -101,7 +101,7 @@ describe('public font corpus', () => {
     const document: MusubiDocument = {
       type: 'document',
       pageLabel: 'Code language',
-      children: [{ type: 'code', language: 'typescript', value: 'x' }],
+      children: [{ type: 'code', language: 'typescript', value: 'x', highlight: null }],
       tableOfContents: [],
     }
 

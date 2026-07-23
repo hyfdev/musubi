@@ -4,8 +4,8 @@ import { resolve } from 'node:path'
 import { defineMiddleware } from 'void'
 import { shouldRewriteUnknownDocumentRequest } from '../lib/site/dev-not-found.ts'
 import { interactionScript } from '../lib/site/interaction-script.ts'
-import { getSite } from '../../server/site/get-site.ts'
-import type { PublicSiteShell } from '../../shared/site/public.ts'
+import { getSite } from '../server/site/get-site.ts'
+import type { PublicSiteShell } from '../shared/site/public.ts'
 
 declare module 'void' {
   interface CloudContextVariables {

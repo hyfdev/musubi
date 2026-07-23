@@ -16,8 +16,8 @@ describe('font build cache', () => {
   it('invalidates when the shared Chinese typography classifier changes', async () => {
     const root = await mkdtemp(join(tmpdir(), 'musubi-font-fingerprint-'))
     temporaryDirectories.push(root)
-    const classifier = join(root, 'shared/chinese-typography.ts')
-    await mkdir(join(root, 'shared'), { recursive: true })
+    const classifier = join(root, 'src/shared/chinese-typography.ts')
+    await mkdir(join(root, 'src/shared'), { recursive: true })
     await writeFile(classifier, 'export const classifier = 1\n')
     const options = {
       root,

@@ -1,6 +1,6 @@
-import { extractFontCorporaFromAst } from '../../shared/content/corpus.ts'
-import { formatPublishedDate } from '../../shared/site/format.ts'
-import type { Site } from '../../shared/site/types.ts'
+import { extractFontCorporaFromAst } from '../../src/shared/content/corpus.ts'
+import { formatPublishedDate } from '../../src/shared/site/format.ts'
+import type { Site } from '../../src/shared/site/types.ts'
 import type { FontCorpora } from './build-fonts.ts'
 
 const applicationText = [

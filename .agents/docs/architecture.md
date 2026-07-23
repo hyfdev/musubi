@@ -117,18 +117,7 @@ A repository-owned `defaultSiteConfig: SiteConfig` supplies field-level fallback
 Musubi keeps the data path divided by responsibility:
 
 ```text
-shared/
-  site/
-    types.ts
-    create.ts
-  content/
-    types.ts
-    parse.ts
-server/
-  site/
-    load-snapshot.ts
-    get-site.ts
-app/
+src/
   middleware/
     01.site.ts
   pages/
@@ -136,16 +125,32 @@ app/
     *.server.ts
     *.vue
   components/
+  server/
+    site/
+      load-snapshot.ts
+      get-site.ts
+  shared/
+    notion-data/
+      id.ts
+      types.ts
+    site/
+      types.ts
+      create.ts
+    content/
+      types.ts
+      parse.ts
 ```
 
-- `server/site/load-snapshot.ts` owns filesystem access and validates `.musubi/notion-data-snapshot/config.json` plus every file under `pages/`. It makes no source-network request.
-- Pure code under `shared/site/` and `shared/content/` converts the snapshot into one in-memory `Site`. `Site` contains one `SiteConfig`, ordered `Post[]` and `Page[]` collections, a route lookup, navigation, and parsed `MusubiDocument` values. `Post` and `Page` share identity, title, slug, route, description, and document fields; a `Post` additionally requires a publication date, while a `Page` carries navigation visibility and optional ordering.
+- `void.json` sets `sourceDir` to `src`, so `src/pages/`, `src/middleware/`, and any future Void convention directories under `src/` receive Void's file-based behavior. `src/components/`, `src/server/`, and `src/shared/` are ordinary Musubi names rather than separate Void conventions; their modules participate only when imported or inspected by Void's source analysis. Root `scripts/` stays outside the framework source tree.
+- `src/shared/notion-data/` owns only the framework-neutral persisted file types and pure Notion ID normalization used by both the producer and consumer. It imports neither Void nor the Notion SDK and performs no network or filesystem access.
+- `src/server/site/load-snapshot.ts` owns filesystem access and validates `.musubi/notion-data-snapshot/config.json` plus every file under `pages/` against that contract. It makes no source-network request.
+- Pure code under `src/shared/site/` and `src/shared/content/` converts the snapshot into one in-memory `Site`. `Site` contains one `SiteConfig`, ordered `Post[]` and `Page[]` collections, a route lookup, navigation, and parsed `MusubiDocument` values. `Post` and `Page` share identity, title, slug, route, description, and document fields; a `Post` additionally requires a publication date, while a `Page` carries navigation visibility and optional ordering.
 - Config defaults and validation, the `Post` or `Page` choice, Markdown parsing, route construction, collision checks, Home's five newest Posts, the complete Blog order, and navigation are derived in memory. None are written back into the snapshot or into another aggregate file.
-- `server/site/get-site.ts` creates the `Site` once per Node process during production generation. Development recreates it after a snapshot file changes. A missing or invalid file, duplicate slug, route conflict, invalid Config value, or unparseable required body fails with the responsible snapshot filename and source context.
-- `app/middleware/01.site.ts` supplies public Config, navigation, and shared head defaults to every rendered page. It never exposes the complete `Site`.
-- Each `app/pages/*.server.ts` loader is a thin build-time view of that `Site`: Home returns Config and five Posts, Blog returns Config and all Posts, and dynamic page loaders return one matching public `Post` or `Page`. `shared/site/public.ts` is the serialization boundary and deliberately removes internal snapshot labels before HTML or page JSON is written.
+- `src/server/site/get-site.ts` creates the `Site` once per Node process during production generation. Development recreates it after a snapshot file changes. A missing or invalid file, duplicate slug, route conflict, invalid Config value, or unparseable required body fails with the responsible snapshot filename and source context.
+- `src/middleware/01.site.ts` supplies public Config, navigation, and shared head defaults to every rendered page. It never exposes the complete `Site`.
+- Each `src/pages/*.server.ts` loader is a thin build-time view of that `Site`: Home returns Config and five Posts, Blog returns Config and all Posts, and dynamic page loaders return one matching public `Post` or `Page`. `src/shared/site/public.ts` is the serialization boundary and deliberately removes internal snapshot labels before HTML or page JSON is written.
 - Dynamic pages derive `getPrerenderPaths()` from the same snapshot-to-Site code instead of reading a separate route manifest. Void requests each route once for HTML and once for page JSON; those repeated loaders are read-only, and `getSite()` keeps the parsed Site cached per production build process.
-- `app/pages/*.vue` selects the appropriate view, while `app/components/` renders the supplied serializable data. Browser code never reads the snapshot or receives the complete `Site`.
+- `src/pages/*.vue` selects the appropriate view, while `src/components/` renders the supplied serializable data. Browser code never reads the snapshot or receives the complete `Site`.
 - X URLs and remote-media URLs pass through this conversion as inert content data; the conversion performs no network request. Font generation and any future external enrichment stay outside it.
 
 ## Slug and route contract
@@ -186,7 +191,7 @@ Musubi does not generate paginated Blog routes, tag routes, Draft routes, or a p
 - The source boundary is Git-tracked Notion Data: one Config Data JSON file and one Page Data JSON file per Published page. This keeps source access outside local generation, avoids repeated Notion fetches during development and checks, and keeps ordinary Git diffs local to the changed page. The human-vouched ruling and its limits live in [Architecture decisions](./architecture-decisions.md#git-tracked-notion-data-boundary).
 - Notion retrieval is an external script subsystem rooted at `scripts/notion/index.ts`; its sole content output is the Git-tracked `.musubi/notion-data-snapshot/`. The site build consumes those files directly and performs Musubi-specific conversion in memory instead of writing a second aggregate such as `.musubi/site.json`. The ruling and its limits live in [Architecture decisions](./architecture-decisions.md#notion-code-and-snapshot-locations).
 - Font setup and generation live under `scripts/font/`; their repository-local inputs, caches, and working data stay under the Git-ignored `.musubi/font/`. The location ruling and its limits live in [Architecture decisions](./architecture-decisions.md#font-code-and-working-data-locations).
-- Void loaders read the snapshot through `server/site/`, create its typed `Site` in memory with pure `shared/` code, expose only explicit public build-time views to pages, and never persist that Site as another aggregate. The flow and its limits live in [Architecture decisions](./architecture-decisions.md#snapshot-consumption-and-rendering-flow).
+- Void loaders read the snapshot through `src/server/site/`, create its typed `Site` in memory with pure `src/shared/` code, expose only explicit public build-time views to pages, and never persist that Site as another aggregate. The flow and its limits live in [Architecture decisions](./architecture-decisions.md#snapshot-consumption-and-rendering-flow).
 - Snapshot files use stable Notion page IDs and deterministic JSON, refresh atomically from the complete Published roster, and reuse only version-compatible unchanged pages. The vouched contract lives in [Architecture decisions](./architecture-decisions.md#snapshot-content-and-refresh).
 - Media remains remote initially, and X remains a URL without build-time enrichment. These intentionally simple boundaries live in [Notion media remains remote initially](./architecture-decisions.md#notion-media-remains-remote-initially) and [X data stays a URL](./architecture-decisions.md#x-data-stays-a-url).
 - User-facing entries are package scripts `dev`, `build`, and `preview`, plus Vite+ tasks such as `notion:setup`, `font:setup` / `font:build`, `site:build`, and `ready`. Void's Vite build remains an implementation detail inside `site:build`. The exact boundary lives in [User-facing task and network boundary](./architecture-decisions.md#user-facing-task-and-network-boundary).

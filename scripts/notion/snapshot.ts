@@ -2,7 +2,10 @@ import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/
 import { join, resolve } from 'node:path'
 
 import type { FetchedNotionData } from './source.ts'
-import type { NotionConfigSnapshot, NotionPageSnapshot } from './types.ts'
+import type {
+  NotionConfigSnapshot,
+  NotionPageSnapshot,
+} from '../../src/shared/notion-data/types.ts'
 
 export const NOTION_SNAPSHOT_ROOT = resolve('.musubi/notion-data-snapshot')
 

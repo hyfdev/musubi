@@ -491,19 +491,21 @@ export function inspectDarkBrandColor(seed: string): DarkBrandColorDetails {
     H: desired.H,
   })
   const desiredPoint = oklabPoint(desired)
-  let bestCandidate: Candidate | null = null
-  let bestDistance = Number.POSITIVE_INFINITY
+  const best: { candidate: Candidate | null; distance: number } = {
+    candidate: null,
+    distance: Number.POSITIVE_INFINITY,
+  }
   const consider = (candidate: Candidate): void => {
     if (!candidatePasses(candidate)) return
     const distance = oklabDistanceSquared(candidate, desiredPoint)
     const candidateHex = rgbToHex(candidate.rgb)
-    const bestHex = bestCandidate ? rgbToHex(bestCandidate.rgb) : ''
+    const bestHex = best.candidate ? rgbToHex(best.candidate.rgb) : ''
     if (
-      distance < bestDistance - 1e-12 ||
-      (Math.abs(distance - bestDistance) <= 1e-12 && candidateHex < bestHex)
+      distance < best.distance - 1e-12 ||
+      (Math.abs(distance - best.distance) <= 1e-12 && candidateHex < bestHex)
     ) {
-      bestCandidate = candidate
-      bestDistance = distance
+      best.candidate = candidate
+      best.distance = distance
     }
   }
 
@@ -513,11 +515,11 @@ export function inspectDarkBrandColor(seed: string): DarkBrandColorDetails {
     consider(candidateAtOklch({ L: index / SEARCH_STEPS, C: desired.C, H: desired.H }))
   }
 
-  if (!bestCandidate) {
+  if (!best.candidate) {
     throw new Error(`No accessible dark brand color could be generated for ${seedHex}`)
   }
 
-  const darkHex = rgbToHex(bestCandidate.rgb)
+  const darkHex = rgbToHex(best.candidate.rgb)
   const onColor = chooseOnColor(darkHex)
   return {
     seedHex,

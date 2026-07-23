@@ -1,5 +1,5 @@
 import { defineHandler, defineHead } from 'void'
-import { getSite } from '../../server/site/get-site.ts'
+import { getSite } from '../server/site/get-site.ts'
 
 export interface NotFoundPageProps {
   title: string

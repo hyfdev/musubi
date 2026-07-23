@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import {
-  NOTION_SNAPSHOT_SCHEMA_VERSION,
-  type NotionDataSnapshot,
-} from '../../scripts/notion/types.ts'
+import { NOTION_SNAPSHOT_SCHEMA_VERSION, type NotionDataSnapshot } from '../notion-data/types.ts'
 import { createSite, normalizeNotionContentType } from './create.ts'
 
 describe('legacy Notion content type compatibility', () => {

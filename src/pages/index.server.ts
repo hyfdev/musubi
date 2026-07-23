@@ -1,8 +1,8 @@
 import { defineHandler, defineHead } from 'void'
-import { getSite } from '../../server/site/get-site.ts'
-import { toPublicHome } from '../../shared/site/public.ts'
-import type { HomePageProps } from '../../shared/site/public.ts'
-import { contentToPublicPageMeta } from '../../shared/site/types.ts'
+import { getSite } from '../server/site/get-site.ts'
+import { toPublicHome } from '../shared/site/public.ts'
+import type { HomePageProps } from '../shared/site/public.ts'
+import { contentToPublicPageMeta } from '../shared/site/types.ts'
 
 export const loader = defineHandler<HomePageProps>(async () => {
   const site = await getSite()

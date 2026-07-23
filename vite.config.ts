@@ -2,17 +2,20 @@ import { fileURLToPath } from 'node:url'
 
 import { voidVue } from '@void/vue/plugin'
 import UnoCSS from 'unocss/vite'
-import { defineConfig } from 'vite-plus'
+import { defineConfig, type UserConfig } from 'vite-plus'
 import { voidPlugin } from 'void'
 
 const fontSetup = 'node --env-file-if-exists=.env.local scripts/font/index.ts'
 const notionSetup = 'node --env-file-if-exists=.env.local scripts/notion/index.ts'
 
-export default defineConfig({
-  plugins: [...voidPlugin(), ...voidVue(), ...UnoCSS()],
+const config = {
+  // Vite+ exposes its fork's Plugin type, while Void and UnoCSS publish against Vite's public
+  // Plugin type. Keep that package-type mismatch at this boundary; dev and build verify runtime
+  // compatibility, while `satisfies UserConfig` still checks every other configuration field.
+  plugins: [...voidPlugin(), ...voidVue(), ...UnoCSS()] as UserConfig['plugins'],
   resolve: {
     alias: {
-      '#shared': fileURLToPath(new URL('./shared', import.meta.url)),
+      '#shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
     },
   },
   fmt: {
@@ -66,7 +69,7 @@ export default defineConfig({
         cache: false,
       },
       typecheck: {
-        command: 'vp run void:typecheck',
+        command: ['vp run void:typecheck', 'vp run tooling:typecheck'],
         cache: false,
       },
       test: {
@@ -106,6 +109,10 @@ export default defineConfig({
       },
       'void:typecheck': {
         command: ['void prepare', 'vue-tsc --noEmit'],
+        cache: false,
+      },
+      'tooling:typecheck': {
+        command: 'tsc --noEmit -p tsconfig.tooling.json',
         cache: false,
       },
       'void:build': {
@@ -149,4 +156,6 @@ export default defineConfig({
       },
     },
   },
-})
+} satisfies UserConfig
+
+export default defineConfig(config)
