@@ -250,7 +250,7 @@ The visual direction follows Kami's paper-like restraint while adapting it to re
 
 The characteristic element is the tension between a quiet paper surface and one controlled Suō-red accent. The accent marks links, focus, current position, and structural emphasis; it must never become a large decorative field. Chinese JinKai and English Charter provide the site's personality, while JetBrains Mono and unmodified GitHub syntax themes make code utilitarian and familiar.
 
-Musubi's built-in reader interface is English-only in the initial release. Author-owned titles, summaries, Pages, Posts, captions, site identity, and navigation remain in the language in which they are written. The document language setting continues to govern metadata and locale-sensitive date formatting; framework-owned English strings must be marked as English when the surrounding document uses another language.
+Musubi's built-in reader interface is English-only in the initial release. The author-owned Home opening, titles, summaries, Pages, Posts, captions, site identity, and navigation remain in the language in which they are written. The document language setting continues to govern metadata and locale-sensitive date formatting; framework-owned English strings must be marked as English when the surrounding document uses another language.
 
 ## Colors
 

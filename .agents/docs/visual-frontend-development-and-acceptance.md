@@ -45,7 +45,7 @@ Use this loop for changes to visible UI, layout, content presentation, themes, r
 ### 5. Exercise the affected workflow
 
 - Start from a known content and browser state.
-- Exercise `/`, `/blog`, one `/blog/:slug` Post, one `/:slug` Page, one missing route, and direct entry plus hard refresh for each affected route family. Confirm that Home contains at most five recent Posts, Blog contains the complete year-grouped archive, no paginated Blog or tag route is exposed, and no broken navigation entry appears.
+- Exercise `/`, `/blog`, one `/blog/:slug` Post, one `/:slug` Page, one missing route, and direct entry plus hard refresh for each affected route family. When a Published Home row exists, confirm that its authored opening renders above at most five recent Posts; without one, Home begins with that list. Confirm that Blog contains the complete year-grouped archive, no paginated Blog or tag route is exposed, and no broken navigation entry appears.
 - Inspect navigation with visible, hidden, ordered, and missing-order Page rows when those states are affected. For an affected X post reference, verify the safe ordinary X-link representation on direct entry and client-side navigation. Verify that Notion refresh, static generation, and browser rendering make no X metadata, oEmbed, widget-script, iframe, or other X provider request.
 - Perform the actual user actions needed to reach the affected state, including keyboard, pointer, focus, hover, scroll, or responsive interactions when relevant.
 - Inspect page errors, console errors, failed transport requests, HTTP responses with status `400` or higher, and unexpected application warnings.

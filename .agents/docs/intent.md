@@ -6,7 +6,7 @@ This is the selected product goal for the current architecture and implementatio
 
 ## Goal
 
-Musubi is an opinionated, Notion-backed framework for Yunfei's personal website. It turns articles, standalone pages, and public site settings maintained in Notion into a static website at deployment.
+Musubi is an opinionated, Notion-backed framework for Yunfei's personal website. It turns articles, an optional authored Home opening, standalone pages, and public site settings maintained in Notion into a static website at deployment.
 
 ## Success
 
@@ -14,7 +14,7 @@ Musubi succeeds when Yunfei can use Notion as the single editing surface and eac
 
 ## Required website surface
 
-The default website provides a five-Post recent Home, a complete unpaginated chronological Blog archive, Post pages, and standalone Pages. Tags may remain article metadata, but the default website does not expose tag routes. Additional collections, taxonomies, and user-defined page types are added only for a concrete Yunfei requirement.
+The default website provides an optional authored Home opening followed by five recent Posts, a complete unpaginated chronological Blog archive, Post pages, and standalone Pages. Tags may remain article metadata, but the default website does not expose tag routes. Additional collections, taxonomies, and user-defined page types are added only for a concrete Yunfei requirement.
 
 ## Audience and requirement priority
 
